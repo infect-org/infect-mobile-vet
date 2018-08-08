@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Dimensions, Text, StyleSheet } from 'react-native';
+import { View, Dimensions, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, observable, action } from 'mobx';
 import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
 import Resistance from '../resistance/Resistance';
+import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -73,10 +74,6 @@ export default class Matrix extends React.Component {
 
                 <View style={ styles.container }>
 
-                    { /* <Text style={ [{ borderTopWidth: 50 }] }>
-                        Radius: { this.props.matrix.defaultRadius }
-                    </Text> */ }
-
                     { /* Antibiotics */ }
                     <View
                         style={ [
@@ -107,7 +104,17 @@ export default class Matrix extends React.Component {
                         )) }
                     </View>
 
-                    {/* Resistances */ }
+                    { /* Vertical lines (substance class dividers)
+                         Only display after we know where to put them */ }
+                    { this.props.matrix.defaultRadius &&
+                        this.props.matrix.substanceClasses.map(sc => (
+                            <SubstanceClassDivider
+                                key={ sc.substanceClass.id }
+                                matrix={ this.props.matrix }
+                                substanceClass={ sc } />
+                        )) }
+
+                    { /* Resistances */ }
                     { this.props.matrix.defaultRadius &&
                         <View
                             style={ [

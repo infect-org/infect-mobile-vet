@@ -7,7 +7,15 @@ import StatusBarHeight from '@expo/status-bar-height';
 import InfectApp from 'infect-frontend-logic';
 import Matrix from './src/components/matrix/Matrix';
 import styleDefinitions from './src/helpers/styleDefinitions';
+import Sentry from 'sentry-expo';
 
+
+// Remove this once Sentry is correctly setup.
+// See https://docs.expo.io/versions/latest/guides/using-sentry
+Sentry.enableInExpoDevelopment = true;
+Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').install();
+
+// Make sure MobX throws if we're not using actions
 useStrict(true);
 
 @observer

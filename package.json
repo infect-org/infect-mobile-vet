@@ -11,7 +11,8 @@
     "mobx": "^3.6.2",
     "mobx-react": "^4.4.3",
     "react": "16.3.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz"
+    "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz",
+    "sentry-expo": "^1.9.0"
   },
   "//": "Dependencies: Make sure you use the same packages and versions as in frontend!",
   "devDependencies": {
