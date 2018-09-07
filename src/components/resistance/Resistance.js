@@ -28,7 +28,7 @@ export default class Resistance extends React.Component {
         const xPos = this.props.resistance.xPosition;
         const yPos = this.props.resistance.yPosition;
         const minRadius = this.circleMinWidth / 2;
-        const left = xPos.left - minRadius;
+        const left = xPos.left - minRadius + this.props.matrix.defaultRadius;
         return { left, top: yPos.top, width: this.circleMinWidth };
     }
 

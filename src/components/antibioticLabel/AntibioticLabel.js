@@ -77,8 +77,11 @@ export default class AntibioticLabel extends React.Component {
         // position anything
         if (!this.props.matrix.defaultRadius) return 0;
         // Label must be at the top for android; at the bottom for iOS
-        const top = Platform.OS === 'android' ? 0 :
-            this.props.matrix.antibioticLabelRowHeight * this.props.maxZoom;
+        let top;
+        if (Platform.OS === 'android') top = 0;
+        else {
+            top = this.props.matrix.antibioticLabelRowHeight * this.props.maxZoom;
+        }
         return top;
     }
 

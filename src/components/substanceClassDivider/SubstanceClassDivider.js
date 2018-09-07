@@ -9,7 +9,7 @@ export default class SubstanceClassDivider extends React.Component {
 
     @computed get dividerStyle() {
         const style = {
-            left: this.props.substanceClass.xPosition.left - this.props.matrix.defaultRadius,
+            left: this.props.substanceClass.xPosition.left,
             backgroundColor: this.props.substanceClass.lineColor,
             height: this.matrixHeight,
             top: 0,

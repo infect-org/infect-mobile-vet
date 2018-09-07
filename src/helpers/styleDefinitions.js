@@ -21,7 +21,8 @@ export default {
         letterSpacing: -0.4,
     },
     colors: {
-        green: '#cbe264',
+        green: '#cbe264', // c7ed61
         error: '#d82222',
+        blackGreen: '#31330b',
     },
 };

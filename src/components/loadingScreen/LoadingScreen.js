@@ -82,9 +82,11 @@ const styles = StyleSheet.create({
         ...styleDefinitions.fonts.bold,
         fontSize: 14,
         marginBottom: 20,
+        color: styleDefinitions.colors.blackGreen,
     },
     loadingScreenEntityStatus: {
         ...styleDefinitions.fonts.condensed,
         fontSize: 14,
+        color: styleDefinitions.colors.blackGreen,
     },
 });

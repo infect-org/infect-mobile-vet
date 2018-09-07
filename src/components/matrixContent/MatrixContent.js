@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Dimensions, StyleSheet } from 'react-native';
+import { View, Dimensions, StyleSheet, Platform } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, observable, action } from 'mobx';
 import Animated from 'react-native-reanimated';
@@ -8,7 +8,6 @@ import AntibioticLabelsContainer from '../antibioticLabelsContainer/AntibioticLa
 import Resistance from '../resistance/Resistance';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
 import log from '../../helpers/log';
-import styleDefinitions from '../../helpers/styleDefinitions';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -21,6 +20,8 @@ const { max, min, divide } = Animated;
 export default class MatrixContent extends React.Component {
 
     width = Math.max(windowWidth, 1200);
+
+    contentElement = React.createRef();
 
     /**
      * Number of resistances that were successfully rendered. Hide loading screen after all of them
@@ -84,8 +85,24 @@ export default class MatrixContent extends React.Component {
         log('default radius is %o', this.props.matrix.defaultRadius);
     }
 
+    /**
+     * Fucking fuck: Android only fires onLayout when it *changes* for content (not for container
+     * though) but not when it's initialized. We have to get the dimensions somehow to pass them
+     * to PinchPan
+     */
+    /* componentDidUpdate() {
+        if (Platform.OS === 'iOS') return;
+        if (this.contentElement.current) {
+            this.contentElement.current.measure((dimensions) => {
+                console.log('measured', dimensions);
+                this.props.handleContentLayout(dimensions);
+            });
+            console.log('measure now', this.contentElement.current.measure());
+        }
+    } */
+
+
     @computed get halfSpace() {
-        console.log('space', this.props.matrix.spaceBetweenGroups);
         return this.props.matrix.spaceBetweenGroups / 2;
     }
 
@@ -180,6 +197,7 @@ export default class MatrixContent extends React.Component {
     }
 
 
+
     render() {
 
         log('MatrixContent: Render');
@@ -193,14 +211,14 @@ export default class MatrixContent extends React.Component {
                 { this.props.matrix.defaultRadius &&
                     <View
                         style={[styles.resistancesContainer, {
-                            left: this.bacteriumLabelColumnWidth + this.halfSpace,
+                            left: this.bacteriumLabelColumnWidth +
+                                (this.props.matrix.defaultRadius || 0),
                             top: this.antibioticLabelRowHeight + this.halfSpace,
                             width: windowWidth - this.bacteriumLabelColumnWidth - this.halfSpace,
                             height: windowHeight - this.antibioticLabelRowHeight - this.halfSpace,
                         }]}
-                        onLayout={this.props.handleContainerLayout}
+                        onLayout={ev => this.props.handleContainerLayout(ev.nativeEvent.layout)}
                     >
-
 
                         { /* Vertical lines (substance class dividers; below resistances)
                              Only display after we know where to put them */ }
@@ -224,25 +242,35 @@ export default class MatrixContent extends React.Component {
 
 
                         { /* Resistances: Below labels */ }
-                        <Animated.View
-                            onLayout={this.props.handleContentLayout}
+                        { /* Moved container into its own (non-animated) view hoping onLayout would
+                             fire on android on initial load – which it doesn't seem to do */ }
+                        <View
+                            onLayout={ev => this.props.handleContentLayout(ev.nativeEvent.layout)}
+                            ref={this.contentElement}
                             style={[
                                 styles.resistanceCirclesContainer,
                                 {
                                     width: this.visibleAntibioticsWidth,
                                     height: this.visibleBacteriaHeight,
                                 },
-                                this.getPanPinchTransformation(),
-                            ]}>
-                            { this.props.matrix.resistances.map(res => (
-                                <Resistance
-                                    key={this.getResistanceKey(res)}
-                                    matrix={this.props.matrix}
-                                    resistance={res}
-                                    onRender={this.resistanceRendered}
-                                />
-                            ))}
-                        </Animated.View>
+                            ]}
+                        >
+                            <Animated.View
+                                style={[
+                                    styles.container,
+                                    this.getPanPinchTransformation(),
+                                ]}
+                            >
+                                { this.props.matrix.resistances.map(res => (
+                                    <Resistance
+                                        key={this.getResistanceKey(res)}
+                                        matrix={this.props.matrix}
+                                        resistance={res}
+                                        onRender={this.resistanceRendered}
+                                    />
+                                ))}
+                            </Animated.View>
+                        </View>
                     </View>
 
                 }
@@ -261,6 +289,7 @@ export default class MatrixContent extends React.Component {
                     ]}
                 >
                     <AntibioticLabelsContainer
+                        style={{ left: this.halfSpace }}
                         matrix={this.props.matrix}
                         animatedLeft={this.props.animatedLeft}
                         animatedZoom={this.cappedLabelZoom}
@@ -293,19 +322,11 @@ export default class MatrixContent extends React.Component {
                         matrix={this.props.matrix}/>
                 </View>
 
-
-                { /* Filter button */ }
-                <View style={[
-                    styles.filterButtonOuterContainer,
-                    {
-                        width: this.bacteriumLabelColumnWidth,
-                        height: this.antibioticLabelRowHeight,
-                    },
-                ]}>
-                    <View style={styles.filterButtonInnerContainer}>
-                        <View style={styles.filterButton} />
-                    </View>
-                </View>
+                { /* Mask at the top left corner to hide labels */ }
+                <View style={[styles.topLeftCorner, {
+                    width: this.bacteriumLabelColumnWidth,
+                    height: this.antibioticLabelRowHeight,
+                }]} />
 
             </View>
         );
@@ -341,27 +362,16 @@ const styles = StyleSheet.create({
     },
     resistanceCirclesContainer: {
         position: 'absolute',
+        top: 20,
         // borderWidth: 1,
         // borderColor: 'pink',
     },
-    filterButton: {
-        borderRadius: 25,
-        height: 50,
-        width: 50,
-        backgroundColor: styleDefinitions.colors.green,
-    },
-    filterButtonInnerContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+    topLeftCorner: {
+        backgroundColor: 'white',
         // borderWidth: 1,
         // borderColor: 'purple',
-    },
-    filterButtonOuterContainer: {
+        position: 'absolute',
         top: 0,
         left: 0,
-        position: 'absolute',
-        // backgroundColor: 'tomato',
-        backgroundColor: 'white',
     },
 });
