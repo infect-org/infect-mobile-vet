@@ -5,10 +5,9 @@
     ],
     "rules": {
         "react/prop-types": 0,
-        // For styles
         "no-use-before-define": 0,
-        "no-console": 0,
-        "no-mixed-operators: 0
+        //"no-console": 0,
+        "no-mixed-operators": 0
     },
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
 }

@@ -1,13 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, Text, StatusBar } from 'react-native';
+import { StyleSheet, View, StatusBar } from 'react-native';
 import { observer } from 'mobx-react';
-import { useStrict, observable, computed, action } from 'mobx';
-import { Constants } from 'expo';
-import StatusBarHeight from '@expo/status-bar-height';
-import InfectApp from 'infect-frontend-logic';
-import Matrix from './src/components/matrix/Matrix';
-import styleDefinitions from './src/helpers/styleDefinitions';
+import { configure, observable, action, trace } from 'mobx';
+// import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
+import InfectApp from 'infect-frontend-logic';
+import appConfig from './app.json';
+
+import config from './src/config';
+import Matrix from './src/components/matrix/Matrix';
+// import styleDefinitions from './src/helpers/styleDefinitions';
+import ErrorMessages from './src/components/errorMessages/ErrorMessages';
+import LoadingScreen from './src/components/loadingScreen/LoadingScreen';
+import log from './src/helpers/log';
 
 
 // Remove this once Sentry is correctly setup.
@@ -16,106 +21,101 @@ Sentry.enableInExpoDevelopment = true;
 Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').install();
 
 // Make sure MobX throws if we're not using actions
-useStrict(true);
+configure({ enforceActions: true });
 
+/**
+ * Basic app. Especially handles
+ * - App (models) setup
+ * - Basic layout (matrix, errors, loading screen)
+ * - Status bar (don't display it at all) – we probably could remove all corresponding except
+ *   <StatusBar hidden={ true } />; not sure if view that covers status bar is needed.
+ *
+ * Logging:
+ * - Errors are logged to sentry (see app.json)
+ * - Regular logs (imported from helpers/log) are logged to console (if testing locally) and
+ *   loggly.com (for published apps)
+ */
 @observer
 export default class App extends React.Component {
 
-    @observable renderingDone = false;
-    @observable statusBarHeight = 0;
+    /**
+     * Boah, that was a tough nut to crack: If we use a bool here, the whole app will re-render
+     * every time it changes – while we only want to re-render the loading screen. To do so, we
+     * have to use an object.
+     * *If* we'd re-render the whole app, all gesture handlers on the matrix would be fucked up
+     * after re-rendering is done (IDK why).
+     */
+    @observable rendering = { done: false };
 
     constructor() {
         super();
-
-        const config = {
-            endpoints: {
-                apiPrefix: 'https://rda.infect.info/',
-                bacteria: 'pathogen.bacterium',
-                antibiotics: 'substance.compound',
-                resistances: 'rda.data',
-                substanceClasses: 'substance.substanceClass',
-                regions: 'generics.region',
-                countries: 'generics.country',
-                ageGroups: 'generics.ageGroup',
-            },
-        };
-
         this.app = new InfectApp(config);
-        console.log('App: Initialized: %o', this.app);
+        this.setup();
     }
 
-    @action setStatusBarHeight(height) {
-        console.log('Status bar height changed to', height);
-        this.statusBarHeight = height;
-    }
-
-    @computed get statusBarStyles() {
-        const styles = {
-            height: this.statusBarHeight,
-        };
-        console.log('Status bar styles are', styles);
-        return styles;
-    }
-
-    handleLayoutChange = () => {
-        // In case we need to update this, possible options for handling status bar height are:
-        // - Expo.Constants
-        // - StatusBarIOS (old react native code)
-        // - https://github.com/expo/status-bar-height
-        StatusBarHeight.getAsync().then(height => this.setStatusBarHeight(height));
-    }
-
-    @computed get resistanceStatus() {
-        if (this.app.resistances.status.identifier === 'loading') return 'loading …';
-        if (this.renderingDone === false) return 'rendering …';
-        return 'ready';
-    }
-
-    getStatusText(originalLoadingStatus) {
-        return originalLoadingStatus === 'loading' ? 'loading …' : 'ready';
+    /**
+     * Use separate setup method as it's async and we need to catch all async errors.
+     */
+    async setup() {
+        try {
+            await this.app.initialize();
+        } catch (err) {
+            this.app.errorHandler.handle(err);
+            log('Error initializing app', err);
+        }
+        log('App: Initialized');
     }
 
     @action setRenderingDone(value) {
-        console.log('App: Set rendering done to', value);
-        this.renderingDone = value;
+        log('App: Set rendering done to', value);
+        this.rendering.done = value;
     }
 
     @observer
     render() {
+
+        log('App: Render');
+        trace();
+
         return (
-            <View
-                style={ styles.container }
-                onLayout={ this.handleLayoutChange }>
+            <View style={styles.container}>
 
-                <StatusBar hidden={ true } />
-                { /* Cover status bar */ }
-                <View style={ [this.statusBarStyles] } />
+                <StatusBar hidden={true} />
 
-                { this.renderingDone === false &&
-                    <View style={ styles.loadingScreen }>
-                        <Text style={ styles.loadingScreenMainText }>INFECT App</Text>
-                        <Text style={ styles.loadingScreenEntityStatus }>
-                            Bacteria: { this.getStatusText(this.app.bacteria.status.identifier) }
-                        </Text>
-                        <Text style={ styles.loadingScreenEntityStatus }>
-                            Antibiotics:{'\u00A0'}
-                            { this.getStatusText(this.app.antibiotics.status.identifier) }
-                        </Text>
-                        <Text style={ styles.loadingScreenEntityStatus }>
-                            Resistances: { this.resistanceStatus }
-                        </Text>
-                    </View>
-                }
-                { /* Render matrix as soon as data is ready; let it be hidden by loadingOverlay
-                     until all resistances are rendered */ }
+                { /* Render matrix as soon as data is ready (resistances are loaded last). */ }
                 { this.app.resistances.status.identifier === 'ready' &&
                     <Matrix
-                        style={ styles.matrix }
-                        matrix={ this.app.views.matrix }
-                        selectedFilters={ this.app.selectedFilters }
-                        setRenderingDone={ this.setRenderingDone.bind(this) }
+                        style={styles.matrix}
+                        matrix={this.app.views.matrix}
+                        selectedFilters={this.app.selectedFilters}
+                        setRenderingDone={this.setRenderingDone.bind(this)}
                     />
                 }
+
+                { /* Loading screen
+                     Don't render it conditionally. If we did, the whole app would re-render when
+                     it or its opacity change and all gesture handlers on the matrix would not work
+                     any more */ }
+                <View
+                    style={styles.loadingScreenContainer}
+                    pointerEvents="none"
+                >
+                    <LoadingScreen
+                        version={appConfig.expo.version}
+                        rendering={this.rendering}
+                        resistancesStatusIdentifier={this.app.resistances.status.identifier}
+                        bacteriaStatusIdentifier={this.app.bacteria.status.identifier}
+                        antibioticsStatusIdentifier={this.app.antibiotics.status.identifier}
+                    />
+                </View>
+
+                { /* Errors: At bottom to give it the highest z-index */ }
+                { this.app.errorHandler.errors.length > 0 &&
+                    <ErrorMessages
+                        style={styles.errors}
+                        errors={this.app.errorHandler.errors} />
+                }
+
             </View>
         );
     }
@@ -123,27 +123,25 @@ export default class App extends React.Component {
 
 
 const styles = StyleSheet.create({
-    loadingScreen: {
+    loadingScreenContainer: {
         position: 'absolute',
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
-        backgroundColor: '#cbe264',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
-    loadingScreenMainText: {
-        ...styleDefinitions.base,
-        fontSize: 20,
-    },
-    loadingScreenEntityStatus: {
-        ...styleDefinitions.base,
-        fontSize: 14,
-        top: 30,
+    errors: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
     },
     matrix: {
-        flex: 1,
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
     },
     container: {
         flex: 1,

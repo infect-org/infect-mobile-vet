@@ -1,23 +1,28 @@
 {
+  "name": "infect-mobile-app",
   "main": "node_modules/expo/AppEntry.js",
   "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "eject": "expo eject"
+  },
+  "//": "Dependencies: Make sure you use the same packages and versions as in frontend-logic!",
   "dependencies": {
-    "@expo/status-bar-height": "0.0.1",
-    "add": "^2.0.6",
-    "deep-equal": "^1.0.1",
     "expo": "^29.0.0",
-    "fuse.js": "^3.2.1",
-    "infect-frontend-logic": "^1.0.0",
-    "mobx": "^3.6.2",
-    "mobx-react": "^4.4.3",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz",
+    "infect-frontend-logic": "^2.0.1",
+    "mobx": "4.3.1",
+    "mobx-react": "^5.2.5",
+    "react-native-pan-pinch": "^0.2.2",
     "sentry-expo": "^1.9.0"
   },
-  "//": "Dependencies: Make sure you use the same packages and versions as in frontend!",
   "devDependencies": {
     "@joinbox/eslint-config-joinbox": "^1.0.5",
     "babel-eslint": "^8.2.6",
-    "eslint-plugin-react": "^7.10.0"
-  }
+    "eslint-plugin-react": "^7.11.1"
+  },
+  "author": "Felix Steiner <felix@joinbox.com> (http://infect.info/)"
 }
