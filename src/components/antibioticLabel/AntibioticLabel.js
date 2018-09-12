@@ -46,8 +46,8 @@ export default class AntibioticLabel extends React.Component {
      */
     setupAnimatedProps() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        // Why 1.7? It just works.
         const left = Platform.OS === 'android' ?
+            // Why 1.7? It just works.
             position.left - this.labelDimensions.height / 1.7 :
             position.left;
         this.baseLeft = new Value(left);
@@ -78,7 +78,7 @@ export default class AntibioticLabel extends React.Component {
         if (!this.props.matrix.defaultRadius) return 0;
         // Label must be at the top for android; at the bottom for iOS
         let top;
-        if (Platform.OS === 'android') top = 0;
+        if (Platform.OS === 'android') top = 15; // Move down a little to account for props.maxZoom
         else {
             top = this.props.matrix.antibioticLabelRowHeight * this.props.maxZoom;
         }

@@ -13,10 +13,10 @@
     "expo": "^29.0.0",
     "react": "16.3.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-29.0.0.tar.gz",
-    "infect-frontend-logic": "^2.0.1",
+    "infect-frontend-logic": "^2.1.0",
     "mobx": "4.3.1",
     "mobx-react": "^5.2.5",
-    "react-native-pan-pinch": "^0.2.2",
+    "react-native-pan-pinch": "^0.3.1",
     "sentry-expo": "^1.9.0"
   },
   "devDependencies": {

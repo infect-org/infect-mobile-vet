@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Dimensions, StyleSheet, Platform } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, observable, action } from 'mobx';
+import { computed, observable, action, reaction } from 'mobx';
 import Animated from 'react-native-reanimated';
 import BacteriumLabelsContainer from '../bacteriumLabelsContainer/BacteriumLabelsContainer';
 import AntibioticLabelsContainer from '../antibioticLabelsContainer/AntibioticLabelsContainer';
@@ -20,6 +20,11 @@ const { max, min, divide } = Animated;
 export default class MatrixContent extends React.Component {
 
     width = Math.max(windowWidth, 1200);
+
+    state = {
+        // Needed to re-render on android so that onLayout is fired
+        renderCount: 0,
+    }
 
     contentElement = React.createRef();
 
@@ -41,6 +46,7 @@ export default class MatrixContent extends React.Component {
     constructor(...props) {
         super(...props);
         this.setupAnimatedProperties();
+        this.setupInitialLayoutHandler();
     }
 
     /**
@@ -74,6 +80,57 @@ export default class MatrixContent extends React.Component {
 
     }
 
+    /**
+     * Android doesn't fire onLayout on *first* render – only on subsequent renders. Somehow, we
+     * have to set the container and content's dimensions for PanPinch. Do this whenever layout
+     * is measured.
+     */
+    setupInitialLayoutHandler() {
+
+        // TODO: Should we only continue on Android devices? Or does it speed up the initial layout
+        // on iOS as well?
+        // if (Platform.OS === 'iOS') return;
+
+        log('MatrixContent: Setup initial layout handler');
+
+        // We only need to update layout on the *first* render – subsequent layout changes are
+        // handled correctly by Android.
+        let layoutHandlerFired = false;
+        reaction(
+            // Fire when label col's width or label row's height changes for the first time
+            () => this.bacteriumLabelColumnWidth || this.antibioticLabelRowHeight,
+            () => {
+
+                log(
+                    'MatrixContent: Try to set initial layout, width is',
+                    this.bacteriumLabelColumnWidth,
+                    this.antibioticLabelRowHeight,
+                );
+
+                if (layoutHandlerFired) return;
+                // Only act when width/height is known
+                if (!this.bacteriumLabelColumnWidth || !this.antibioticLabelRowHeight) return;
+                layoutHandlerFired = true;
+
+                log('MatrixContent: Set initial layout');
+                this.props.handleContainerLayout({
+                    // Its crucial that these values correspond to the ones defined for
+                    // resistanceContainer (render method below)
+                    width: Math.round(windowWidth - this.bacteriumLabelColumnWidth -
+                        this.halfSpace),
+                    height: Math.round(windowHeight - this.antibioticLabelRowHeight -
+                        this.halfSpace),
+                });
+                this.props.handleContentLayout({
+                    width: Math.round(this.visibleAntibioticsWidth),
+                    height: Math.round(this.visibleBacteriaHeight),
+                });
+
+            },
+        );
+
+    }
+
 
     componentDidMount() {
         // Store dimensions on matrixView so that radius can be calculated
@@ -84,23 +141,6 @@ export default class MatrixContent extends React.Component {
         });
         log('default radius is %o', this.props.matrix.defaultRadius);
     }
-
-    /**
-     * Fucking fuck: Android only fires onLayout when it *changes* for content (not for container
-     * though) but not when it's initialized. We have to get the dimensions somehow to pass them
-     * to PinchPan
-     */
-    /* componentDidUpdate() {
-        if (Platform.OS === 'iOS') return;
-        if (this.contentElement.current) {
-            this.contentElement.current.measure((dimensions) => {
-                console.log('measured', dimensions);
-                this.props.handleContentLayout(dimensions);
-            });
-            console.log('measure now', this.contentElement.current.measure());
-        }
-    } */
-
 
     @computed get halfSpace() {
         return this.props.matrix.spaceBetweenGroups / 2;
@@ -196,16 +236,13 @@ export default class MatrixContent extends React.Component {
             'auto';
     }
 
-
-
     render() {
 
-        log('MatrixContent: Render');
-        this.setupAnimatedProperties();
+        // log('MatrixContent: Render');
+        // this.setupAnimatedProperties();
 
         return (
             <View style={ styles.container }>
-
                 { /* Container within which resistances will be moved/zoomed. Needed to
                      set the stage (container) and calculate its size for PanPinch */ }
                 { this.props.matrix.defaultRadius &&
@@ -242,35 +279,27 @@ export default class MatrixContent extends React.Component {
 
 
                         { /* Resistances: Below labels */ }
-                        { /* Moved container into its own (non-animated) view hoping onLayout would
-                             fire on android on initial load – which it doesn't seem to do */ }
-                        <View
-                            onLayout={ev => this.props.handleContentLayout(ev.nativeEvent.layout)}
-                            ref={this.contentElement}
+                        <Animated.View
                             style={[
                                 styles.resistanceCirclesContainer,
                                 {
                                     width: this.visibleAntibioticsWidth,
                                     height: this.visibleBacteriaHeight,
                                 },
+                                this.getPanPinchTransformation(),
                             ]}
+                            onLayout={ev =>
+                                this.props.handleContentLayout(ev.nativeEvent.layout)}
                         >
-                            <Animated.View
-                                style={[
-                                    styles.container,
-                                    this.getPanPinchTransformation(),
-                                ]}
-                            >
-                                { this.props.matrix.resistances.map(res => (
-                                    <Resistance
-                                        key={this.getResistanceKey(res)}
-                                        matrix={this.props.matrix}
-                                        resistance={res}
-                                        onRender={this.resistanceRendered}
-                                    />
-                                ))}
-                            </Animated.View>
-                        </View>
+                            { this.props.matrix.resistances.map(res => (
+                                <Resistance
+                                    key={this.getResistanceKey(res)}
+                                    matrix={this.props.matrix}
+                                    resistance={res}
+                                    onRender={this.resistanceRendered}
+                                />
+                            ))}
+                        </Animated.View>
                     </View>
 
                 }
@@ -362,7 +391,6 @@ const styles = StyleSheet.create({
     },
     resistanceCirclesContainer: {
         position: 'absolute',
-        top: 20,
         // borderWidth: 1,
         // borderColor: 'pink',
     },

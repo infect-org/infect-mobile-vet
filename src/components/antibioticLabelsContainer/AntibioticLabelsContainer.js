@@ -16,11 +16,15 @@ export default class AntibioticLabelsContainer extends React.Component {
      * height). If we don't, labels touch their container's bottom.
      */
     setupAnimatedProps() {
+
+        // Move labels up a little bit when we zoom in (or they will go too low as transform
+        // origin is center/center.
         this.scaleTopCorrection = multiply(
             sub(this.props.animatedZoom, 1),
             divide(this.props.matrix.antibioticLabelRowHeight, 2),
             -1,
         );
+
     }
 
     render() {
