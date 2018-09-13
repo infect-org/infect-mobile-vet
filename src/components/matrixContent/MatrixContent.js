@@ -8,6 +8,7 @@ import AntibioticLabelsContainer from '../antibioticLabelsContainer/AntibioticLa
 import Resistance from '../resistance/Resistance';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
 import log from '../../helpers/log';
+// import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -40,26 +41,57 @@ export default class MatrixContent extends React.Component {
      */
     labelZoomCaps = {
         max: 1.2,
-        min: 0.8,
+        min: 0.7,
     }
 
-    constructor(...props) {
-        super(...props);
-        this.setupAnimatedProperties();
+
+    /**
+     * Zoom for labels: Is capped so that they don't get too big or small
+     */
+    /* cappedLabelZoom = min(
+        this.labelZoomCaps.max,
+        max(
+            this.labelZoomCaps.min,
+            this.props.animatedZoom,
+        ),
+    ); */
+
+    /**
+     * When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
+     * between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
+     * needed (in %)
+     */
+    /* additionalLabelSpacingIncrease = divide(
+        this.props.animatedZoom,
+        this.cappedLabelZoom,
+    ); */
+
+
+    componentDidMount() {
+
         this.setupInitialLayoutHandler();
+
+        // Store dimensions on matrixView so that radius can be calculated
+        this.props.matrix.setDimensions({
+            // Resistance cirlces/fonts for labels should not be too small
+            width: this.width,
+            height: windowHeight,
+        });
+        log('default radius is %o', this.props.matrix.defaultRadius);
+
     }
+
+
 
     /**
      * We must update animated props whenever content renders; if we don't, it uses old values
      * that were set initially; TODO: use setValue as soon as it's available, convert them to
      * regular class props
      */
-    setupAnimatedProperties() {
+    /* setupAnimatedProperties() {
 
-        /**
-         * We want to cap zooming on labels so that they don't get too big (the resistance dots may
-         * be zoomed in further)
-         */
+        // We want to cap zooming on labels so that they don't get too big (the resistance dots may
+        // be zoomed in further)
         this.cappedLabelZoom = min(
             this.labelZoomCaps.max,
             max(
@@ -68,17 +100,15 @@ export default class MatrixContent extends React.Component {
             ),
         );
 
-        /**
-         * When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
-         * between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
-         * needed (in %)
-         */
+        // When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
+        // between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
+        // needed (in %)
         this.additionalLabelSpacingIncrease = divide(
             this.props.animatedZoom,
             this.cappedLabelZoom,
         );
 
-    }
+    } */
 
     /**
      * Android doesn't fire onLayout on *first* render – only on subsequent renders. Somehow, we
@@ -131,16 +161,6 @@ export default class MatrixContent extends React.Component {
 
     }
 
-
-    componentDidMount() {
-        // Store dimensions on matrixView so that radius can be calculated
-        this.props.matrix.setDimensions({
-            // Resistance cirlces/fonts for labels should not be too small
-            width: this.width,
-            height: windowHeight,
-        });
-        log('default radius is %o', this.props.matrix.defaultRadius);
-    }
 
     @computed get halfSpace() {
         return this.props.matrix.spaceBetweenGroups / 2;
@@ -238,8 +258,29 @@ export default class MatrixContent extends React.Component {
 
     render() {
 
-        // log('MatrixContent: Render');
-        // this.setupAnimatedProperties();
+        /**
+         * Zoom for labels: Is capped so that they don't get too big or small
+         */
+        const cappedLabelZoom = min(
+            this.labelZoomCaps.max,
+            max(
+                this.labelZoomCaps.min,
+                this.props.animatedZoom,
+            ),
+        );
+
+        /**
+         * When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
+         * between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
+         * needed (in %)
+         */
+        const additionalLabelSpacingIncrease = divide(
+            this.props.animatedZoom,
+            cappedLabelZoom,
+        );
+
+
+        log('MatrixContent: Render');
 
         return (
             <View style={ styles.container }>
@@ -310,20 +351,52 @@ export default class MatrixContent extends React.Component {
                         styles.antibioticLabelsContainer,
                         {
                             height: this.antibioticLabelRowHeight,
-                            left: this.bacteriumLabelColumnWidth,
+                            left: this.props.matrix.defaultRadius ?
+                                this.bacteriumLabelColumnWidth + this.halfSpace : 0,
                             width: this.visibleAntibioticsWidth,
                             paddingLeft: this.halfSpace,
                         },
                         this.labelOpacity,
                     ]}
                 >
+
+
+                    { /*
+                    <Animated.View
+                        style={[
+                            styles.antibioticLabelsContainer,
+                            {
+                                width: this.visibleAntibioticsWidth,
+                                height: this.antibioticLabelRowHeight,
+                            },
+                            {
+                                transform: [{
+                                    translateX: this.props.animatedLeft,
+                                }, {
+                                    scale: cappedLabelZoom,
+                                }],
+                            },
+                        ]}
+                    >
+                        { this.props.matrix.sortedAntibiotics.map(ab => (
+                            <AntibioticLabel
+                                antibiotic={ab}
+                                additionalLabelSpacingIncrease={additionalLabelSpacingIncrease}
+                                maxZoom={this.labelZoomCaps.max}
+                                key={ab.antibiotic.id}
+                                containerWidth={this.visibleAntibioticsWidth}
+                                matrix={this.props.matrix} />
+                        ))}
+                    </Animated.View>
+                    */ }
+
                     <AntibioticLabelsContainer
-                        style={{ left: this.halfSpace }}
                         matrix={this.props.matrix}
                         animatedLeft={this.props.animatedLeft}
-                        animatedZoom={this.cappedLabelZoom}
+                        animatedZoom={this.props.animatedZoom}
+                        cappedLabelZoom={cappedLabelZoom}
                         containerWidth={this.visibleAntibioticsWidth}
-                        additionalLabelSpacingIncrease={this.additionalLabelSpacingIncrease}
+                        additionalLabelSpacingIncrease={additionalLabelSpacingIncrease}
                         maxZoom={this.labelZoomCaps.max}
                     />
                 </View>
@@ -345,8 +418,8 @@ export default class MatrixContent extends React.Component {
                         style={{ borderWidth: 1, borderColor: 'purple' }}
                         animatedTop={this.props.animatedTop}
                         containerHeight={this.visibleBacteriaHeight}
-                        animatedZoom={this.cappedLabelZoom}
-                        additionalLabelSpacingIncrease={this.additionalLabelSpacingIncrease}
+                        animatedZoom={cappedLabelZoom}
+                        additionalLabelSpacingIncrease={additionalLabelSpacingIncrease}
                         maxZoom={this.labelZoomCaps.max}
                         matrix={this.props.matrix}/>
                 </View>
@@ -372,8 +445,8 @@ const styles = StyleSheet.create({
     antibioticLabelsContainer: {
         position: 'absolute',
         top: 0,
-        // borderWidth: 1,
-        // borderColor: 'deeppink',
+        borderWidth: 1,
+        borderColor: 'deeppink',
         // backgroundColor: 'lightcoral',
         backgroundColor: 'white',
     },
@@ -391,8 +464,8 @@ const styles = StyleSheet.create({
     },
     resistanceCirclesContainer: {
         position: 'absolute',
-        // borderWidth: 1,
-        // borderColor: 'pink',
+        borderWidth: 1,
+        borderColor: 'pink',
     },
     topLeftCorner: {
         backgroundColor: 'white',

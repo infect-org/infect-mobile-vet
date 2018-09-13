@@ -15,6 +15,10 @@ import LoadingScreen from './src/components/loadingScreen/LoadingScreen';
 import log from './src/helpers/log';
 
 
+// For live environment, disable all logs (they tend to cause troubles)
+// console.log = () => {};
+
+
 // Remove this once Sentry is correctly setup.
 // See https://docs.expo.io/versions/latest/guides/using-sentry
 Sentry.enableInExpoDevelopment = true;

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { observer } from 'mobx-react';
 import PanPinch from 'react-native-pan-pinch';
+import Animated from 'react-native-reanimated';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
 import styleDefinitions from '../../helpers/styleDefinitions';
@@ -56,6 +57,10 @@ export default class Matrix extends React.Component {
                         setRenderingDone={this.props.setRenderingDone}
                         handleContentLayout={this.handleContentLayout.bind(this)}
                         handleContainerLayout={this.handleContainerLayout.bind(this)}
+                        // Only needed when we remove PanPinch from DOM
+                        // animatedLeft={new Animated.Value(0)}
+                        // animatedTop={new Animated.Value(0)}
+                        // animatedZoom={new Animated.Value(1)}
                     />
                 </PanPinch>
 

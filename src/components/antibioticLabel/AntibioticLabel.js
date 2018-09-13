@@ -32,6 +32,7 @@ export default class AntibioticLabel extends React.Component {
         super(...params);
         reaction(
             // TODO: When setValue is available, use setValue and remove forceUpdate
+            // BTW: Why are we watching containerWidth here?
             () => this.props.matrix.defaultRadius && this.props.containerWidth,
             () => {
                 this.setupAnimatedProps();
@@ -50,18 +51,12 @@ export default class AntibioticLabel extends React.Component {
             // Why 1.7? It just works.
             position.left - this.labelDimensions.height / 1.7 :
             position.left;
-        this.baseLeft = new Value(left);
-        this.left = sub(
-            multiply(
-                this.baseLeft,
-                this.props.additionalLabelSpacingIncrease,
-            ),
-            multiply(
-                // See BacteriumLabel for docs – works the same way
-                divide(this.props.containerWidth, 2),
-                sub(this.props.additionalLabelSpacingIncrease, 1),
-            ),
+
+        this.left = multiply(
+            left,
+            this.props.additionalLabelSpacingIncrease,
         );
+
     }
 
 
@@ -78,7 +73,8 @@ export default class AntibioticLabel extends React.Component {
         if (!this.props.matrix.defaultRadius) return 0;
         // Label must be at the top for android; at the bottom for iOS
         let top;
-        if (Platform.OS === 'android') top = 15; // Move down a little to account for props.maxZoom
+        // Move down a little to account for props.maxZoom
+        if (Platform.OS === 'android') top = 25;
         else {
             top = this.props.matrix.antibioticLabelRowHeight * this.props.maxZoom;
         }

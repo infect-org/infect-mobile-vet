@@ -9,41 +9,54 @@ const { sub, divide, multiply } = Animated;
 @observer
 export default class AntibioticLabelsContainer extends React.Component {
 
-    scaleTopCorrection = 0;
-
-    /**
-     * When user is zooming in, move labels up a tiny little bit (by zoom level * half of label's
-     * height). If we don't, labels touch their container's bottom.
-     */
-    setupAnimatedProps() {
+    render() {
 
         // Move labels up a little bit when we zoom in (or they will go too low as transform
-        // origin is center/center.
-        this.scaleTopCorrection = multiply(
-            sub(this.props.animatedZoom, 1),
-            divide(this.props.matrix.antibioticLabelRowHeight, 2),
+        // origin is center/center; if not, labels touch the container's bottom
+        const scaleTopCorrection = multiply(
+            // amount that cappedLabelZoom exceeds 1 by
+            sub(
+                this.props.cappedLabelZoom,
+                1,
+            ),
+            // Half the height of ab labels
+            divide(this.props.matrix.antibioticLabelRowHeight || 0, 2),
+            // Move up, not down
             -1,
         );
 
-    }
+        // When we zoom in more than cappedLabelZoom, labels extend through
+        // additionalLabelSpacingIncrease; we have to increase the container's width to account for
+        // that. If we don't, labels won't be visible outside container (on Android)
+        const widthAdjustedForZoom = multiply(
+            this.props.containerWidth,
+            this.props.additionalLabelSpacingIncrease,
+        );
 
-    render() {
+        // Container only zooms to cappedZoomFactor – afterwards it stops zooming, therefore stays
+        // at its left position. We need to move it to the left and fake a continuous zoom.
+        const leftAdjustedForZoom = multiply(
+            sub(this.props.additionalLabelSpacingIncrease, 1),
+            this.props.containerWidth,
+            0.5, // as we only move left, we go out from center …
+        );
 
-        if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
+        const finalXTranslation = sub(this.props.animatedLeft, leftAdjustedForZoom);
 
         return (
             <Animated.View
                 style={[
                     {
+                        width: widthAdjustedForZoom,
                         transform: [{
-                            translateX: this.props.animatedLeft,
+                            translateX: finalXTranslation,
                         }, {
-                            translateY: this.scaleTopCorrection,
+                            translateY: scaleTopCorrection,
                         }, {
-                            scale: this.props.animatedZoom,
+                            scale: this.props.cappedLabelZoom,
                         }],
                     },
-                    // { borderWidth: 1, borderColor: 'purple' },
+                    { borderWidth: 1, borderColor: 'purple' },
                     styles.container,
                 ]}
             >
@@ -52,6 +65,7 @@ export default class AntibioticLabelsContainer extends React.Component {
                         antibiotic={ab}
                         additionalLabelSpacingIncrease={this.props.additionalLabelSpacingIncrease}
                         maxZoom={this.props.maxZoom}
+                        cappedLabelZoom={this.props.cappedLabelZoom}
                         key={ab.antibiotic.id}
                         containerWidth={this.props.containerWidth}
                         matrix={this.props.matrix} />
