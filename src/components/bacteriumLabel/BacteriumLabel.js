@@ -7,7 +7,7 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
 const {
-    Value,
+    add,
     multiply,
     sub,
     divide,
@@ -16,11 +16,10 @@ const {
 @observer
 export default class BacteriumLabel extends React.Component {
 
-    // baseTop = new Value(0);
-    // top = multiply(this.props.additionalLabelSpacingIncrease, this.baseTop);
     top = 0;
+    left = 0;
 
-    layoutHandled = false;
+    width = 0;
 
     constructor(...props) {
         super(...props);
@@ -42,51 +41,41 @@ export default class BacteriumLabel extends React.Component {
         // class props, remove forceUpdate!
         const { top } = this.props.matrix.yPositions.get(this.props.bacterium);
         log('BacteriumLabel: Top is', top, 'containerHeight is', this.props.containerHeight);
-        this.baseTop = new Value(top);
-        this.top = sub(
-            // Main calculation: Multiply spacing increase with the regular top of the
-            // label
-            multiply(
-                this.props.additionalLabelSpacingIncrease,
-                this.baseTop,
-            ),
-            // Now, as react-native's only transform origin is 'center center', we have to
-            // move the labels up when zooming in to fake a central transform origin for
-            // our extended label spacing …
-            multiply(
-                // Multiply half of the label container's height …
-                divide(this.props.containerHeight, 2),
-                // … with what we zoomed in above the max (minus 1)
-                sub(this.props.additionalLabelSpacingIncrease, 1),
-            ),
+
+        // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
+        this.top = multiply(
+            divide(this.props.animatedZoom, this.props.cappedLabelZoom),
+            top,
         );
+
+        // Adjust left by the amount animatedZoom exceeds cappedLabelZoom. As we shrink the label
+        // when zoom increases, we have to move in the opposite direction.
+        this.left = multiply(
+            sub(
+                divide(this.props.animatedZoom, this.props.cappedLabelZoom),
+                1,
+            ),
+            this.width,
+            0.5,
+        );
+
     }
 
 
     labelLayoutHandler = (ev) => {
         // Make sure we only handle layout once; if not, we might run into an infinite loop.
-        if (this.layoutHandled) return;
+        if (this.width) return;
         const { width } = ev.nativeEvent.layout;
+        this.width = width;
         this.props.bacterium.setWidth(width);
-        this.layoutHandled = true;
     };
 
-    @computed get labelStyle() {
+    @computed get labelWidth() {
         // If we don't know the col width yet, use auto so that we can measure the label's real
         // size
-        const width = this.props.matrix.defaultRadius ?
+        return this.props.matrix.defaultRadius ?
             this.props.matrix.bacteriumLabelColumnWidth * this.props.maxZoom : 'auto';
-        return { width };
     }
-
-    /* @computed get transform() {
-        if (!this.props.matrix.defaultRadius) return [];
-        const { top } = this.props.matrix.yPositions.get(this.props.bacterium);
-        log('BacteriumLabel: Top position is', top);
-        return [{
-            translateY: top,
-        }];
-    } */
 
     @computed get shortName() {
         return this.props.bacterium.bacterium.name
@@ -102,6 +91,12 @@ export default class BacteriumLabel extends React.Component {
 
         if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
 
+        // Zoom label out when font would become larger than cappedLabelZoom
+        const cappedLabelZoomAdjustment = divide(
+            this.props.cappedLabelZoom,
+            this.props.animatedZoom,
+        );
+
         log('BacteriumLabel: Render bacterium label', this.shortName, 'at', this.transform);
 
         // Use a View around the text because Text is not animatable
@@ -109,10 +104,14 @@ export default class BacteriumLabel extends React.Component {
             <Animated.View
                 style={[
                     styles.labelTextContainer,
-                    this.labelStyle,
                     {
+                        width: this.labelWidth,
                         transform: [{
+                            scale: cappedLabelZoomAdjustment,
+                        }, {
                             translateY: this.top,
+                        }, {
+                            translateX: this.left,
                         }],
                     },
                 ]}
@@ -131,12 +130,15 @@ export default class BacteriumLabel extends React.Component {
 const styles = StyleSheet.create({
     labelTextContainer: {
         position: 'absolute',
+        right: 0,
+        // borderWidth: 1,
+        // borderColor: 'pink',
     },
     labelText: {
         ...styleDefinitions.fonts.condensed,
         ...styleDefinitions.label,
         textAlign: 'right',
-        // borderWidth: 2,
+        // borderWidth: 1,
         // borderColor: 'deeppink',
     },
 });

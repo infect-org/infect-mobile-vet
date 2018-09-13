@@ -18,6 +18,8 @@ export default class Matrix extends React.Component {
         contentDimensions: [],
     }
 
+    zoomRange = [0.35, 2];
+
     /**
      * Handles layout changes on container; container is part of MatrixContent, therefore
      * is called from MatrixContent.
@@ -49,10 +51,12 @@ export default class Matrix extends React.Component {
                 <PanPinch
                     containerDimensions={this.state.containerDimensions}
                     contentDimensions={this.state.contentDimensions}
+                    zoomRange={this.zoomRange}
                 >
                     <MatrixContent
                         style={styles.container}
                         matrix={this.props.matrix}
+                        zoomRange={this.zoomRange}
                         selectedFilters={this.props.selectedFilters}
                         setRenderingDone={this.props.setRenderingDone}
                         handleContentLayout={this.handleContentLayout.bind(this)}

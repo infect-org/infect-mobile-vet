@@ -8,14 +8,21 @@ import AntibioticLabelsContainer from '../antibioticLabelsContainer/AntibioticLa
 import Resistance from '../resistance/Resistance';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
 import log from '../../helpers/log';
-// import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
+import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
+import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 log('Dimensions:', Dimensions.get('window'));
 log('Screen dimensions:', Dimensions.get('screen'));
 
-const { max, min, divide } = Animated;
+const {
+    max,
+    min,
+    divide,
+    multiply,
+    sub,
+} = Animated;
 
 @observer
 export default class MatrixContent extends React.Component {
@@ -233,12 +240,12 @@ export default class MatrixContent extends React.Component {
     /**
      * Creates an object that can be consumed by a react native's transform style property
      */
-    getPanPinchTransformation(dimensions = ['x', 'y']) {
-        const transform = [];
-        if (dimensions.includes('x')) transform.push({ translateX: this.props.animatedLeft });
-        if (dimensions.includes('y')) transform.push({ translateY: this.props.animatedTop });
-        transform.push({ scale: this.props.animatedZoom });
-        // log('MatrixContent: Transform for dimensions', dimensions, 'is', transform);
+    getResistanceTransformation() {
+        const transform = [
+            { translateX: this.props.animatedLeft },
+            { translateY: this.props.animatedTop },
+            { scale: this.props.animatedZoom },
+        ];
         return { transform };
     }
 
@@ -258,6 +265,7 @@ export default class MatrixContent extends React.Component {
 
     render() {
 
+
         /**
          * Zoom for labels: Is capped so that they don't get too big or small
          */
@@ -269,14 +277,43 @@ export default class MatrixContent extends React.Component {
             ),
         );
 
+
         /**
          * When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
          * between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
          * needed (in %)
          */
-        const additionalLabelSpacingIncrease = divide(
+        /* const additionalLabelSpacingIncrease = divide(
             this.props.animatedZoom,
             cappedLabelZoom,
+        ); */
+
+
+        /**
+         * Container should always look like right:0 – as zoom origin is center/center, we have
+         * to move it
+         */
+        const bacteriaLabelContainerWidth = this.bacteriumLabelColumnWidth * 2;
+        const bacteriaLabelContainerLeft = !this.props.matrix.defaultRadius ? 0 : multiply(
+            sub(
+                this.props.animatedZoom,
+                1,
+            ),
+            // This corresponds to the container's width
+            bacteriaLabelContainerWidth,
+            -0.5,
+        );
+
+
+        const antibioticLabelContainerHeight = this.props.matrix.defaultRadius ?
+            this.antibioticLabelRowHeight * 2 : 0;
+        const antibioticLabelContainerTop = multiply(
+            sub(
+                this.props.animatedZoom,
+                1,
+            ),
+            antibioticLabelContainerHeight,
+            -0.5,
         );
 
 
@@ -306,7 +343,7 @@ export default class MatrixContent extends React.Component {
                                     width: this.visibleAntibioticsWidth,
                                     height: this.visibleBacteriaHeight,
                                 },
-                                this.getPanPinchTransformation(),
+                                this.getResistanceTransformation(),
                             ]}
                         >
                             { this.props.matrix.substanceClasses.map(sc => (
@@ -327,7 +364,7 @@ export default class MatrixContent extends React.Component {
                                     width: this.visibleAntibioticsWidth,
                                     height: this.visibleBacteriaHeight,
                                 },
-                                this.getPanPinchTransformation(),
+                                this.getResistanceTransformation(),
                             ]}
                             onLayout={ev =>
                                 this.props.handleContentLayout(ev.nativeEvent.layout)}
@@ -351,55 +388,53 @@ export default class MatrixContent extends React.Component {
                         styles.antibioticLabelsContainer,
                         {
                             height: this.antibioticLabelRowHeight,
-                            left: this.props.matrix.defaultRadius ?
-                                this.bacteriumLabelColumnWidth + this.halfSpace : 0,
+                            left: !this.props.matrix.defaultRadius ? 0 :
+                                this.bacteriumLabelColumnWidth + this.props.matrix.defaultRadius,
                             width: this.visibleAntibioticsWidth,
-                            paddingLeft: this.halfSpace,
                         },
                         this.labelOpacity,
                     ]}
                 >
 
 
-                    { /*
                     <Animated.View
                         style={[
-                            styles.antibioticLabelsContainer,
+                            styles.antibioticContainer,
                             {
                                 width: this.visibleAntibioticsWidth,
-                                height: this.antibioticLabelRowHeight,
+                                height: antibioticLabelContainerHeight,
                             },
                             {
                                 transform: [{
                                     translateX: this.props.animatedLeft,
                                 }, {
-                                    scale: cappedLabelZoom,
+                                    translateY: antibioticLabelContainerTop,
+                                }, {
+                                    scale: this.props.animatedZoom,
                                 }],
                             },
                         ]}
                     >
+
                         { this.props.matrix.sortedAntibiotics.map(ab => (
                             <AntibioticLabel
+                                // We increase the container's height by 2 (to prevent cut text
+                                // on android), therefore we have to move the label down by half
+                                // the container's height
+                                moveLabelDownBy={this.props.matrix.defaultRadius ?
+                                    this.antibioticLabelRowHeight : 0}
                                 antibiotic={ab}
-                                additionalLabelSpacingIncrease={additionalLabelSpacingIncrease}
+                                animatedZoom={this.props.animatedZoom}
+                                cappedLabelZoom={cappedLabelZoom}
                                 maxZoom={this.labelZoomCaps.max}
                                 key={ab.antibiotic.id}
-                                containerWidth={this.visibleAntibioticsWidth}
                                 matrix={this.props.matrix} />
                         ))}
-                    </Animated.View>
-                    */ }
 
-                    <AntibioticLabelsContainer
-                        matrix={this.props.matrix}
-                        animatedLeft={this.props.animatedLeft}
-                        animatedZoom={this.props.animatedZoom}
-                        cappedLabelZoom={cappedLabelZoom}
-                        containerWidth={this.visibleAntibioticsWidth}
-                        additionalLabelSpacingIncrease={additionalLabelSpacingIncrease}
-                        maxZoom={this.labelZoomCaps.max}
-                    />
+                    </Animated.View>
+
                 </View>
+
 
 
                 { /* Bacteria */ }
@@ -414,21 +449,53 @@ export default class MatrixContent extends React.Component {
                         },
                         this.labelOpacity,
                     ]}>
-                    <BacteriumLabelsContainer
-                        style={{ borderWidth: 1, borderColor: 'purple' }}
-                        animatedTop={this.props.animatedTop}
-                        containerHeight={this.visibleBacteriaHeight}
-                        animatedZoom={cappedLabelZoom}
-                        additionalLabelSpacingIncrease={additionalLabelSpacingIncrease}
-                        maxZoom={this.labelZoomCaps.max}
-                        matrix={this.props.matrix}/>
+
+
+                    <Animated.View
+                        style={[
+                            styles.bacteriumLabels,
+                            {
+                                // * 2 so that when we zoom out (and label size increases), Android
+                                // still displays everything (doesn't have overflow:visible)
+                                width: bacteriaLabelContainerWidth,
+                                top: this.halfSpace,
+                                right: this.halfSpace,
+                                // Beware: THE FUCKING ORDER MATTERS!
+                                transform: [{
+                                    translateX: bacteriaLabelContainerLeft,
+                                }, {
+                                    translateY: this.props.animatedTop,
+                                }, {
+                                    scale: this.props.animatedZoom,
+                                }],
+                            },
+                        ]}
+                    >
+
+                        { this.props.matrix.sortedBacteria.map(bact => (
+                            <BacteriumLabel
+                                key={bact.bacterium.id}
+                                containerHeight={this.props.containerHeight}
+                                cappedLabelZoom={cappedLabelZoom}
+                                animatedZoom={this.props.animatedZoom}
+                                maxZoom={this.props.maxZoom}
+                                bacterium={bact}
+                                matrix={this.props.matrix} />
+                        )) }
+
+                    </Animated.View>
+
                 </View>
+
+
 
                 { /* Mask at the top left corner to hide labels */ }
                 <View style={[styles.topLeftCorner, {
-                    width: this.bacteriumLabelColumnWidth,
+                    width: !this.props.matrix.defaultRadius ? 0 :
+                        this.bacteriumLabelColumnWidth + this.props.matrix.defaultRadius,
                     height: this.antibioticLabelRowHeight,
                 }]} />
+
 
             </View>
         );
@@ -445,10 +512,17 @@ const styles = StyleSheet.create({
     antibioticLabelsContainer: {
         position: 'absolute',
         top: 0,
-        borderWidth: 1,
-        borderColor: 'deeppink',
+        // borderWidth: 1,
+        // borderColor: 'deeppink',
         // backgroundColor: 'lightcoral',
         backgroundColor: 'white',
+    },
+    antibioticContainer: {
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+        // borderColor: 'salmon',
+        // borderWidth: 1,
     },
     bacteriumLabelsContainer: {
         position: 'absolute',
@@ -458,14 +532,20 @@ const styles = StyleSheet.create({
         // backgroundColor: 'coral',
         backgroundColor: 'white',
     },
+    bacteriumLabels: {
+        height: '100%',
+        // borderColor: 'salmon',
+        // borderWidth: 1,
+        position: 'absolute',
+    },
     resistancesContainer: {
         // borderWidth: 1,
         // borderColor: 'salmon',
     },
     resistanceCirclesContainer: {
         position: 'absolute',
-        borderWidth: 1,
-        borderColor: 'pink',
+        // borderWidth: 1,
+        // borderColor: 'pink',
     },
     topLeftCorner: {
         backgroundColor: 'white',

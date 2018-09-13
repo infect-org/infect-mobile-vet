@@ -7,7 +7,6 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
 const {
-    Value,
     multiply,
     sub,
     divide,
@@ -17,6 +16,14 @@ const {
 export default class AntibioticLabel extends React.Component {
 
     left = 0;
+
+    state = {
+        // Use state as we want to re-render when dimensions change (to update reanimated functions)
+        outerContainerDimensions: {
+            width: 0,
+            height: 0,
+        },
+    }
 
     @observable labelDimensions = {
         height: 0,
@@ -32,8 +39,7 @@ export default class AntibioticLabel extends React.Component {
         super(...params);
         reaction(
             // TODO: When setValue is available, use setValue and remove forceUpdate
-            // BTW: Why are we watching containerWidth here?
-            () => this.props.matrix.defaultRadius && this.props.containerWidth,
+            () => this.props.matrix.defaultRadius,
             () => {
                 this.setupAnimatedProps();
                 this.forceUpdate();
@@ -52,10 +58,9 @@ export default class AntibioticLabel extends React.Component {
             position.left - this.labelDimensions.height / 1.7 :
             position.left;
 
-        this.left = multiply(
-            left,
-            this.props.additionalLabelSpacingIncrease,
-        );
+        // defaultRadius is also added on Resistance – must be coherent. We need enough space
+        // on the left: If user zooms out, text may not overlap container.
+        this.left = left + this.props.matrix.defaultRadius;
 
     }
 
@@ -74,8 +79,9 @@ export default class AntibioticLabel extends React.Component {
         // Label must be at the top for android; at the bottom for iOS
         let top;
         // Move down a little to account for props.maxZoom
-        if (Platform.OS === 'android') top = 25;
-        else {
+        if (Platform.OS === 'android') {
+            top = this.props.matrix.antibioticLabelRowHeight * (this.props.maxZoom - 1) - 10;
+        } else {
             top = this.props.matrix.antibioticLabelRowHeight * this.props.maxZoom;
         }
         return top;
@@ -172,7 +178,10 @@ export default class AntibioticLabel extends React.Component {
      * Dimensions are needed for Android, because there's no overflow: visible
      */
     @computed get labelContainerDimensions() {
+
+        // Not using heights/width for iOS makes things simpler when zooming in/out
         if (Platform.OS === 'ios') return {};
+
         // 1st we need to get height/width of labels
         // Then we calculate antibioticLabelRowHeight on matrix (highest label)
         // Only then can we return a real height. If we return height/widht before, this will
@@ -185,9 +194,46 @@ export default class AntibioticLabel extends React.Component {
         };
     }
 
+
+    handleOuterContainerLayout(ev) {
+        const { height, width } = ev.nativeEvent.layout;
+        console.log('handleOuterContainerLayout:', width, height);
+        this.setState({
+            outerContainerDimensions: {
+                height,
+                width,
+            },
+        });
+    }
+
     render() {
 
         if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
+
+        const cappedLabelZoomAdjustment = divide(
+            this.props.cappedLabelZoom,
+            this.props.animatedZoom,
+        );
+
+        // When zooming in, we zoom from center/center – have therefore to move the labels up
+        // in order to align at the bottom.
+        // CAREFUL: When we zoom out, labels become bigger (as we want them to be at a minimum
+        // size!)
+        // Only needed on Android. On iOS, container has height 0 and overflow: visible
+        const adjustedTop = multiply(
+            sub(cappedLabelZoomAdjustment, 1),
+            20,
+        );
+
+
+        // When zooming beyond label zoom, we have to adjust a little bit for the fact that
+        // every label zooms from center/center (and we need bottom/left)
+        const adjustedLeft = multiply(
+            sub(cappedLabelZoomAdjustment, 1),
+            this.state.outerContainerDimensions.width,
+            0.5,
+        );
+
 
         return (
             // Basic placement of label: Just set x/y
@@ -197,13 +243,18 @@ export default class AntibioticLabel extends React.Component {
                     // Dimensions for Android (no overflow: visible)
                     this.labelContainerDimensions,
                     {
+                        top: this.props.moveLabelDownBy + this.top,
+                        left: this.left,
                         transform: [{
-                            translateY: this.top,
+                            translateY: adjustedTop,
                         }, {
-                            translateX: this.left,
+                            translateX: adjustedLeft,
+                        }, {
+                            scale: cappedLabelZoomAdjustment,
                         }],
                     },
-                ] }>
+                ]}
+                onLayout={ev => this.handleOuterContainerLayout(ev)}>
                 { /* When rotating, transformation origin is center/middle; this container moves
                      transformation so that center becomes left/middle. If we do this transformation
                      on the rotation container, we'll have to adjust everything by the rotation */ }
@@ -241,8 +292,8 @@ export default class AntibioticLabel extends React.Component {
 const styles = StyleSheet.create({
     labelContainer: {
         position: 'absolute',
-        // borderWidth: 1,
-        // borderColor: 'pink',
+        borderWidth: 1,
+        borderColor: 'pink',
     },
     labelRotatorAdjustments: {
         // borderWidth: 1,
