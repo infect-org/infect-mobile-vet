@@ -7,6 +7,8 @@ export default function log(...content) {
     // console.log('Logging disabled');
     console.log(...content);
 
+    return;
+
     /* global Headers, fetch */
     const headers = new Headers({
         'content-type': 'text/plain',

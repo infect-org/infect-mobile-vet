@@ -1,9 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, PanResponder } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
+import log from '../../helpers/log';
 
+
+/**
+ * Renders a resistance cirlce with text.
+ * TODO: We might improve performance if we only had 1 tap event listener for the whole matrix
+ * (instead of one per resistance).
+ */
 @observer
 export default class Resistance extends React.Component {
 
@@ -15,6 +22,21 @@ export default class Resistance extends React.Component {
     // Which is really bad. Android does not support overflow:visible, therefore we have to use
     // a workaround.
     circleMinWidth = 40;
+
+    /**
+     * Fucking GestureHandlers don't work here. No idea why. Use old style PanResponder. Even
+     * though you're a pain: Thanks for being here, my friend.
+     */
+    panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onStartShouldSetPanResponderCapture: () => true,
+        // Moves should go to PanPinch and not be handled by Resistance
+        onMoveShouldSetPanResponder: () => false,
+        onPanResponderGrant: () => {
+            log('Resistance: Update active resistance');
+            this.props.matrix.setActiveResistance(this.props.resistance);
+        },
+    });
 
     @computed get value() {
         const bestValue = this.props.resistance.mostPreciseValue;
@@ -54,7 +76,7 @@ export default class Resistance extends React.Component {
         this.props.onRender();
     }
 
-    handleTap() {
+    handleTap = () => {
         console.log('TAPPED');
     }
 
@@ -62,30 +84,40 @@ export default class Resistance extends React.Component {
 
         return (
             <View
-                style={ [
+                style={[
                     styles.resistance,
                     this.position,
-                ] }>
-                { /* <TapGestureHandler
-                    onHandlerStateChange={() => {}}
-                > */ }
-                { /* Circle with background */}
-                <View
-                    style={ [
-                        styles.resistanceCircle,
-                        this.circleDimensions,
-                        this.circleBackgroundColor,
-                    ] } />
-                { /* Text */ }
-                <Text
-                    style={ [
-                        styles.resistanceText,
-                        /* Use this.circleMinWidth as width so that text doesn't break */
-                        { width: this.position.width },
-                    ] }>
-                    { this.value }
-                </Text>
-                { /* </TapGestureHandler> */ }
+                ]}
+            >
+
+                <View style={styles.container}>
+
+                    { /* Only make the circle tappable: The text is wider than the circle as we
+                         don't want line breaks or ellipses */ }
+
+                    { /* Circle with background */}
+                    <View
+                        { ...this.panResponder.panHandlers }
+                        style={[
+                            styles.resistanceCircle,
+                            this.circleDimensions,
+                            this.circleBackgroundColor,
+                        ]}
+                    />
+
+                    { /* Text */ }
+                    <Text
+                        pointerEvents="none"
+                        style={[
+                            styles.resistanceText,
+                            /* Use this.circleMinWidth as width so that text doesn't break */
+                            { width: this.position.width },
+                        ]}
+                    >
+                        {this.value}
+                    </Text>
+
+                </View>
             </View>
         );
     }
@@ -93,6 +125,9 @@ export default class Resistance extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
     resistance: {
         position: 'absolute',
     },

@@ -4,6 +4,7 @@ import { observer } from 'mobx-react';
 import { computed, observable, action, reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import Resistance from '../resistance/Resistance';
+import ActiveResistanceDetail from '../resistance/ActiveResistanceDetail';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
 import log from '../../helpers/log';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
@@ -264,6 +265,7 @@ export default class MatrixContent extends React.Component {
                 { /* Container within which resistances will be moved/zoomed. Needed to
                      set the stage (container) and calculate its size for PanPinch */ }
                 { this.props.matrix.defaultRadius &&
+
                     <View
                         style={[styles.resistancesContainer, {
                             left: this.bacteriumLabelColumnWidth +
@@ -318,6 +320,20 @@ export default class MatrixContent extends React.Component {
                                 />
                             ))}
                         </Animated.View>
+
+
+                        { /* Active Resistance:
+                             Highest z-index of all resistances, therefore at the bottom. Use a
+                             separate component to prevent re-render of MatrixContent when it
+                             becomes available */ }
+                        <ActiveResistanceDetail
+                            matrix={this.props.matrix}
+                            width={this.visibleAntibioticsWidth}
+                            height={this.visibleBacteriaHeight}
+                            resistanceTransformation={this.getResistanceTransformation()}
+                        />
+
+
                     </View>
 
                 }

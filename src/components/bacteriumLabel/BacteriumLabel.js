@@ -9,7 +9,6 @@ import log from '../../helpers/log';
 const { Animated } = DangerZone;
 
 const {
-    add,
     multiply,
     sub,
     divide,
@@ -39,10 +38,10 @@ export default class BacteriumLabel extends React.Component {
      * available any more. TODO: Use setValue when it becomes available
      */
     setupAnimatedProps() {
+
         // TODO: When setValue is available, use setValue, move top and baseTop to
         // class props, remove forceUpdate!
         const { top } = this.props.matrix.yPositions.get(this.props.bacterium);
-        log('BacteriumLabel: Top is', top, 'containerHeight is', this.props.containerHeight);
 
         // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
         this.top = multiply(
@@ -92,6 +91,16 @@ export default class BacteriumLabel extends React.Component {
             .join(' ');
     }
 
+    @computed get activeBacteriumBackground() {
+        if (this.props.matrix && this.props.matrix.activeResistance) {
+            if (this.props.matrix.activeResistance.resistance.bacterium ===
+                this.props.bacterium.bacterium) {
+                return styleDefinitions.colors.highlightBackground;
+            }
+        }
+        return 'transparent';
+    }
+
     render() {
 
         if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
@@ -102,7 +111,7 @@ export default class BacteriumLabel extends React.Component {
             this.props.animatedZoom,
         );
 
-        log('BacteriumLabel: Render bacterium label', this.shortName, 'at', this.transform);
+        log('BacteriumLabel: Render bacterium label');
 
         // Use a View around the text because Text is not animatable
         return (
@@ -122,7 +131,10 @@ export default class BacteriumLabel extends React.Component {
                 ]}
             >
                 <Text
-                    style={styles.labelText}
+                    style={[
+                        styles.labelText,
+                        { backgroundColor: this.activeBacteriumBackground },
+                    ]}
                     onLayout={this.labelLayoutHandler}>
                     {this.shortName}
                 </Text>

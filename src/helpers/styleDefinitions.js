@@ -24,5 +24,6 @@ export default {
         green: '#cbe264', // c7ed61
         error: '#d82222',
         blackGreen: '#31330b',
+        highlightBackground: '#a9ddf2',
     },
 };

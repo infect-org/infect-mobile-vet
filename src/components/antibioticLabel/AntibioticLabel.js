@@ -167,6 +167,16 @@ export default class AntibioticLabel extends React.Component {
         };
     }
 
+    @computed get activeAntibioticBackground() {
+        if (this.props.matrix && this.props.matrix.activeResistance) {
+            if (this.props.matrix.activeResistance.resistance.antibiotic ===
+                this.props.antibiotic.antibiotic) {
+                return styleDefinitions.colors.highlightBackground;
+            }
+        }
+        return 'transparent';
+    }
+
 
     render() {
 
@@ -198,6 +208,7 @@ export default class AntibioticLabel extends React.Component {
             0.5,
         );
 
+        log('AntibioticLabel: Render');
 
         return (
             // Basic placement of label: Just set x/y
@@ -230,17 +241,18 @@ export default class AntibioticLabel extends React.Component {
                     ]}>
                     { /* Rotate label */ }
                     <View
-                        style={ [
+                        style={[
                             styles.labelRotator,
                             // Dimensions for Android (no overflow: visible)
                             this.labelContainerDimensions,
                             this.labelRotatorStyle,
-                        ] }
+                        ]}
                     >
                         <Text
-                            style={ [
+                            style={[
                                 styles.labelText,
-                            ] }
+                                { backgroundColor: this.activeAntibioticBackground },
+                            ]}
                             onLayout={ this.labelTextLayoutHandler }>
                             { this.shortName }
                         </Text>
