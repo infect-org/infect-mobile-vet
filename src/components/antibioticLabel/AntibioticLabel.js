@@ -17,14 +17,6 @@ export default class AntibioticLabel extends React.Component {
 
     left = 0;
 
-    state = {
-        // Use state as we want to re-render when dimensions change (to update reanimated functions)
-        outerContainerDimensions: {
-            width: 0,
-            height: 0,
-        },
-    }
-
     @observable labelDimensions = {
         height: 0,
         width: 0,
@@ -60,7 +52,7 @@ export default class AntibioticLabel extends React.Component {
 
         // defaultRadius is also added on Resistance – must be coherent. We need enough space
         // on the left: If user zooms out, text may not overlap container.
-        this.left = left + this.props.matrix.defaultRadius;
+        this.left = left;
 
     }
 
@@ -150,27 +142,9 @@ export default class AntibioticLabel extends React.Component {
         // Only align stuff when we're ready
         if (!this.props.matrix.defaultRadius) return {};
 
-        if (Platform.OS === 'android') {
-            return {
-                left: this.labelDimensions.height * Math.abs(Math.sin(this.rotationRad)),
-                top: this.labelDimensions.height * Math.abs(Math.cos(this.rotationRad)),
-            };
-        }
-
-        // iOS: Move rotation center from center/center to left/middle
-        const moveDown = ((this.labelDimensions.width / 2) * Math.sin(this.rotationRad)) -
-            ((this.labelDimensions.height / 2) * Math.cos(this.rotationRad));
-        const moveLeft = ((this.labelDimensions.width / 2) * Math.cos(this.rotationRad) * -1) -
-            ((this.labelDimensions.height / 2) * Math.sin(this.rotationRad));
-        // Transformation origin is center/center; adjust position to create a translation
-        // originating at left/middle.
-        log('AntibioticLabel: Adjustments are', moveDown, moveLeft);
         return {
-            transform: [{
-                translateX: Math.round(moveLeft - (this.props.matrix.defaultRadius || 0)),
-            }, {
-                translateY: Math.round(moveDown),
-            }],
+            left: this.labelDimensions.height * Math.abs(Math.sin(this.rotationRad)),
+            top: this.labelDimensions.height * Math.abs(Math.cos(this.rotationRad)),
         };
     }
 
@@ -178,9 +152,6 @@ export default class AntibioticLabel extends React.Component {
      * Dimensions are needed for Android, because there's no overflow: visible
      */
     @computed get labelContainerDimensions() {
-
-        // Not using heights/width for iOS makes things simpler when zooming in/out
-        if (Platform.OS === 'ios') return {};
 
         // 1st we need to get height/width of labels
         // Then we calculate antibioticLabelRowHeight on matrix (highest label)
@@ -194,17 +165,6 @@ export default class AntibioticLabel extends React.Component {
         };
     }
 
-
-    handleOuterContainerLayout(ev) {
-        const { height, width } = ev.nativeEvent.layout;
-        console.log('handleOuterContainerLayout:', width, height);
-        this.setState({
-            outerContainerDimensions: {
-                height,
-                width,
-            },
-        });
-    }
 
     render() {
 
@@ -220,9 +180,11 @@ export default class AntibioticLabel extends React.Component {
         // CAREFUL: When we zoom out, labels become bigger (as we want them to be at a minimum
         // size!)
         // Only needed on Android. On iOS, container has height 0 and overflow: visible
+
         const adjustedTop = multiply(
             sub(cappedLabelZoomAdjustment, 1),
-            20,
+            this.props.matrix.antibioticLabelRowHeight,
+            -0.5,
         );
 
 
@@ -230,7 +192,7 @@ export default class AntibioticLabel extends React.Component {
         // every label zooms from center/center (and we need bottom/left)
         const adjustedLeft = multiply(
             sub(cappedLabelZoomAdjustment, 1),
-            this.state.outerContainerDimensions.width,
+            this.props.matrix.antibioticLabelRowHeight,
             0.5,
         );
 
@@ -240,10 +202,9 @@ export default class AntibioticLabel extends React.Component {
             <Animated.View
                 style={ [
                     styles.labelContainer,
-                    // Dimensions for Android (no overflow: visible)
+                    // Dimensions are needed for Android (no overflow: visible)
                     this.labelContainerDimensions,
                     {
-                        top: this.props.moveLabelDownBy + this.top,
                         left: this.left,
                         transform: [{
                             translateY: adjustedTop,
@@ -254,7 +215,7 @@ export default class AntibioticLabel extends React.Component {
                         }],
                     },
                 ]}
-                onLayout={ev => this.handleOuterContainerLayout(ev)}>
+            >
                 { /* When rotating, transformation origin is center/middle; this container moves
                      transformation so that center becomes left/middle. If we do this transformation
                      on the rotation container, we'll have to adjust everything by the rotation */ }
@@ -292,8 +253,9 @@ export default class AntibioticLabel extends React.Component {
 const styles = StyleSheet.create({
     labelContainer: {
         position: 'absolute',
-        borderWidth: 1,
-        borderColor: 'pink',
+        bottom: 0,
+        // borderWidth: 1,
+        // borderColor: 'pink',
     },
     labelRotatorAdjustments: {
         // borderWidth: 1,

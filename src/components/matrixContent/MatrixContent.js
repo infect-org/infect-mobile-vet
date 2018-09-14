@@ -317,10 +317,26 @@ export default class MatrixContent extends React.Component {
         );
 
 
+        // TODO: Remove
+        /* const labelZoomAdjustment = divide(cappedLabelZoom, this.props.animatedZoom);
+        const labelTopAdjustment = multiply(
+            sub(labelZoomAdjustment, 1),
+            50,
+            -0.5,
+        );
+        const labelLeftAdjustment = multiply(
+            sub(labelZoomAdjustment, 1),
+            50,
+            0.5,
+        ); */
+
         log('MatrixContent: Render');
 
         return (
             <View style={ styles.container }>
+
+
+                { /* RESISTANCES */ }
                 { /* Container within which resistances will be moved/zoomed. Needed to
                      set the stage (container) and calculate its size for PanPinch */ }
                 { this.props.matrix.defaultRadius &&
@@ -382,7 +398,9 @@ export default class MatrixContent extends React.Component {
 
                 }
 
-                { /* Antibiotics */ }
+
+
+                { /* ANTIBIOTICS */ }
                 <View
                     style={[
                         styles.antibioticLabelsContainer,
@@ -416,6 +434,27 @@ export default class MatrixContent extends React.Component {
                         ]}
                     >
 
+                        { /* Just a test, see necessary variables above */ }
+                        { /*
+                        <Animated.View
+                            style={[{
+                                width: 50,
+                                height: 50,
+                                backgroundColor: 'black',
+                                left: 0,
+                                bottom: 0,
+                                position: 'absolute',
+                                transform: [{
+                                    translateX: labelLeftAdjustment,
+                                }, {
+                                    translateY: labelTopAdjustment,
+                                }, {
+                                    scale: labelZoomAdjustment,
+                                }],
+                            }]}
+                        />
+                        */ }
+
                         { this.props.matrix.sortedAntibiotics.map(ab => (
                             <AntibioticLabel
                                 // We increase the container's height by 2 (to prevent cut text
@@ -437,14 +476,17 @@ export default class MatrixContent extends React.Component {
 
 
 
-                { /* Bacteria */ }
+                { /* BACTERIA */ }
                 <View
                     style={[
                         styles.bacteriumLabelsContainer,
                         {
                             width: this.bacteriumLabelColumnWidth,
                             top: this.antibioticLabelRowHeight,
-                            height: this.visibleBacteriaHeight,
+                            // Height: We need some additional height for Android or bottom-most
+                            // label is cut off when zooming out (as we increase the font size)
+                            height: !this.props.matrix.defaultRadius ? 0 :
+                                this.visibleBacteriaHeight + this.props.matrix.defaultRadius,
                             paddingTop: this.halfSpace,
                         },
                         this.labelOpacity,
@@ -489,6 +531,7 @@ export default class MatrixContent extends React.Component {
 
 
 
+                { /* MASK */ }
                 { /* Mask at the top left corner to hide labels */ }
                 <View style={[styles.topLeftCorner, {
                     width: !this.props.matrix.defaultRadius ? 0 :
@@ -512,10 +555,9 @@ const styles = StyleSheet.create({
     antibioticLabelsContainer: {
         position: 'absolute',
         top: 0,
+        backgroundColor: 'white',
         // borderWidth: 1,
         // borderColor: 'deeppink',
-        // backgroundColor: 'lightcoral',
-        backgroundColor: 'white',
     },
     antibioticContainer: {
         position: 'absolute',
@@ -527,16 +569,16 @@ const styles = StyleSheet.create({
     bacteriumLabelsContainer: {
         position: 'absolute',
         left: 0,
+        backgroundColor: 'white',
         // borderColor: 'tomato',
         // borderWidth: 1,
         // backgroundColor: 'coral',
-        backgroundColor: 'white',
     },
     bacteriumLabels: {
         height: '100%',
+        position: 'absolute',
         // borderColor: 'salmon',
         // borderWidth: 1,
-        position: 'absolute',
     },
     resistancesContainer: {
         // borderWidth: 1,
@@ -549,10 +591,10 @@ const styles = StyleSheet.create({
     },
     topLeftCorner: {
         backgroundColor: 'white',
-        // borderWidth: 1,
-        // borderColor: 'purple',
         position: 'absolute',
         top: 0,
         left: 0,
+        // borderWidth: 1,
+        // borderColor: 'purple',
     },
 });

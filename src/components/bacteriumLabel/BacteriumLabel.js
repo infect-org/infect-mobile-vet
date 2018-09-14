@@ -45,6 +45,8 @@ export default class BacteriumLabel extends React.Component {
         // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
         this.top = multiply(
             divide(this.props.animatedZoom, this.props.cappedLabelZoom),
+            // yPosition is used as center by resistance. Move up by half the label's height
+            // sub(top, divide(this.height, 2)),
             top,
         );
 
@@ -65,8 +67,9 @@ export default class BacteriumLabel extends React.Component {
     labelLayoutHandler = (ev) => {
         // Make sure we only handle layout once; if not, we might run into an infinite loop.
         if (this.width) return;
-        const { width } = ev.nativeEvent.layout;
+        const { width, height } = ev.nativeEvent.layout;
         this.width = width;
+        this.height = height;
         this.props.bacterium.setWidth(width);
     };
 
