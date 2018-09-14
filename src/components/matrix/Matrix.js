@@ -1,11 +1,15 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { observer } from 'mobx-react';
+import { DangerZone } from 'expo';
 import PanPinch from 'react-native-pan-pinch';
-import Animated from 'react-native-reanimated';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
 import styleDefinitions from '../../helpers/styleDefinitions';
+
+const { Animated } = DangerZone;
+const { Value } = Animated;
+
 
 /**
  * Matrix with interaction handling (pinch/pan)
@@ -13,11 +17,8 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 @observer
 export default class Matrix extends React.Component {
 
-    state = {
-        containerDimensions: [],
-        contentDimensions: [],
-    }
-
+    containerDimensions = [new Value(100), new Value(100)];
+    contentDimensions = [new Value(10), new Value(10)];
     zoomRange = [0.35, 2];
 
     /**
@@ -27,7 +28,8 @@ export default class Matrix extends React.Component {
     handleContainerLayout(layout) {
         const { width, height } = layout;
         log('Matrix: handleContainerLayout for', layout);
-        this.setState({ containerDimensions: [width, height] });
+        this.containerDimensions[0].setValue(width);
+        this.containerDimensions[1].setValue(height);
     }
 
     /**
@@ -37,7 +39,8 @@ export default class Matrix extends React.Component {
     handleContentLayout(layout) {
         const { width, height } = layout;
         log('Matrix: handleContentLayout for', layout);
-        this.setState({ contentDimensions: [width, height] });
+        this.contentDimensions[0].setValue(width);
+        this.contentDimensions[1].setValue(height);
     }
 
     render() {
@@ -49,8 +52,8 @@ export default class Matrix extends React.Component {
                 style={styles.container}
             >
                 <PanPinch
-                    containerDimensions={this.state.containerDimensions}
-                    contentDimensions={this.state.contentDimensions}
+                    containerDimensions={this.containerDimensions}
+                    contentDimensions={this.contentDimensions}
                     zoomRange={this.zoomRange}
                 >
                     <MatrixContent

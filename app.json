@@ -4,12 +4,12 @@
     "description": "INFECT for mobile phones",
     "slug": "infect-app",
     "privacy": "public",
-    "sdkVersion": "29.0.0",
+    "sdkVersion": "30.0.0",
     "platforms": [
       "ios",
       "android"
     ],
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {

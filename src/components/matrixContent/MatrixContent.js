@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Dimensions, StyleSheet, Platform } from 'react-native';
+import { View, Dimensions, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, observable, action, reaction } from 'mobx';
-import Animated from 'react-native-reanimated';
-import BacteriumLabelsContainer from '../bacteriumLabelsContainer/BacteriumLabelsContainer';
-import AntibioticLabelsContainer from '../antibioticLabelsContainer/AntibioticLabelsContainer';
+import { DangerZone } from 'expo';
 import Resistance from '../resistance/Resistance';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
 import log from '../../helpers/log';
@@ -16,10 +14,11 @@ const windowHeight = Dimensions.get('window').height;
 log('Dimensions:', Dimensions.get('window'));
 log('Screen dimensions:', Dimensions.get('screen'));
 
+const { Animated } = DangerZone;
+
 const {
     max,
     min,
-    divide,
     multiply,
     sub,
 } = Animated;
@@ -52,28 +51,6 @@ export default class MatrixContent extends React.Component {
     }
 
 
-    /**
-     * Zoom for labels: Is capped so that they don't get too big or small
-     */
-    /* cappedLabelZoom = min(
-        this.labelZoomCaps.max,
-        max(
-            this.labelZoomCaps.min,
-            this.props.animatedZoom,
-        ),
-    ); */
-
-    /**
-     * When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
-     * between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
-     * needed (in %)
-     */
-    /* additionalLabelSpacingIncrease = divide(
-        this.props.animatedZoom,
-        this.cappedLabelZoom,
-    ); */
-
-
     componentDidMount() {
 
         this.setupInitialLayoutHandler();
@@ -89,34 +66,6 @@ export default class MatrixContent extends React.Component {
     }
 
 
-
-    /**
-     * We must update animated props whenever content renders; if we don't, it uses old values
-     * that were set initially; TODO: use setValue as soon as it's available, convert them to
-     * regular class props
-     */
-    /* setupAnimatedProperties() {
-
-        // We want to cap zooming on labels so that they don't get too big (the resistance dots may
-        // be zoomed in further)
-        this.cappedLabelZoom = min(
-            this.labelZoomCaps.max,
-            max(
-                this.labelZoomCaps.min,
-                this.props.animatedZoom,
-            ),
-        );
-
-        // When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
-        // between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
-        // needed (in %)
-        this.additionalLabelSpacingIncrease = divide(
-            this.props.animatedZoom,
-            this.cappedLabelZoom,
-        );
-
-    } */
-
     /**
      * Android doesn't fire onLayout on *first* render – only on subsequent renders. Somehow, we
      * have to set the container and content's dimensions for PanPinch. Do this whenever layout
@@ -126,7 +75,6 @@ export default class MatrixContent extends React.Component {
 
         // TODO: Should we only continue on Android devices? Or does it speed up the initial layout
         // on iOS as well?
-        // if (Platform.OS === 'iOS') return;
 
         log('MatrixContent: Setup initial layout handler');
 
@@ -279,17 +227,6 @@ export default class MatrixContent extends React.Component {
 
 
         /**
-         * When the zoom becomes capped (see cappedLabelZoom), we need to extend the spacing
-         * between bact and ab labels. additionalLabelSpacingIncrease holds the additional spacing
-         * needed (in %)
-         */
-        /* const additionalLabelSpacingIncrease = divide(
-            this.props.animatedZoom,
-            cappedLabelZoom,
-        ); */
-
-
-        /**
          * Container should always look like right:0 – as zoom origin is center/center, we have
          * to move it
          */
@@ -316,19 +253,6 @@ export default class MatrixContent extends React.Component {
             -0.5,
         );
 
-
-        // TODO: Remove
-        /* const labelZoomAdjustment = divide(cappedLabelZoom, this.props.animatedZoom);
-        const labelTopAdjustment = multiply(
-            sub(labelZoomAdjustment, 1),
-            50,
-            -0.5,
-        );
-        const labelLeftAdjustment = multiply(
-            sub(labelZoomAdjustment, 1),
-            50,
-            0.5,
-        ); */
 
         log('MatrixContent: Render');
 
@@ -433,27 +357,6 @@ export default class MatrixContent extends React.Component {
                             },
                         ]}
                     >
-
-                        { /* Just a test, see necessary variables above */ }
-                        { /*
-                        <Animated.View
-                            style={[{
-                                width: 50,
-                                height: 50,
-                                backgroundColor: 'black',
-                                left: 0,
-                                bottom: 0,
-                                position: 'absolute',
-                                transform: [{
-                                    translateX: labelLeftAdjustment,
-                                }, {
-                                    translateY: labelTopAdjustment,
-                                }, {
-                                    scale: labelZoomAdjustment,
-                                }],
-                            }]}
-                        />
-                        */ }
 
                         { this.props.matrix.sortedAntibiotics.map(ab => (
                             <AntibioticLabel

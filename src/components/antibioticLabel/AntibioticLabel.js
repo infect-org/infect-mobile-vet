@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { observer } from 'mobx-react';
-import Animated from 'react-native-reanimated';
+import { DangerZone } from 'expo';
 import { computed, observable, action, reaction } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
+
+const { Animated } = DangerZone;
 
 const {
     multiply,

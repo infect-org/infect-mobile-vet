@@ -54,6 +54,10 @@ export default class Resistance extends React.Component {
         this.props.onRender();
     }
 
+    handleTap() {
+        console.log('TAPPED');
+    }
+
     render() {
 
         return (
@@ -62,6 +66,9 @@ export default class Resistance extends React.Component {
                     styles.resistance,
                     this.position,
                 ] }>
+                { /* <TapGestureHandler
+                    onHandlerStateChange={() => {}}
+                > */ }
                 { /* Circle with background */}
                 <View
                     style={ [
@@ -78,6 +85,7 @@ export default class Resistance extends React.Component {
                     ] }>
                     { this.value }
                 </Text>
+                { /* </TapGestureHandler> */ }
             </View>
         );
     }

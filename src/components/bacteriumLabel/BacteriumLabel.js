@@ -2,9 +2,11 @@ import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction } from 'mobx';
-import Animated from 'react-native-reanimated';
+import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
+
+const { Animated } = DangerZone;
 
 const {
     add,
