@@ -102,12 +102,14 @@ const styles = StyleSheet.create({
     resistanceText: {
         top: 6,
         fontSize: 18,
+        marginBottom: 4,
     },
     infoText: {
         // Line height of 1 is enough
-        lineHeight: styleDefinitions.label.fontSize * 1.2,
+        lineHeight: styleDefinitions.label.fontSize * 1.1,
         // Text doesn't go below base line (numbers & caps)
-        height: styleDefinitions.label.fontSize * 1.2,
+        height: styleDefinitions.label.fontSize * 1.1,
+        textAlignVertical: 'center',
         // borderColor: 'salmon',
         // borderWidth: 1,
     },

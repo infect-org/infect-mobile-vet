@@ -83,6 +83,8 @@ export default class Matrix extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        // borderColor: 'yellow',
+        // borderWidth: 10,
     },
     filterButton: {
         borderRadius: 25,

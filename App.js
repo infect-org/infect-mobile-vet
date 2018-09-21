@@ -15,9 +15,6 @@ import LoadingScreen from './src/components/loadingScreen/LoadingScreen';
 import log from './src/helpers/log';
 
 
-// For live environment, disable all logs (they tend to cause troubles)
-// console.log = () => {};
-
 
 // Remove this once Sentry is correctly setup.
 // See https://docs.expo.io/versions/latest/guides/using-sentry
@@ -25,7 +22,7 @@ Sentry.enableInExpoDevelopment = true;
 Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').install();
 
 // Make sure MobX throws if we're not using actions
-configure({ enforceActions: true });
+configure({ enforceActions: 'always' });
 
 /**
  * Basic app. Especially handles
@@ -140,13 +137,13 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
     },
-    matrix: {
+    /* matrix: {
         position: 'absolute',
         left: 0,
         right: 0,
         top: 0,
         bottom: 0,
-    },
+    }, */
     container: {
         flex: 1,
     },

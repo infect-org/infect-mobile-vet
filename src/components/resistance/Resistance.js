@@ -30,9 +30,15 @@ export default class Resistance extends React.Component {
     panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onStartShouldSetPanResponderCapture: () => true,
+        onMoveShouldSetResponderCapture: () => false,
         // Moves should go to PanPinch and not be handled by Resistance
-        onMoveShouldSetPanResponder: () => false,
-        onPanResponderGrant: () => {
+        onMoveShouldSetPanResponder: (ev, gestureState) => (
+            Math.abs(gestureState.dx) >= 1 || Math.abs(gestureState.dy) >= 1
+        ),
+        onResponderTerminationRequest: () => true,
+        onMoveShouldSetPanResponderCapture: () => false,
+        onPanResponderTerminationRequest: () => true,
+        onPanResponderRelease: () => {
             log('Resistance: Update active resistance');
             this.props.matrix.setActiveResistance(this.props.resistance);
         },
@@ -77,10 +83,12 @@ export default class Resistance extends React.Component {
     }
 
     handleTap = () => {
-        console.log('TAPPED');
+        log('TAPPED');
     }
 
     render() {
+
+        log('Resistance: Render');
 
         return (
             <View
