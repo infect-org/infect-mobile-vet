@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, observable, action, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import { DangerZone, GestureHandler } from 'expo';
+import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
 import ActiveResistanceDetail from '../resistance/ActiveResistanceDetail';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
@@ -10,6 +11,8 @@ import log from '../../helpers/log';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
 import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 
+const { AntibioticMatrixView } = models;
+const { TapGestureHandler, State } = GestureHandler;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 log('Dimensions:', Dimensions.get('window'));
@@ -212,6 +215,60 @@ export default class MatrixContent extends React.Component {
             'auto';
     }
 
+    handleStateChange(ev) {
+        if (ev.nativeEvent.state === State.ACTIVE) {
+            const closestBacterium = this.getClosestBacterium(ev.nativeEvent.y);
+            const closestAntibiotic = this.getClosestAntibiotic(ev.nativeEvent.x);
+            if (!closestBacterium || !closestAntibiotic) {
+                log('MatrixContent: Could not find closest bacterium or antibiotic');
+                return;
+            }
+            log('MatrixContent: Tapped', closestBacterium, closestAntibiotic, ev.nativeEvent);
+            const closestResistance = this.props.matrix.resistances.find(resistance => (
+                resistance.resistance.bacterium === closestBacterium.bacterium &&
+                resistance.resistance.antibiotic === closestAntibiotic.antibiotic
+            ));
+            log('MatrixView: Closest resistance', closestResistance);
+            if (closestResistance) this.props.matrix.setActiveResistance(closestResistance);
+        }
+    }
+
+    getClosestBacterium(yPosition) {
+        const closest = {
+            difference: Infinity,
+            bacterium: undefined,
+        };
+        this.props.matrix.yPositions.forEach((position, bacterium) => {
+            const bacteriumCenter = position.top + this.props.matrix.defaultRadius;
+            const diff = Math.abs(bacteriumCenter - yPosition);
+            if (diff < closest.difference) {
+                closest.difference = diff;
+                closest.bacterium = bacterium;
+            }
+        });
+        return closest.bacterium;
+    }
+
+    getClosestAntibiotic(xPosition) {
+        const closest = {
+            difference: Infinity,
+            antibiotic: undefined,
+        };
+        this.props.matrix.xPositions.forEach((position, item) => {
+            // item may be an AntibioticMatrixView or a SubstanceClassMatrixView. Ignore substance
+            // classes as they are not helpful to get the right resistance.
+            if (!(item instanceof AntibioticMatrixView)) return;
+            const center = (position.left + position.right) / 2;
+            const diff = Math.abs(center - xPosition);
+            if (diff < closest.difference) {
+                closest.difference = diff;
+                closest.antibiotic = item;
+            }
+        });
+        return closest.antibiotic;
+    }
+
+
     render() {
 
 
@@ -260,7 +317,6 @@ export default class MatrixContent extends React.Component {
         return (
             <View style={ styles.container }>
 
-
                 { /* RESISTANCES */ }
                 { /* Container within which resistances will be moved/zoomed. Needed to
                      set the stage (container) and calculate its size for PanPinch */ }
@@ -271,10 +327,14 @@ export default class MatrixContent extends React.Component {
                             left: this.bacteriumLabelColumnWidth +
                                 (this.props.matrix.defaultRadius || 0),
                             top: this.antibioticLabelRowHeight + this.halfSpace,
-                            width: windowWidth - this.bacteriumLabelColumnWidth - this.halfSpace,
-                            height: windowHeight - this.antibioticLabelRowHeight - this.halfSpace,
+                            width: windowWidth - this.bacteriumLabelColumnWidth -
+                                this.halfSpace,
+                            height: windowHeight - this.antibioticLabelRowHeight -
+                                this.halfSpace,
                         }]}
-                        onLayout={ev => this.props.handleContainerLayout(ev.nativeEvent.layout)}
+                        onLayout={ev =>
+                            this.props.handleContainerLayout(ev.nativeEvent.layout)
+                        }
                     >
 
                         { /* Vertical lines (substance class dividers; below resistances)
@@ -311,14 +371,28 @@ export default class MatrixContent extends React.Component {
                             onLayout={ev =>
                                 this.props.handleContentLayout(ev.nativeEvent.layout)}
                         >
-                            { this.props.matrix.resistances.map(res => (
-                                <Resistance
-                                    key={this.getResistanceKey(res)}
-                                    matrix={this.props.matrix}
-                                    resistance={res}
-                                    onRender={this.resistanceRendered}
-                                />
-                            ))}
+
+                            <TapGestureHandler
+                                onHandlerStateChange={this.handleStateChange.bind(this)}
+                            >
+
+                                <View
+                                    style={[
+                                        styles.container,
+                                    ]}
+                                >
+
+                                    { this.props.matrix.resistances.map(res => (
+                                        <Resistance
+                                            key={this.getResistanceKey(res)}
+                                            matrix={this.props.matrix}
+                                            resistance={res}
+                                            onRender={this.resistanceRendered}
+                                        />
+                                    ))}
+
+                                </View>
+                            </TapGestureHandler>
                         </Animated.View>
 
 
@@ -457,7 +531,6 @@ export default class MatrixContent extends React.Component {
                         this.bacteriumLabelColumnWidth + this.props.matrix.defaultRadius,
                     height: this.antibioticLabelRowHeight,
                 }]} />
-
 
             </View>
         );

@@ -4,11 +4,12 @@
 export default function log(...content) {
 
     // For live environment, disable all logs (they tend to cause troubles)
-    return;
+    // return;
 
     const url = 'http://logs-01.loggly.com/inputs/03a23b1d-d13f-4747-be6f-3b5bbfb1494a/tag/http/';
-    // console.log('Logging disabled');
-    console.log(...content);
+    // console.log(...content);
+
+    // return;
 
     /* global Headers, fetch */
     const headers = new Headers({

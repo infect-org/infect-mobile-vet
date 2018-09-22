@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, PanResponder } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
@@ -27,7 +27,7 @@ export default class Resistance extends React.Component {
      * Fucking GestureHandlers don't work here. No idea why. Use old style PanResponder. Even
      * though you're a pain: Thanks for being here, my friend.
      */
-    panResponder = PanResponder.create({
+    /* panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onStartShouldSetPanResponderCapture: () => true,
         onMoveShouldSetResponderCapture: () => false,
@@ -42,7 +42,7 @@ export default class Resistance extends React.Component {
             log('Resistance: Update active resistance');
             this.props.matrix.setActiveResistance(this.props.resistance);
         },
-    });
+    }); */
 
     @computed get value() {
         const bestValue = this.props.resistance.mostPreciseValue;
@@ -105,7 +105,7 @@ export default class Resistance extends React.Component {
 
                     { /* Circle with background */}
                     <View
-                        { ...this.panResponder.panHandlers }
+                        // { ...this.panResponder.panHandlers }
                         style={[
                             styles.resistanceCircle,
                             this.circleDimensions,
