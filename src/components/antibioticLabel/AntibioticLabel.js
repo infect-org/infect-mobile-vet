@@ -103,7 +103,14 @@ export default class AntibioticLabel extends React.Component {
         // Switch and recalculate width/height as we use a 60 deg angle
         const effectiveHeight = Math.abs((Math.sin(this.rotationRad) * width)) +
             Math.abs((Math.cos(this.rotationRad) * height));
-        log('ABLabel: Effective height is', effectiveHeight, 'width', height * 2);
+        log(
+            'AntibioticLabel: Original width is',
+            width,
+            'effective height is',
+            effectiveHeight,
+            'effective width',
+            height * 2,
+        );
         this.props.antibiotic.setDimensions(
             Math.ceil(height * 2),
             Math.ceil(effectiveHeight),

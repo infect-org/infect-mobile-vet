@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
         height: '100%',
         borderRadius: radius,
         shadowColor: '#000',
+        elevation: 3, // Needed for shadow on Android
         shadowOffset: {
             width: 5,
             height: 5,
@@ -97,10 +98,12 @@ const styles = StyleSheet.create({
         ...styleDefinitions.fonts.condensed,
         ...styleDefinitions.label,
         textAlign: 'center',
+        elevation: 4,
         width: '100%',
     },
     resistanceText: {
         top: 6,
+        elevation: 4,
         fontSize: 18,
         marginBottom: 4,
     },
@@ -110,6 +113,7 @@ const styles = StyleSheet.create({
         // Text doesn't go below base line (numbers & caps)
         height: styleDefinitions.label.fontSize * 1.1,
         textAlignVertical: 'center',
+        elevation: 4,
         // borderColor: 'salmon',
         // borderWidth: 1,
     },

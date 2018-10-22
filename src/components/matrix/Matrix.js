@@ -5,7 +5,6 @@ import { DangerZone } from 'expo';
 import PanPinch from 'react-native-pan-pinch';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
-import styleDefinitions from '../../helpers/styleDefinitions';
 
 const { Animated } = DangerZone;
 const { Value } = Animated;
@@ -71,9 +70,6 @@ export default class Matrix extends React.Component {
                     />
                 </PanPinch>
 
-                { /* Filter button */ }
-                <View style={styles.filterButton} />
-
             </View>
         );
     }
@@ -85,21 +81,5 @@ const styles = StyleSheet.create({
         flex: 1,
         // borderColor: 'yellow',
         // borderWidth: 10,
-    },
-    filterButton: {
-        borderRadius: 25,
-        height: 50,
-        width: 50,
-        backgroundColor: styleDefinitions.colors.green,
-        position: 'absolute',
-        right: 20,
-        bottom: 20,
-        shadowColor: '#000',
-        shadowRadius: 10,
-        shadowOpacity: 0.5,
-        shadowOffset: {
-            width: 5,
-            height: 5,
-        },
     },
 });

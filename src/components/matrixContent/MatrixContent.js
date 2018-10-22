@@ -7,6 +7,7 @@ import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
 import ActiveResistanceDetail from '../resistance/ActiveResistanceDetail';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';
+import SubstanceClassHeaders from '../substanceClassHeaders/SubstanceClassHeaders';
 import log from '../../helpers/log';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
 import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
@@ -36,6 +37,16 @@ export default class MatrixContent extends React.Component {
         // Needed to re-render on android so that onLayout is fired
         renderCount: 0,
     }
+
+    /**
+     * Height of the colored lines that represent substance classes
+     */
+    substanceClassHeight = 8;
+
+    /**
+     * Padding between substance class lines and matrix
+     */
+    layoutElementPadding = 4;
 
     contentElement = React.createRef();
 
@@ -106,9 +117,9 @@ export default class MatrixContent extends React.Component {
                     // Its crucial that these values correspond to the ones defined for
                     // resistanceContainer (render method below)
                     width: Math.round(windowWidth - this.bacteriumLabelColumnWidth -
-                        this.halfSpace),
+                        this.layoutElementPadding),
                     height: Math.round(windowHeight - this.antibioticLabelRowHeight -
-                        this.halfSpace),
+                        this.layoutElementPadding),
                 });
                 this.props.handleContentLayout({
                     width: Math.round(this.visibleAntibioticsWidth),
@@ -121,9 +132,9 @@ export default class MatrixContent extends React.Component {
     }
 
 
-    @computed get halfSpace() {
+    /* @computed get halfSpace() {
         return this.props.matrix.spaceBetweenGroups / 2;
-    }
+    } */
 
     @computed get labelOpacity() {
         const opacity = this.props.matrix.defaultRadius ? 1 : 0;
@@ -136,8 +147,9 @@ export default class MatrixContent extends React.Component {
      */
     @computed get visibleBacteriaHeight() {
         if (!this.props.matrix.defaultRadius) return 0;
+        // Add 1 to number of bacteria to be sure everything's visible
         const height = (this.props.matrix.defaultRadius * 2 + this.props.matrix.space) *
-            this.props.matrix.sortedVisibleBacteria.length;
+            (this.props.matrix.sortedVisibleBacteria.length + 1);
         log('Matrix: Height of visible bacteria is', height);
         return height;
     }
@@ -179,14 +191,21 @@ export default class MatrixContent extends React.Component {
         return `${resistance.resistance.antibiotic.id}/${resistance.resistance.bacterium.id}`;
     }
 
+    /**
+     * Returns the max height substanceClass rectangles can get (when fully zoomed).
+     */
+    @computed get substanceClassMaxHeight() {
+        return this.substanceClassHeight * this.props.zoomRange[1];
+    }
+
     @computed get antibioticLabelRowHeight() {
         // «Zoom into» bar with bact labels by max label zoom factor so that we don't have to
         // transform when zooming in
         // Add half a space to give it a small border so that resistances disappear behind labels
         // before they touch them (when panning)
         return this.props.matrix.defaultRadius ?
-            this.labelZoomCaps.max * this.props.matrix.antibioticLabelRowHeight + this.halfSpace :
-            'auto';
+            this.labelZoomCaps.max * this.props.matrix.antibioticLabelRowHeight +
+            this.layoutElementPadding : 0; // TODO: Maybe auto is needed on Android?
     }
 
     /**
@@ -211,11 +230,12 @@ export default class MatrixContent extends React.Component {
         // Add half a space to give it a small border so that resistances disappear behind labels
         // before they touch them (when panning)
         return this.props.matrix.defaultRadius ?
-            this.labelZoomCaps.max * this.props.matrix.bacteriumLabelColumnWidth + this.halfSpace :
-            'auto';
+            this.labelZoomCaps.max * this.props.matrix.bacteriumLabelColumnWidth +
+            this.layoutElementPadding : 0;
     }
 
     handleStateChange(ev) {
+        log('MatrixContent: Handle state change for event', ev.nativeEvent);
         if (ev.nativeEvent.state === State.ACTIVE) {
             const closestBacterium = this.getClosestBacterium(ev.nativeEvent.y);
             const closestAntibiotic = this.getClosestAntibiotic(ev.nativeEvent.x);
@@ -317,33 +337,48 @@ export default class MatrixContent extends React.Component {
         return (
             <View style={ styles.container }>
 
-                { /* RESISTANCES */ }
-                { /* Container within which resistances will be moved/zoomed. Needed to
-                     set the stage (container) and calculate its size for PanPinch */ }
+                { /* SUBSTANCE CLASSES */ }
                 { this.props.matrix.defaultRadius &&
 
                     <View
-                        style={[styles.resistancesContainer, {
-                            left: this.bacteriumLabelColumnWidth +
-                                (this.props.matrix.defaultRadius || 0),
-                            top: this.antibioticLabelRowHeight + this.halfSpace,
-                            width: windowWidth - this.bacteriumLabelColumnWidth -
-                                this.halfSpace,
-                            height: windowHeight - this.antibioticLabelRowHeight -
-                                this.halfSpace,
+                        style={[styles.substanceClassesContainer, {
+                            left: this.bacteriumLabelColumnWidth,
+                            top: this.antibioticLabelRowHeight,
+                            width: windowWidth - this.bacteriumLabelColumnWidth,
+                            height: windowHeight - this.antibioticLabelRowHeight,
                         }]}
-                        onLayout={ev =>
-                            this.props.handleContainerLayout(ev.nativeEvent.layout)
-                        }
                     >
-
+                        <Animated.View
+                            style={[
+                                {
+                                    width: this.visibleAntibioticsWidth,
+                                    height: this.substanceClassMaxHeight,
+                                    position: 'absolute',
+                                },
+                                // Similar to antibiotics: They are fixed to the top
+                                {
+                                    transform: [{
+                                        translateX: this.props.animatedLeft,
+                                    }, {
+                                        scale: this.props.animatedZoom,
+                                    }],
+                                },
+                            ]}
+                        >
+                            <SubstanceClassHeaders
+                                substanceClasses={this.props.matrix.substanceClasses}
+                                height={this.substanceClassHeight}
+                            />
+                        </Animated.View>
                         { /* Vertical lines (substance class dividers; below resistances)
-                             Only display after we know where to put them */ }
+                         Only display after we know where to put them */ }
                         <Animated.View
                             style={[
                                 {
                                     width: this.visibleAntibioticsWidth,
                                     height: this.visibleBacteriaHeight,
+                                    position: 'absolute',
+                                    top: this.substanceClassHeight,
                                 },
                                 this.getResistanceTransformation(),
                             ]}
@@ -356,9 +391,30 @@ export default class MatrixContent extends React.Component {
                                 />
                             )) }
                         </Animated.View>
+                    </View>
+                }
 
 
-                        { /* Resistances: Below labels */ }
+
+                { /* RESISTANCES */ }
+                { /* Container within which resistances will be moved/zoomed. Needed to
+                     set the stage (container) and calculate its size for PanPinch */ }
+                { this.props.matrix.defaultRadius &&
+
+                    <View
+                        style={[styles.resistancesContainer, {
+                            left: this.bacteriumLabelColumnWidth,
+                            top: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
+                            width: windowWidth - this.bacteriumLabelColumnWidth,
+                            height: windowHeight - this.antibioticLabelRowHeight -
+                                this.substanceClassMaxHeight,
+                        }]}
+                        onLayout={ev =>
+                            this.props.handleContainerLayout(ev.nativeEvent.layout)
+                        }
+                    >
+
+                        { /* Resistances: Below labels (z-index) */ }
                         <Animated.View
                             style={[
                                 styles.resistanceCirclesContainer,
@@ -420,8 +476,7 @@ export default class MatrixContent extends React.Component {
                         styles.antibioticLabelsContainer,
                         {
                             height: this.antibioticLabelRowHeight,
-                            left: !this.props.matrix.defaultRadius ? 0 :
-                                this.bacteriumLabelColumnWidth + this.props.matrix.defaultRadius,
+                            left: this.bacteriumLabelColumnWidth,
                             width: this.visibleAntibioticsWidth,
                         },
                         this.labelOpacity,
@@ -475,12 +530,12 @@ export default class MatrixContent extends React.Component {
                         styles.bacteriumLabelsContainer,
                         {
                             width: this.bacteriumLabelColumnWidth,
-                            top: this.antibioticLabelRowHeight,
+                            top: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
                             // Height: We need some additional height for Android or bottom-most
                             // label is cut off when zooming out (as we increase the font size)
                             height: !this.props.matrix.defaultRadius ? 0 :
                                 this.visibleBacteriaHeight + this.props.matrix.defaultRadius,
-                            paddingTop: this.halfSpace,
+                            paddingTop: this.layoutElementPadding,
                         },
                         this.labelOpacity,
                     ]}>
@@ -490,11 +545,8 @@ export default class MatrixContent extends React.Component {
                         style={[
                             styles.bacteriumLabels,
                             {
-                                // * 2 so that when we zoom out (and label size increases), Android
-                                // still displays everything (doesn't have overflow:visible)
                                 width: bacteriaLabelContainerWidth,
-                                top: this.halfSpace,
-                                right: this.halfSpace,
+                                right: this.layoutElementPadding,
                                 // Beware: THE FUCKING ORDER MATTERS!
                                 transform: [{
                                     translateX: bacteriaLabelContainerLeft,
@@ -513,7 +565,7 @@ export default class MatrixContent extends React.Component {
                                 containerHeight={this.props.containerHeight}
                                 cappedLabelZoom={cappedLabelZoom}
                                 animatedZoom={this.props.animatedZoom}
-                                maxZoom={this.props.maxZoom}
+                                maxZoom={this.labelZoomCaps.max}
                                 bacterium={bact}
                                 matrix={this.props.matrix} />
                         )) }
@@ -521,16 +573,6 @@ export default class MatrixContent extends React.Component {
                     </Animated.View>
 
                 </View>
-
-
-
-                { /* MASK */ }
-                { /* Mask at the top left corner to hide labels */ }
-                <View style={[styles.topLeftCorner, {
-                    width: !this.props.matrix.defaultRadius ? 0 :
-                        this.bacteriumLabelColumnWidth + this.props.matrix.defaultRadius,
-                    height: this.antibioticLabelRowHeight,
-                }]} />
 
             </View>
         );
@@ -550,6 +592,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         // borderWidth: 1,
         // borderColor: 'deeppink',
+        overflow: 'hidden',
     },
     antibioticContainer: {
         position: 'absolute',
@@ -562,6 +605,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         backgroundColor: 'white',
+        overflow: 'hidden',
         // borderColor: 'tomato',
         // borderWidth: 1,
         // backgroundColor: 'coral',
@@ -573,20 +617,22 @@ const styles = StyleSheet.create({
         // borderWidth: 1,
     },
     resistancesContainer: {
+        position: 'absolute',
         // borderWidth: 1,
         // borderColor: 'salmon',
+        overflow: 'hidden', // Force same behavior on iOS and Android
+    },
+    substanceClassesContainer: {
+        position: 'absolute',
+        overflow: 'hidden',
+        borderWidth: 1,
+        // This is really, really fucking stupid: If we don't have a border, Android (that does
+        // basically not know overflow:visible) will do an overflow:visible.
+        borderColor: 'transparent',
     },
     resistanceCirclesContainer: {
         position: 'absolute',
         // borderWidth: 1,
         // borderColor: 'pink',
-    },
-    topLeftCorner: {
-        backgroundColor: 'white',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        // borderWidth: 1,
-        // borderColor: 'purple',
     },
 });

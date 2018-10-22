@@ -25,5 +25,21 @@ export default {
         error: '#d82222',
         blackGreen: '#31330b',
         highlightBackground: '#a9ddf2',
+        darkBackgroundGrey: '#363636',
+        mediumBackgroundGrey: '#4B4B4B',
+        lightBackgroundGrey: '#848484',
+        lightForegroundGrey: '#BCBCBC',
+    },
+    shadows: {
+        primaryButton: {
+            elevation: 4,
+            shadowColor: '#000',
+            shadowRadius: 10,
+            shadowOpacity: 0.5,
+            shadowOffset: {
+                width: 5,
+                height: 5,
+            },
+        },
     },
 };

@@ -45,7 +45,6 @@ const styles = StyleSheet.create({
     substanceClassDivider: {
         position: 'absolute',
         top: 0,
-        width: 1,
-        height: 100,
+        width: StyleSheet.hairlineWidth,
     },
 });

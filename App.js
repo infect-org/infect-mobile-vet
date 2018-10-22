@@ -6,14 +6,14 @@ import { configure, observable, action, trace } from 'mobx';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
 import appConfig from './app.json';
+import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel';
 
 import config from './src/config';
-import Matrix from './src/components/matrix/Matrix';
 // import styleDefinitions from './src/helpers/styleDefinitions';
 import ErrorMessages from './src/components/errorMessages/ErrorMessages';
 import LoadingScreen from './src/components/loadingScreen/LoadingScreen';
+import MainView from './src/components/mainView/MainView';
 import log from './src/helpers/log';
-
 
 
 // Remove this once Sentry is correctly setup.
@@ -45,19 +45,22 @@ export default class App extends React.Component {
      * have to use an object.
      * *If* we'd re-render the whole app, all gesture handlers on the matrix would be fucked up
      * after re-rendering is done (IDK why).
+     * If you work on other parts than the matrix, just set done to true to display main screen
+     * quickly.
      */
     @observable rendering = { done: false };
 
     constructor() {
         super();
         this.app = new InfectApp(config);
-        this.setup();
+        this.setupApp();
+        this.filterOverlay = new FilterOverlayModel();
     }
 
     /**
      * Use separate setup method as it's async and we need to catch all async errors.
      */
-    async setup() {
+    async setupApp() {
         try {
             await this.app.initialize();
         } catch (err) {
@@ -85,12 +88,16 @@ export default class App extends React.Component {
 
                 { /* Render matrix as soon as data is ready (resistances are loaded last). */ }
                 { this.app.resistances.status.identifier === 'ready' &&
-                    <Matrix
-                        style={styles.matrix}
-                        matrix={this.app.views.matrix}
-                        selectedFilters={this.app.selectedFilters}
-                        setRenderingDone={this.setRenderingDone.bind(this)}
-                    />
+
+                    <View style={styles.container}>
+                        <MainView
+                            filterOverlay={this.filterOverlay}
+                            filterValues={this.app.filterValues}
+                            selectedFilters={this.app.selectedFilters}
+                            setRenderingDone={this.setRenderingDone.bind(this)}
+                            matrix={this.app.views.matrix}
+                        />
+                    </View>
                 }
 
                 { /* Loading screen
@@ -137,13 +144,6 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
     },
-    /* matrix: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-    }, */
     container: {
         flex: 1,
     },

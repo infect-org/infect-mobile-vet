@@ -7,9 +7,9 @@ export default function log(...content) {
     // return;
 
     const url = 'http://logs-01.loggly.com/inputs/03a23b1d-d13f-4747-be6f-3b5bbfb1494a/tag/http/';
-    // console.log(...content);
+    console.log(...content);
 
-    // return;
+    return;
 
     /* global Headers, fetch */
     const headers = new Headers({
