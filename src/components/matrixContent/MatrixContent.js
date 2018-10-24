@@ -236,7 +236,8 @@ export default class MatrixContent extends React.Component {
 
     handleStateChange(ev) {
         log('MatrixContent: Handle state change for event', ev.nativeEvent);
-        if (ev.nativeEvent.state === State.ACTIVE) {
+        const start = new Date().getTime();
+        if (ev.nativeEvent.state === State.BEGAN) {
             const closestBacterium = this.getClosestBacterium(ev.nativeEvent.y);
             const closestAntibiotic = this.getClosestAntibiotic(ev.nativeEvent.x);
             if (!closestBacterium || !closestAntibiotic) {
@@ -249,6 +250,7 @@ export default class MatrixContent extends React.Component {
                 resistance.resistance.antibiotic === closestAntibiotic.antibiotic
             ));
             log('MatrixView: Closest resistance', closestResistance);
+            log('MatrixContent: Got closest resistance in', new Date().getTime() - start, 'ms');
             if (closestResistance) this.props.matrix.setActiveResistance(closestResistance);
         }
     }

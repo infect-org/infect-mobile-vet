@@ -65,5 +65,8 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+        // If we have a transparent background color, splash screen will appear below content on
+        // android (only for regular builds, not if run in Expo though)
+        backgroundColor: 'white',
     },
 });

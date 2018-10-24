@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { observer } from 'mobx-react';
 import styleDefinitions from '../../helpers/styleDefinitions';
+import log from '../../helpers/log';
 
 const radius = 32;
 
@@ -13,6 +14,8 @@ export default class ResistanceDetail extends React.Component {
     }
 
     render() {
+
+        log('ResistanceDetail: Render');
 
         const resistance = this.props.matrix.activeResistance;
 

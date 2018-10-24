@@ -6,6 +6,10 @@ import ResistanceDetail from './ResistanceDetail';
 
 const { Animated } = DangerZone;
 
+/**
+ * Container that holds ResistanceDetail. Spans over the whole matrix and displays ResistanceDetail
+ * when needed.
+ */
 @observer
 export default class ActiveResistanceDetail extends React.Component {
 

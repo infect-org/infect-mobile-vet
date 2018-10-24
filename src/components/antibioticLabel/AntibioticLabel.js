@@ -47,15 +47,7 @@ export default class AntibioticLabel extends React.Component {
      */
     setupAnimatedProps() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        const left = Platform.OS === 'android' ?
-            // Why 1.7? It just works.
-            position.left - this.labelDimensions.height / 1.7 :
-            position.left;
-
-        // defaultRadius is also added on Resistance – must be coherent. We need enough space
-        // on the left: If user zooms out, text may not overlap container.
-        this.left = left;
-
+        this.left = position.left;
     }
 
 

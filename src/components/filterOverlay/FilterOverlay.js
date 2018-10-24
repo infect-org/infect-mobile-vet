@@ -45,6 +45,9 @@ export default class FilterOverlay extends React.Component {
     }
 
     render() {
+
+        log('FilterOverlay: Render');
+
         return (
             <View style={styles.filterOverlayContainer}>
 
