@@ -8,8 +8,10 @@ import log from '../../helpers/log';
 export default class SubstanceClassDivider extends React.Component {
 
     @computed get dividerStyle() {
+        const { xPosition } = this.props.substanceClass;
         const style = {
-            left: this.props.substanceClass.xPosition.left,
+            left: xPosition ? xPosition.left : 0,
+            opacity: xPosition ? 1 : 0,
             backgroundColor: this.props.substanceClass.lineColor,
             height: this.matrixHeight,
             top: 0,

@@ -5,29 +5,33 @@ import { observer } from 'mobx-react';
 import InfectLogo from '../infectLogo/InfectLogo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
+import componentStates from '../../models/componentStates/componentStates';
 
 @observer
 export default class LoadingScreen extends React.Component {
 
     logoWidth = 150;
 
-    getStatusText(originalLoadingStatus) {
-        return originalLoadingStatus === 'loading' ? 'loading …' : 'ready';
-    }
-
-    @computed get resistanceStatus() {
-        if (this.props.resistancesStatusIdentifier === 'loading') return 'loading …';
-        return 'rendering …';
-    }
-
     @computed get opacity() {
-        return { opacity: this.props.rendering.done ? 0 : 1 };
+        return this.props.componentStates.components.get('filters') === componentStates.ready ?
+            0 : 1;
+    }
+
+    getStateText(state) {
+        return state === componentStates.ready ? state : `${state}…`;
     }
 
     render() {
-        log('Render loading screen');
+        log('LoadingScreen: Render');
         return (
-            <View style={[styles.loadingScreenContainer, this.opacity]}>
+            <View
+                style={[
+                    styles.loadingScreenContainer,
+                    {
+                        opacity: this.opacity,
+                    },
+                ]}
+            >
 
                 <View style={[
                     styles.logoOuterContainer,
@@ -44,14 +48,20 @@ export default class LoadingScreen extends React.Component {
                     Version {this.props.version}
                 </Text>
                 <Text style={styles.loadingScreenEntityStatus}>
-                    Bacteria: {this.getStatusText(this.props.bacteriaStatusIdentifier)}
+                    Bacteria:{'\u00A0'}
+                    {this.getStateText(this.props.componentStates.components.get('bacteria'))}
                 </Text>
                 <Text style={styles.loadingScreenEntityStatus}>
                     Antibiotics:{'\u00A0'}
-                    {this.getStatusText(this.props.antibioticsStatusIdentifier)}
+                    {this.getStateText(this.props.componentStates.components.get('antibiotics'))}
                 </Text>
                 <Text style={styles.loadingScreenEntityStatus}>
-                    Resistances: {this.resistanceStatus}
+                    Resistances:{'\u00A0'}
+                    {this.getStateText(this.props.componentStates.components.get('resistances'))}
+                </Text>
+                <Text style={styles.loadingScreenEntityStatus}>
+                    Filters:{'\u00A0'}
+                    {this.getStateText(this.props.componentStates.components.get('filters'))}
                 </Text>
             </View>
         );

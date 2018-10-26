@@ -60,7 +60,7 @@ export default class Matrix extends React.Component {
                         matrix={this.props.matrix}
                         zoomRange={this.zoomRange}
                         selectedFilters={this.props.selectedFilters}
-                        setRenderingDone={this.props.setRenderingDone}
+                        componentStates={this.props.componentStates}
                         handleContentLayout={this.handleContentLayout.bind(this)}
                         handleContainerLayout={this.handleContainerLayout.bind(this)}
                         // Only needed when we remove PanPinch from DOM

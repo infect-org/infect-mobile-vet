@@ -9,7 +9,7 @@
       "ios",
       "android"
     ],
-    "version": "1.3.2",
+    "version": "1.3.3",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
@@ -22,7 +22,8 @@
       "bundleIdentifier": "info.infect.app"
     },
     "android": {
-      "package": "info.infect.app"
+      "package": "info.infect.app",
+      "versionCode": 3
     },
     "githubUrl": "https://github.com/infect-org/infect-mobile-app",
     "hooks": {

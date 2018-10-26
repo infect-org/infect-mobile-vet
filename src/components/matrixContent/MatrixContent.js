@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, observable, action, reaction } from 'mobx';
+import { computed, reaction } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
 import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
@@ -11,6 +11,7 @@ import SubstanceClassHeaders from '../substanceClassHeaders/SubstanceClassHeader
 import log from '../../helpers/log';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
 import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
+import componentStates from '../../models/componentStates/componentStates';
 
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
@@ -54,7 +55,7 @@ export default class MatrixContent extends React.Component {
      * Number of resistances that were successfully rendered. Hide loading screen after all of them
      * were rendered
      */
-    @observable renderedResistances = 0;
+    renderedResistances = 0;
 
     /**
      * Cap zoom for labels so that they don't get too big (and take up too much space) or become
@@ -176,11 +177,11 @@ export default class MatrixContent extends React.Component {
     /**
      * Callback that is invoked from every resistance that has finished rendering.
      */
-    @action resistanceRendered = () => {
+    resistanceRendered = () => {
         this.renderedResistances += 1;
         if (this.renderedResistances === this.props.matrix.resistances.length) {
             log('Matrix: Rendering is done');
-            this.props.setRenderingDone(true);
+            this.props.componentStates.update('resistances', componentStates.ready);
         }
     }
 
@@ -237,7 +238,7 @@ export default class MatrixContent extends React.Component {
     handleStateChange(ev) {
         log('MatrixContent: Handle state change for event', ev.nativeEvent);
         const start = new Date().getTime();
-        if (ev.nativeEvent.state === State.BEGAN) {
+        if (ev.nativeEvent.state === State.ACTIVE) {
             const closestBacterium = this.getClosestBacterium(ev.nativeEvent.y);
             const closestAntibiotic = this.getClosestAntibiotic(ev.nativeEvent.x);
             if (!closestBacterium || !closestAntibiotic) {
@@ -430,27 +431,29 @@ export default class MatrixContent extends React.Component {
                                 this.props.handleContentLayout(ev.nativeEvent.layout)}
                         >
 
+                            <View
+                                style={styles.container}
+                                pointerEvents="none"
+                            >
+                                { this.props.matrix.resistances.map(res => (
+                                    <Resistance
+                                        key={this.getResistanceKey(res)}
+                                        matrix={this.props.matrix}
+                                        resistance={res}
+                                        onRender={this.resistanceRendered}
+                                    />
+                                ))}
+                            </View>
+
+                            { /* It *might* speed things up if TapGetureHandler does not contain
+                                 all 1000 resistances, therefore we fill it with an empty View */ }
                             <TapGestureHandler
+                                style={styles.container}
                                 onHandlerStateChange={this.handleStateChange.bind(this)}
                             >
-
-                                <View
-                                    style={[
-                                        styles.container,
-                                    ]}
-                                >
-
-                                    { this.props.matrix.resistances.map(res => (
-                                        <Resistance
-                                            key={this.getResistanceKey(res)}
-                                            matrix={this.props.matrix}
-                                            resistance={res}
-                                            onRender={this.resistanceRendered}
-                                        />
-                                    ))}
-
-                                </View>
+                                <View style={styles.tapHandlerContent} />
                             </TapGestureHandler>
+
                         </Animated.View>
 
 
@@ -591,7 +594,6 @@ const styles = StyleSheet.create({
     antibioticLabelsContainer: {
         position: 'absolute',
         top: 0,
-        backgroundColor: 'white',
         // borderWidth: 1,
         // borderColor: 'deeppink',
         overflow: 'hidden',
@@ -606,7 +608,6 @@ const styles = StyleSheet.create({
     bacteriumLabelsContainer: {
         position: 'absolute',
         left: 0,
-        backgroundColor: 'white',
         overflow: 'hidden',
         // borderColor: 'tomato',
         // borderWidth: 1,
@@ -618,11 +619,19 @@ const styles = StyleSheet.create({
         // borderColor: 'salmon',
         // borderWidth: 1,
     },
+    tapHandlerContent: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        // backgroundColor: 'rgba(200, 10, 120, 0.3)',
+    },
     resistancesContainer: {
         position: 'absolute',
+        overflow: 'hidden', // Force same behavior on iOS and Android
         // borderWidth: 1,
         // borderColor: 'salmon',
-        overflow: 'hidden', // Force same behavior on iOS and Android
     },
     substanceClassesContainer: {
         position: 'absolute',

@@ -1,11 +1,9 @@
 import React from 'react';
 import { Svg } from 'expo';
-import { observer } from 'mobx-react';
 
 /**
  * SVG checkmark for filter overlay switch item.
  */
-@observer
 export default class FilterOverlaySwitchItemCheckMark extends React.Component {
 
     render() {

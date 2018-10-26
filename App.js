@@ -1,12 +1,14 @@
 import React from 'react';
 import { StyleSheet, View, StatusBar } from 'react-native';
 import { observer } from 'mobx-react';
-import { configure, observable, action, trace } from 'mobx';
+import { configure, reaction, trace } from 'mobx';
 // import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
 import appConfig from './app.json';
+import componentStates from './src/models/componentStates/componentStates';
 import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel';
+import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel';
 
 import config from './src/config';
 // import styleDefinitions from './src/helpers/styleDefinitions';
@@ -24,6 +26,8 @@ Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').inst
 // Make sure MobX throws if we're not using actions
 configure({ enforceActions: 'always' });
 
+console.disableYellowBox = true;
+
 /**
  * Basic app. Especially handles
  * - App (models) setup
@@ -39,22 +43,34 @@ configure({ enforceActions: 'always' });
 @observer
 export default class App extends React.Component {
 
-    /**
-     * Boah, that was a tough nut to crack: If we use a bool here, the whole app will re-render
-     * every time it changes – while we only want to re-render the loading screen. To do so, we
-     * have to use an object.
-     * *If* we'd re-render the whole app, all gesture handlers on the matrix would be fucked up
-     * after re-rendering is done (IDK why).
-     * If you work on other parts than the matrix, just set done to true to display main screen
-     * quickly.
-     */
-    @observable rendering = { done: false };
-
     constructor() {
         super();
         this.app = new InfectApp(config);
         this.setupApp();
-        this.filterOverlay = new FilterOverlayModel();
+        this.filterOverlayModel = new FilterOverlayModel();
+        this.componentStates = new ComponentStatesModel();
+        this.componentStates.setup();
+        this.setupModelStateWatchers();
+    }
+
+    /**
+     * We want to have the current status of models/components at one central place – update
+     * componentStates whenever models change
+     */
+    setupModelStateWatchers() {
+        ['resistances', 'bacteria', 'antibiotics'].forEach((modelType) => {
+            reaction(
+                () => this.app[modelType].status.identifier,
+                (status) => {
+                    log('App: Update componentState of', modelType, 'to', status);
+                    if (status === 'ready') {
+                        const newState = modelType === 'bacteria' || modelType === 'antibiotics' ?
+                            componentStates.ready : componentStates.rendering;
+                        this.componentStates.update(modelType, newState);
+                    }
+                },
+            );
+        });
     }
 
     /**
@@ -68,11 +84,6 @@ export default class App extends React.Component {
             log('Error initializing app', err);
         }
         log('App: Initialized');
-    }
-
-    @action setRenderingDone(value) {
-        log('App: Set rendering done to', value);
-        this.rendering.done = value;
     }
 
     @observer
@@ -91,10 +102,10 @@ export default class App extends React.Component {
 
                     <View style={styles.container}>
                         <MainView
-                            filterOverlay={this.filterOverlay}
+                            filterOverlayModel={this.filterOverlayModel}
                             filterValues={this.app.filterValues}
                             selectedFilters={this.app.selectedFilters}
-                            setRenderingDone={this.setRenderingDone.bind(this)}
+                            componentStates={this.componentStates}
                             matrix={this.app.views.matrix}
                         />
                     </View>
@@ -110,10 +121,7 @@ export default class App extends React.Component {
                 >
                     <LoadingScreen
                         version={appConfig.expo.version}
-                        rendering={this.rendering}
-                        resistancesStatusIdentifier={this.app.resistances.status.identifier}
-                        bacteriaStatusIdentifier={this.app.bacteria.status.identifier}
-                        antibioticsStatusIdentifier={this.app.antibiotics.status.identifier}
+                        componentStates={this.componentStates}
                     />
                 </View>
 

@@ -47,7 +47,8 @@ export default class AntibioticLabel extends React.Component {
      */
     setupAnimatedProps() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        this.left = position.left;
+        this.left = position ? position.left : 0;
+        this.opacity = this.props.antibiotic.visible ? 1 : 0;
     }
 
 
@@ -217,6 +218,7 @@ export default class AntibioticLabel extends React.Component {
                     // Dimensions are needed for Android (no overflow: visible)
                     this.labelContainerDimensions,
                     {
+                        opacity: this.opacity,
                         left: this.left,
                         transform: [{
                             translateY: adjustedTop,

@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
+import { computed, reaction } from 'mobx';
+import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
+const { Animated } = DangerZone;
 
 /**
  * Renders a resistance cirlce with text.
@@ -14,35 +16,101 @@ import log from '../../helpers/log';
 @observer
 export default class Resistance extends React.Component {
 
-    // We need to extend small circles; if a small circle contains '100' as susceptibility, 100
-    // will break like this:
-    // 1
-    // 0
-    // 0
-    // Which is really bad. Android does not support overflow:visible, therefore we have to use
-    // a workaround.
+    /**
+     * We need to extend small circles; if a small circle contains '100' as susceptibility, 100
+     * will break like this:
+     * 1
+     * 0
+     * 0
+     * Which is really bad. Android does not support overflow:visible, therefore we have to use
+     * a workaround.
+     */
     circleMinWidth = 40;
 
+
     /**
-     * Fucking GestureHandlers don't work here. No idea why. Use old style PanResponder. Even
-     * though you're a pain: Thanks for being here, my friend.
+     * Use Animated.Values to not re-render Resistance everytime something changes
      */
-    /* panResponder = PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onStartShouldSetPanResponderCapture: () => true,
-        onMoveShouldSetResponderCapture: () => false,
-        // Moves should go to PanPinch and not be handled by Resistance
-        onMoveShouldSetPanResponder: (ev, gestureState) => (
-            Math.abs(gestureState.dx) >= 1 || Math.abs(gestureState.dy) >= 1
+    opacity = new Animated.Value(1);
+    originalLeft = new Animated.Value(this.props.resistance.xPosition ?
+        this.props.resistance.xPosition.left : 0);
+    originalTop = new Animated.Value(this.props.resistance.yPosition ?
+        this.props.resistance.yPosition.top : 0);
+    radius = new Animated.Value(this.props.resistance.radius);
+
+    top = Animated.sub(this.originalTop, this.radius);
+    left = Animated.add(
+        Animated.sub(
+            this.originalLeft,
+            Animated.divide(this.circleMinWidth, 2),
         ),
-        onResponderTerminationRequest: () => true,
-        onMoveShouldSetPanResponderCapture: () => false,
-        onPanResponderTerminationRequest: () => true,
-        onPanResponderRelease: () => {
-            log('Resistance: Update active resistance');
-            this.props.matrix.setActiveResistance(this.props.resistance);
-        },
-    }); */
+        this.props.matrix.defaultRadius,
+    );
+    diameter = Animated.multiply(this.radius, 2);
+    circleTop = Animated.sub(
+        this.props.matrix.defaultRadius,
+        this.props.matrix.space,
+    );
+    circleLeft = Animated.divide(
+        Animated.sub(this.circleMinWidth, this.diameter),
+        2,
+    );
+    // F***ng Android needs f***ing  dimensions for f***ing resistance container.
+    // containerWidth = Animated.add(this.diameter, this.circleLeft);
+    containerHeight = Animated.add(this.diameter, this.circleTop);
+
+
+
+
+    /**
+     * If resistance becomes invisible, don't change position to minimize DOM manipulations.
+     * @type {Object}
+     * @private
+     */
+    previousPosition = { left: 0, width: 0, top: 0 }
+
+
+    /**
+     * By updating Animated.Values (instead of using regular variables), we speed up the filtering
+     * process a *lot* as components don't need to be re-rendered whenever a filter changes.
+     */
+    componentDidMount() {
+
+        log('Resistance: Mounted');
+
+        // Update amount of rendered resistances in matrix; display loading indicator as long
+        // as resistances are not ready.
+        this.props.onRender();
+
+        reaction(
+            () => this.props.resistance.visible,
+            (visible) => {
+                log('Resistance: Visibility changed to', visible);
+                this.opacity.setValue(visible ? 1 : 0);
+            },
+        );
+
+        reaction(
+            () => this.props.resistance.radius,
+            (radius) => {
+                log('Resistance: Update radius to', radius);
+                this.radius.setValue(radius);
+            },
+        );
+
+        reaction(
+            () => this.props.resistance.xPosition,
+            // Leave left unchanged if xPosition is not available
+            xPosition => xPosition && this.originalLeft.setValue(xPosition.left),
+        );
+
+        reaction(
+            () => this.props.resistance.yPosition,
+            // Leave top unchanged if yPosition is not available
+            yPosition => yPosition && this.originalTop.setValue(yPosition.top),
+        );
+
+    }
 
     @computed get value() {
         const bestValue = this.props.resistance.mostPreciseValue;
@@ -55,35 +123,18 @@ export default class Resistance extends React.Component {
     @computed get position() {
         const xPos = this.props.resistance.xPosition;
         const yPos = this.props.resistance.yPosition;
+        // If resistance is invisible (because of filters), xPos and yPos will be undefined. We
+        // have to handle this case.
+        if (!xPos || !yPos) return this.previousPosition;
         const minRadius = this.circleMinWidth / 2;
         const left = xPos.left - minRadius + this.props.matrix.defaultRadius;
-        return { left, top: yPos.top, width: this.circleMinWidth };
+        const position = { left, top: yPos.top, width: this.circleMinWidth };
+        this.previousPosition = position;
+        return position;
     }
 
     @computed get circleBackgroundColor() {
         return { backgroundColor: this.props.resistance.backgroundColor };
-    }
-
-    @computed get circleDimensions() {
-        const { radius } = this.props.resistance;
-        return {
-            height: radius * 2,
-            width: radius * 2,
-            borderRadius: radius,
-            top: this.props.matrix.defaultRadius - radius - this.props.matrix.space,
-            // Adjust left for this.circleMinWidth
-            left: (this.circleMinWidth - (radius * 2)) / 2,
-        };
-    }
-
-    componentDidMount() {
-        // Update amount of rendered resistances in matrix; display loading indicator as long
-        // as resistances are not ready.
-        this.props.onRender();
-    }
-
-    handleTap = () => {
-        log('TAPPED');
     }
 
     render() {
@@ -91,42 +142,59 @@ export default class Resistance extends React.Component {
         log('Resistance: Render');
 
         return (
-            <View
+            <Animated.View
                 style={[
                     styles.resistance,
-                    this.position,
+                    {
+                        left: this.left,
+                        top: this.top,
+                    },
+                    {
+                        width: this.circleMinWidth,
+                        height: this.containerHeight,
+                    },
+                    // { borderWidth: 2, borderColor: 'skyblue' },
+                    { opacity: this.opacity },
                 ]}
             >
 
-                <View style={styles.container}>
 
-                    { /* Only make the circle tappable: The text is wider than the circle as we
-                         don't want line breaks or ellipses */ }
+                { /* Only make the circle tappable: The text is wider than the circle as we
+                     don't want line breaks or ellipses */ }
 
-                    { /* Circle with background */}
-                    <View
-                        // { ...this.panResponder.panHandlers }
-                        style={[
-                            styles.resistanceCircle,
-                            this.circleDimensions,
-                            this.circleBackgroundColor,
-                        ]}
-                    />
+                { /* Circle with background */}
+                <Animated.View
+                    // { ...this.panResponder.panHandlers }
+                    style={[
+                        styles.resistanceCircle,
+                        // this.circleDimensions,
+                        this.circleBackgroundColor,
+                        {
+                            borderRadius: this.radius,
+                            width: this.diameter,
+                            height: this.diameter,
+                            left: this.circleLeft,
+                            top: this.circleTop,
+                        },
+                    ]}
+                />
 
-                    { /* Text */ }
-                    <Text
-                        pointerEvents="none"
-                        style={[
-                            styles.resistanceText,
-                            /* Use this.circleMinWidth as width so that text doesn't break */
-                            { width: this.position.width },
-                        ]}
-                    >
-                        {this.value}
-                    </Text>
+                { /* Text */ }
+                <Animated.Text
+                    style={[
+                        styles.resistanceText,
+                        /* Use this.circleMinWidth as width so that text doesn't break */
+                        {
+                            width: this.circleMinWidth,
+                            top: this.radius,
+                        },
+                    ]}
+                >
+                    {this.value}
+                </Animated.Text>
 
-                </View>
-            </View>
+
+            </Animated.View>
         );
     }
 
@@ -138,16 +206,16 @@ const styles = StyleSheet.create({
     },
     resistance: {
         position: 'absolute',
+        overflow: 'hidden', // Force same behavior on all platforms
     },
     resistanceCircle: {
         position: 'absolute',
     },
     resistanceText: {
-        ...styleDefinitions.base,
+        ...styleDefinitions.fonts.condensed,
         ...styleDefinitions.label,
         textAlign: 'center',
         position: 'absolute',
-        top: 0,
         left: 0,
     },
 });

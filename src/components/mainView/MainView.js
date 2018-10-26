@@ -1,41 +1,47 @@
 import React from 'react';
-import { View, StyleSheet, TouchableHighlight } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import Matrix from '../matrix/Matrix';
 import FilterOverlay from '../filterOverlay/FilterOverlay';
-import styleDefinitions from '../../helpers/styleDefinitions';
+import FilterButton from '../filterButton/FilterButton';
+import log from '../../helpers/log';
+import componentStates from '../../models/componentStates/componentStates';
 
 @observer
 export default class MainView extends React.Component {
 
-    handleFilterButtonPress() {
-        this.props.filterOverlay.show();
-    }
-
     render() {
+
+        log('MainView: Render');
+
         return (
             <View style={styles.container}>
                 <Matrix
                     style={styles.matrix}
                     matrix={this.props.matrix}
                     selectedFilters={this.props.selectedFilters}
-                    setRenderingDone={this.props.setRenderingDone}
+                    componentStates={this.props.componentStates}
                 />
 
-                { /* Filter overlay button */ }
-                <TouchableHighlight
-                    onPress={this.handleFilterButtonPress.bind(this)}
-                    style={styles.filterButtonContainer}
-                >
-                    <View style={styles.filterButton} />
-                </TouchableHighlight>
+                { /* Filter overlay button; no feedback needed as it opens overlay and
+                     TouchableHighlight flickers on click (maybe because of shadow) */ }
+                <View style={styles.filterButtonContainer} >
+                    <FilterButton
+                        matrix={this.props.matrix}
+                        filterOverlayModel={this.props.filterOverlayModel}
+                    />
+                </View>
 
                 { /* Filter overlay */ }
-                { this.props.filterOverlay.isVisible &&
+                { /* Only render when everything's ready to prevent multiple (expensive)
+                     re-renderings whenever a filter is added */ }
+                { this.props.componentStates.components.get('resistances') ===
+                    componentStates.ready &&
                     <FilterOverlay
-                        filterOverlay={this.props.filterOverlay}
+                        filterOverlayModel={this.props.filterOverlayModel}
                         filterValues={this.props.filterValues}
                         selectedFilters={this.props.selectedFilters}
+                        componentStates={this.props.componentStates}
                     />
                 }
             </View>
@@ -55,13 +61,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         bottom: 0,
-    },
-    filterButton: {
-        height: 50,
-        width: 50,
-        borderRadius: 25,
-        backgroundColor: styleDefinitions.colors.green,
-        ...styleDefinitions.shadows.primaryButton,
     },
     container: {
         flex: 1,

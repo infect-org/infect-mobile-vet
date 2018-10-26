@@ -1,19 +1,53 @@
 import React from 'react';
-import { View, StyleSheet, TouchableHighlight, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableHighlight, Text, ScrollView, Dimensions } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
+import { computed, reaction, trace } from 'mobx';
+import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
+import componentStates from '../../models/componentStates/componentStates';
 
+const { Animated } = DangerZone;
 const padding = 20;
+const maxScreenDimension = Math.max(
+    Dimensions.get('window').width,
+    Dimensions.get('window').height,
+);
 
 @observer
 export default class FilterOverlay extends React.Component {
 
+    top = new Animated.Value(maxScreenDimension);
+
+    constructor(props) {
+        super(props);
+        props.componentStates.update('filters', componentStates.rendering);
+    }
+
+    componentDidMount() {
+        // Well, well, well …
+        // If we remove filterOverlay from DOM conditionally, it needs to re-render every time it
+        // is displayed – which is slow and reduces the perceived performance. Instead, we move
+        // the the overlay out of the screen (by whatever is greater, width or height, in case the
+        // user rotates the device) and move it into the screen whenever it becomes visible. As
+        // we use Animated.Values, no re-render is done, ever.
+        reaction(
+            () => this.props.filterOverlayModel.isVisible,
+            (isVisible) => {
+                log('FilterOverlay: Visibility changed to', isVisible);
+                if (isVisible) this.top.setValue(0);
+                else this.top.setValue(maxScreenDimension);
+            },
+        );
+
+        log('FilterOverlay: Mounted');
+        this.props.componentStates.update('filters', componentStates.ready);
+    }
+
     handleApplyButtonPress() {
-        this.props.filterOverlay.hide();
+        this.props.filterOverlayModel.hide();
     }
 
     /**
@@ -22,9 +56,15 @@ export default class FilterOverlay extends React.Component {
      */
     itemSelectionChangeHandler(item) {
         log('FilterOverlay: Filter changed', item);
-        // const existing = this.props.selectedFilters.filters.indexOf(item) > -1;
-        // if (!existing) this.props.selectedFilters.addFilter(item);
-        // else this.props.selectedFilters.removeFilter(item);
+        const existing = this.props.selectedFilters.filters.indexOf(item) > -1;
+        log('FilterOverlay: Filter already set?', existing);
+        if (!existing) this.props.selectedFilters.addFilter(item);
+        else this.props.selectedFilters.removeFilter(item);
+    }
+
+    isFilterSelected(item) {
+        log('FilterOverlay: Is filter selected?', item);
+        return this.props.selectedFilters.isSelected(item);
     }
 
     /**
@@ -40,8 +80,11 @@ export default class FilterOverlay extends React.Component {
      * @private
      */
     @computed get sortedSubstanceClassFilters() {
+        trace();
         return this.props.filterValues.getValuesForProperty('substanceClass', 'name')
             .sort(this.sortByProperty('niceValue'));
+        // Debug: Just return one item
+        // .filter((item, index) => index === 0);
     }
 
     render() {
@@ -49,10 +92,11 @@ export default class FilterOverlay extends React.Component {
         log('FilterOverlay: Render');
 
         return (
-            <View style={styles.filterOverlayContainer}>
+            <Animated.View style={[styles.filterOverlayContainer, { top: this.top }]}>
 
                 <View style={styles.container}>
                     <ScrollView>
+
                         <FilterOverlayTitle title="Antibiotics"/>
                         <FilterOverlayTitle title="Substance" followsTitle={true} level={2}/>
                         <FilterOverlayTitle
@@ -60,12 +104,13 @@ export default class FilterOverlay extends React.Component {
                             followsTitle={true}
                             level={2}
                         />
+
                         { this.sortedSubstanceClassFilters.map((substanceClass, index) => (
                             <FilterOverlaySwitchItem
                                 key={substanceClass.value}
                                 name={substanceClass.niceValue}
                                 borderTop={index === 0}
-                                selected={true}
+                                selected={this.isFilterSelected(substanceClass)}
                                 selectionChangeHandler={
                                     () => this.itemSelectionChangeHandler(substanceClass)
                                 }
@@ -84,9 +129,11 @@ export default class FilterOverlay extends React.Component {
                             selectionChangeHandler={this.itemSelectionChangeHandler.bind(this)}
                         />
                         <FilterOverlayTitle title="Substance Class" level={2}/>
+
                     </ScrollView>
                 </View>
 
+                { /* Apply filters button */ }
                 <View style={styles.applyFiltersButtonContainer}>
                     <TouchableHighlight
                         onPress={this.handleApplyButtonPress.bind(this)}
@@ -101,7 +148,7 @@ export default class FilterOverlay extends React.Component {
                         </View>
                     </TouchableHighlight>
                 </View>
-            </View>
+            </Animated.View>
         );
     }
 
@@ -139,10 +186,9 @@ const styles = StyleSheet.create({
     },
     filterOverlayContainer: {
         position: 'absolute',
-        top: 0,
         left: 0,
         right: 0,
-        bottom: 0,
+        height: '100%',
         backgroundColor: styleDefinitions.colors.darkBackgroundGrey,
     },
     container: {
