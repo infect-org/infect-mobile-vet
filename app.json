@@ -23,7 +23,8 @@
     },
     "android": {
       "package": "info.infect.app",
-      "versionCode": 3
+      "versionCode": 3,
+      "permissions": [],
     },
     "githubUrl": "https://github.com/infect-org/infect-mobile-app",
     "hooks": {
