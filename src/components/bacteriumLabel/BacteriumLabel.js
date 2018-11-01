@@ -90,13 +90,15 @@ export default class BacteriumLabel extends React.Component {
     }
 
     @computed get shortName() {
-        return this.props.bacterium.bacterium.name
-            .split(' ')
-            .map((subName, index) => (index === 0 ?
-                subName.substr(0, 4) :
-                `${subName.substr(0, 2)}.`
-            ))
-            .join(' ');
+        const { bacterium } = this.props.bacterium;
+        // TODO: Remove substr, as soon as all short names are in DB
+        return bacterium.shortName || bacterium.name.substr(0, 8);
+        /* .split(' ')
+        .map((subName, index) => (index === 0 ?
+            subName.substr(0, 4) :
+            `${subName.substr(0, 2)}.`
+        ))
+        .join(' '); */
     }
 
     /**

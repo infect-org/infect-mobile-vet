@@ -22,15 +22,18 @@ export default {
     },
     colors: {
         green: '#cbe264', // c7ed61
-        error: '#d82222',
+        // For use of fine stuff on white. Corresponds to green, darkened 25% using
+        // https://pinetools.com/darken-color
+        darkGreen: '#afcd26',
         blackGreen: '#31330b',
+        error: '#d82222',
         highlightBackground: '#a9ddf2',
         darkBackgroundGrey: '#363636',
         mediumBackgroundGrey: '#4b4b4b',
         lightBackgroundGrey: '#848484',
         lightForegroundGrey: '#bcbcbc',
         white: '#ffffff',
-        black: '#000000'
+        black: '#000000',
     },
     shadows: {
         primaryButton: {

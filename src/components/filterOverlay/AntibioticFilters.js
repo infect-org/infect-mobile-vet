@@ -64,6 +64,9 @@ export default class AntibioticFilters extends React.Component {
 
 
     render() {
+
+        log('AntibioticFilters: Render');
+
         return (
             <View style={styles.container}>
                 <FilterOverlayTitle title="Antibiotics"/>

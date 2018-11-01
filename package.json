@@ -11,8 +11,8 @@
   },
   "//": "Dependencies: Make sure you use the same packages and versions as in frontend-logic!",
   "dependencies": {
-    "expo": "^30.0.0",
-    "infect-frontend-logic": "^2.2.1",
+    "expo": "^30.0.2",
+    "infect-frontend-logic": "^2.2.2",
     "mobx": "4.4.2",
     "mobx-react": "^5.3.6",
     "react": "16.3.1",

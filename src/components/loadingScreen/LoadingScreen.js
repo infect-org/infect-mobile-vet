@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { computed } from 'mobx';
 import { observer } from 'mobx-react';
-import InfectLogo from '../infectLogo/InfectLogo';
+import InfectLogoWithAnresis from '../infectLogo/InfectLogoWithAnresis';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
@@ -38,14 +38,14 @@ export default class LoadingScreen extends React.Component {
                     { height: this.logoWidth * 20.25 / 64.6 },
                 ]}>
                     <View style={styles.logoInnerContainer}>
-                        <InfectLogo
+                        <InfectLogoWithAnresis
                             width={this.logoWidth}
                             height={this.logoWidth * 20.25 / 64.6} />
                     </View>
                 </View>
 
                 <Text style={styles.loadingScreenVersionText}>
-                    Version {this.props.version}
+                    Version: Beta-{this.props.version}
                 </Text>
                 <Text style={styles.loadingScreenEntityStatus}>
                     Bacteria:{'\u00A0'}

@@ -64,6 +64,9 @@ export default class BacteriaFilters extends React.Component {
 
 
     render() {
+
+        log('BacteriaFilters: Render');
+
         return (
             <View style={styles.container}>
                 <FilterOverlayTitle title="Bacteria"/>

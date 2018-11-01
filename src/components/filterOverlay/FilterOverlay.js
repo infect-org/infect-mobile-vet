@@ -17,6 +17,7 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 import componentStates from '../../models/componentStates/componentStates';
 import AntibioticFilters from './AntibioticFilters';
 import BacteriaFilters from './BacteriaFilters';
+import PopulationFilters from './PopulationFilters';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 
 const { Animated } = DangerZone;
@@ -100,6 +101,13 @@ export default class FilterOverlay extends React.Component {
                             filterValues={this.props.filterValues}
                             selectedFilters={this.props.selectedFilters}
                         />
+
+                        <PopulationFilters
+                            filterValues={this.props.filterValues}
+                            selectedFilters={this.props.selectedFilters}
+                        />
+
+                        <View style={{ height: 20 }} />
 
                         <FilterOverlayTitle
                             title="Information" />

@@ -12,6 +12,8 @@ import log from '../../helpers/log';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
 import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 import componentStates from '../../models/componentStates/componentStates';
+import InfectLogo from '../infectLogo/InfectLogo';
+import styleDefinitions from '../../helpers/styleDefinitions';
 
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
@@ -235,7 +237,7 @@ export default class MatrixContent extends React.Component {
             this.layoutElementPadding : 0;
     }
 
-    handleStateChange(ev) {
+    handleResistanceTapStateChange(ev) {
         log('MatrixContent: Tap; handle state change for event', ev.nativeEvent);
         const start = new Date().getTime();
         if (ev.nativeEvent.state === State.ACTIVE) {
@@ -252,7 +254,15 @@ export default class MatrixContent extends React.Component {
             ));
             log('MatrixView: Closest resistance', closestResistance);
             log('MatrixContent: Got closest resistance in', new Date().getTime() - start, 'ms');
-            if (closestResistance) this.props.matrix.setActiveResistance(closestResistance);
+            if (!closestResistance) return;
+
+            if (closestResistance === this.props.matrix.activeResistance) {
+                // If user taps on already selected resistance, hide it
+                this.props.matrix.setActiveResistance();
+            } else {
+                this.props.matrix.setActiveResistance(closestResistance);
+            }
+
         }
     }
 
@@ -338,6 +348,24 @@ export default class MatrixContent extends React.Component {
 
         return (
             <View style={ styles.container }>
+
+                <View
+                    style={[
+                        styles.logoContainer,
+                        {
+                            width: this.bacteriumLabelColumnWidth,
+                            height: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
+                        },
+                    ]}
+                >
+                    <View style={styles.logoCenterer}>
+                        <InfectLogo
+                            width={36}
+                            fillColor={styleDefinitions.colors.darkGreen}
+                            height={36 * 30.64 / 20.23} />
+                    </View>
+                </View>
+
 
                 { /* SUBSTANCE CLASSES */ }
                 { this.props.matrix.defaultRadius &&
@@ -448,7 +476,9 @@ export default class MatrixContent extends React.Component {
                                  all 1000 resistances, therefore we fill it with an empty View */ }
                             <TapGestureHandler
                                 style={styles.container}
-                                onHandlerStateChange={this.handleStateChange.bind(this)}
+                                onHandlerStateChange={
+                                    this.handleResistanceTapStateChange.bind(this)
+                                }
                             >
                                 <View style={styles.tapHandlerContent} />
                             </TapGestureHandler>
@@ -600,6 +630,17 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         // backgroundColor: 'grey',
+    },
+    logoContainer: {
+        position: 'absolute',
+        padding: 20,
+        left: 0,
+        top: 0,
+    },
+    logoCenterer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     antibioticLabelsContainer: {
         position: 'absolute',
