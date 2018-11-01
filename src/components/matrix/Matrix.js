@@ -43,9 +43,7 @@ export default class Matrix extends React.Component {
     }
 
     render() {
-
         log('Matrix: Render');
-
         return (
             <View
                 style={styles.container}

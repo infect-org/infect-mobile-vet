@@ -236,7 +236,7 @@ export default class MatrixContent extends React.Component {
     }
 
     handleStateChange(ev) {
-        log('MatrixContent: Handle state change for event', ev.nativeEvent);
+        log('MatrixContent: Tap; handle state change for event', ev.nativeEvent);
         const start = new Date().getTime();
         if (ev.nativeEvent.state === State.ACTIVE) {
             const closestBacterium = this.getClosestBacterium(ev.nativeEvent.y);
@@ -294,6 +294,7 @@ export default class MatrixContent extends React.Component {
 
     render() {
 
+        log('MatrixContent: Render');
 
         /**
          * Zoom for labels: Is capped so that they don't get too big or small
@@ -334,8 +335,6 @@ export default class MatrixContent extends React.Component {
             -0.5,
         );
 
-
-        log('MatrixContent: Render');
 
         return (
             <View style={ styles.container }>
@@ -538,8 +537,17 @@ export default class MatrixContent extends React.Component {
                             top: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
                             // Height: We need some additional height for Android or bottom-most
                             // label is cut off when zooming out (as we increase the font size)
-                            height: !this.props.matrix.defaultRadius ? 0 :
-                                this.visibleBacteriaHeight + this.props.matrix.defaultRadius,
+                            // height: !this.props.matrix.defaultRadius ? 0 :
+                            // If only 2 bacteria are displayed, we can still pan them
+                            // across the whole screen. Therefore, bacteria labels must
+                            // also be visible on the whole screen
+                            // NOPE: Fucks up when we zoom in
+                            // Math.max(
+                            // this.visibleBacteriaHeight + this.props.matrix.defaultRadius,
+                            // windowHeight,
+                            // ),
+                            height: windowHeight - this.antibioticLabelRowHeight -
+                                this.substanceClassMaxHeight,
                             paddingTop: this.layoutElementPadding,
                         },
                         this.labelOpacity,
@@ -552,6 +560,8 @@ export default class MatrixContent extends React.Component {
                             {
                                 width: bacteriaLabelContainerWidth,
                                 right: this.layoutElementPadding,
+                                height: this.visibleBacteriaHeight,
+                                // + this.props.matrix.defaultRadius, (may be needed for android)
                                 // Beware: THE FUCKING ORDER MATTERS!
                                 transform: [{
                                     translateX: bacteriaLabelContainerLeft,

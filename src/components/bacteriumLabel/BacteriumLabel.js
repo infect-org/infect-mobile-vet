@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
+import { computed, reaction, trace } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
@@ -17,39 +17,28 @@ const {
 @observer
 export default class BacteriumLabel extends React.Component {
 
-    top = 0;
-    left = 0;
-
-    width = 0;
+    originalTop = new Animated.Value(0);
+    top = new Animated.Value(0);
+    width = new Animated.Value(0);
+    widthSet = false;
+    opacity = new Animated.Value(1);
 
     constructor(...props) {
         super(...props);
-        reaction(
-            () => this.props.matrix.defaultRadius && this.props.containerHeight,
-            () => {
-                this.setupAnimatedProps();
-                this.forceUpdate();
-            },
-        );
+        this.setupAnimatedProps();
     }
 
     /**
-     * We must update our Animated stuff whenever new data is available or the old values won't be
-     * available any more. TODO: Use setValue when it becomes available
+     * Setup calculated animated values; this can only be done after properties are available.
      */
     setupAnimatedProps() {
 
-        // TODO: When setValue is available, use setValue, move top and baseTop to
-        // class props, remove forceUpdate!
-        const { top } = this.props.matrix.yPositions.get(this.props.bacterium);
-
-        // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
         this.top = multiply(
+            // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
             divide(this.props.animatedZoom, this.props.cappedLabelZoom),
-            // yPosition is used as center by resistance. Move up by half the label's height
-            // sub(top, divide(this.height, 2)),
-            top,
+            this.originalTop,
         );
+
 
         // Adjust left by the amount animatedZoom exceeds cappedLabelZoom. As we shrink the label
         // when zoom increases, we have to move in the opposite direction.
@@ -62,16 +51,35 @@ export default class BacteriumLabel extends React.Component {
             0.5,
         );
 
+        // Zoom label out when font would become larger than cappedLabelZoom
+        this.cappedLabelZoomAdjustment = divide(
+            this.props.cappedLabelZoom,
+            this.props.animatedZoom,
+        );
+
+
+        reaction(
+            () => this.props.matrix.yPositions.get(this.props.bacterium),
+            (yPosition) => {
+                if (yPosition) {
+                    this.originalTop.setValue(yPosition.top);
+                    this.opacity.setValue(1);
+                } else {
+                    this.opacity.setValue(0);
+                }
+            },
+        );
+
     }
 
 
     labelLayoutHandler = (ev) => {
         // Make sure we only handle layout once; if not, we might run into an infinite loop.
-        if (this.width) return;
-        const { width, height } = ev.nativeEvent.layout;
-        this.width = width;
-        this.height = height;
+        if (this.widthSet) return;
+        const { width } = ev.nativeEvent.layout;
+        this.width.setValue(width);
         this.props.bacterium.setWidth(width);
+        this.widthSet = true;
     };
 
     @computed get labelWidth() {
@@ -91,26 +99,24 @@ export default class BacteriumLabel extends React.Component {
             .join(' ');
     }
 
+    /**
+     * If resistance of bacterium is displayed as ResistanceDetail (large circle), bacterium
+     * is highlighted (background color). Returns the background color of the current bacterium.
+     */
     @computed get activeBacteriumBackground() {
-        if (this.props.matrix && this.props.matrix.activeResistance) {
-            if (this.props.matrix.activeResistance.resistance.bacterium ===
-                this.props.bacterium.bacterium) {
-                return styleDefinitions.colors.highlightBackground;
-            }
+        if (
+            this.props.matrix && this.props.matrix.activeResistance &&
+            this.props.matrix.activeResistance.resistance.bacterium ===
+            this.props.bacterium.bacterium
+        ) {
+            return styleDefinitions.colors.highlightBackground;
         }
         return 'transparent';
     }
 
     render() {
 
-        if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
-
-        // Zoom label out when font would become larger than cappedLabelZoom
-        const cappedLabelZoomAdjustment = divide(
-            this.props.cappedLabelZoom,
-            this.props.animatedZoom,
-        );
-
+        trace();
         log('BacteriumLabel: Render bacterium label');
 
         // Use a View around the text because Text is not animatable
@@ -120,8 +126,9 @@ export default class BacteriumLabel extends React.Component {
                     styles.labelTextContainer,
                     {
                         width: this.labelWidth,
+                        opacity: this.opacity,
                         transform: [{
-                            scale: cappedLabelZoomAdjustment,
+                            scale: this.cappedLabelZoomAdjustment,
                         }, {
                             translateY: this.top,
                         }, {

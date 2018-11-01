@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
+import { computed } from 'mobx';
 import log from '../../helpers/log';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import FilterOverlaySwitchItemCheckMark from './FilterOverlaySwitchItemCheckMark';
@@ -16,12 +17,17 @@ export default class FilterOverlaySwitchItem extends React.Component {
         this.props.selectionChangeHandler();
     }
 
+    @computed get selected() {
+        log('FilterOverlaySwitchItem: Is filter selected?', this.props.item);
+        return this.props.selectedFilters.isSelected(this.props.item);
+    }
+
     render() {
 
         log('FilterOverlaySwitchItem: Render');
 
         const borderTopWidth = this.props.borderTop ? 1 : 0;
-        const circleSelectedStateStyle = this.props.selected ? styles.checkboxCircleSelected :
+        const circleSelectedStateStyle = this.selected ? styles.checkboxCircleSelected :
             styles.checkboxCircleNotSelected;
 
         return (
@@ -55,7 +61,7 @@ export default class FilterOverlaySwitchItem extends React.Component {
                     { /* Adjust text vertically */ }
                     <View style={[styles.container]}>
                         <Text style={styles.label}>
-                            {this.props.name}
+                            { this.props.name || this.props.item.niceValue }
                         </Text>
                     </View>
                 </View>

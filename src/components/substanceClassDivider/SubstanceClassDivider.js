@@ -17,7 +17,7 @@ export default class SubstanceClassDivider extends React.Component {
             top: 0,
         };
         log(
-            'Divider style, left is', style.left, 'for subsClass',
+            'SubstanceClassDivider: Divider style, left is', style.left, 'for subsClass',
             this.props.substanceClass.substanceClass.name,
         );
         return style;
@@ -26,11 +26,12 @@ export default class SubstanceClassDivider extends React.Component {
     @computed get matrixHeight() {
         const height = ((this.props.matrix.defaultRadius * 2) + this.props.matrix.space) *
             this.props.matrix.sortedVisibleBacteria.length;
-        log('Matrix: Height is', height);
+        log('SubstanceClassDivider: Height is', height);
         return height;
     }
 
     render() {
+        log('SubstanceClassDivider: Render');
         return (
             <View
                 style={ [

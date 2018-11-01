@@ -180,6 +180,8 @@ export default class AntibioticLabel extends React.Component {
 
     render() {
 
+        log('AntibioticLabel: Render');
+
         if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
 
         const cappedLabelZoomAdjustment = divide(
@@ -207,8 +209,6 @@ export default class AntibioticLabel extends React.Component {
             this.props.matrix.antibioticLabelRowHeight,
             0.5,
         );
-
-        log('AntibioticLabel: Render');
 
         return (
             // Basic placement of label: Just set x/y

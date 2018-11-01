@@ -1,13 +1,23 @@
 import React from 'react';
-import { View, StyleSheet, TouchableHighlight, Text, ScrollView, Dimensions } from 'react-native';
+import {
+    View,
+    StyleSheet,
+    TouchableHighlight,
+    Text,
+    ScrollView,
+    Dimensions,
+    Linking,
+    Button,
+} from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction, trace } from 'mobx';
+import { reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 import styleDefinitions from '../../helpers/styleDefinitions';
-import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
-import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
 import componentStates from '../../models/componentStates/componentStates';
+import AntibioticFilters from './AntibioticFilters';
+import BacteriaFilters from './BacteriaFilters';
+import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 
 const { Animated } = DangerZone;
 const padding = 20;
@@ -20,10 +30,14 @@ const maxScreenDimension = Math.max(
 export default class FilterOverlay extends React.Component {
 
     top = new Animated.Value(maxScreenDimension);
+    // Strangely, if we only use top to hide filterOverlay, it's visible at the very beginning
+    // (while stuff is rendered for the first time)
+    opacity = new Animated.Value(0);
 
     constructor(props) {
         super(props);
         props.componentStates.update('filters', componentStates.rendering);
+        this.openDisclaimer = this.openDisclaimer.bind(this);
     }
 
     componentDidMount() {
@@ -37,8 +51,13 @@ export default class FilterOverlay extends React.Component {
             () => this.props.filterOverlayModel.isVisible,
             (isVisible) => {
                 log('FilterOverlay: Visibility changed to', isVisible);
-                if (isVisible) this.top.setValue(0);
-                else this.top.setValue(maxScreenDimension);
+                if (isVisible) {
+                    this.top.setValue(0);
+                    this.opacity.setValue(1);
+                } else {
+                    this.top.setValue(maxScreenDimension);
+                    this.opacity.setValue(0);
+                }
             },
         );
 
@@ -46,89 +65,64 @@ export default class FilterOverlay extends React.Component {
         this.props.componentStates.update('filters', componentStates.ready);
     }
 
+    openDisclaimer() {
+        Linking.openURL('https://infect.info/#information');
+    }
+
     handleApplyButtonPress() {
         this.props.filterOverlayModel.hide();
     }
 
-    /**
-     * Handles click on a filter: adds or removes item from/to selectedFilters
-     * @private
-     */
-    itemSelectionChangeHandler(item) {
-        log('FilterOverlay: Filter changed', item);
-        const existing = this.props.selectedFilters.filters.indexOf(item) > -1;
-        log('FilterOverlay: Filter already set?', existing);
-        if (!existing) this.props.selectedFilters.addFilter(item);
-        else this.props.selectedFilters.removeFilter(item);
-    }
-
-    isFilterSelected(item) {
-        log('FilterOverlay: Is filter selected?', item);
-        return this.props.selectedFilters.isSelected(item);
-    }
-
-    /**
-     * Sorts values by a given property
-     * @private
-     */
-    sortByProperty(property) {
-        return (a, b) => (a[property] < b[property] ? -1 : 1);
-    }
-
-    /**
-     * Returns all substance classes, sorted by niceValue
-     * @private
-     */
-    @computed get sortedSubstanceClassFilters() {
-        trace();
-        return this.props.filterValues.getValuesForProperty('substanceClass', 'name')
-            .sort(this.sortByProperty('niceValue'));
-        // Debug: Just return one item
-        // .filter((item, index) => index === 0);
-    }
 
     render() {
 
         log('FilterOverlay: Render');
 
         return (
-            <Animated.View style={[styles.filterOverlayContainer, { top: this.top }]}>
+            <Animated.View
+                style={[
+                    styles.filterOverlayContainer,
+                    {
+                        top: this.top,
+                        opacity: this.opacity,
+                    },
+                ]}>
 
                 <View style={styles.container}>
                     <ScrollView>
 
-                        <FilterOverlayTitle title="Antibiotics"/>
-                        <FilterOverlayTitle title="Substance" followsTitle={true} level={2}/>
+                        <AntibioticFilters
+                            filterValues={this.props.filterValues}
+                            selectedFilters={this.props.selectedFilters}
+                        />
+
+                        <BacteriaFilters
+                            filterValues={this.props.filterValues}
+                            selectedFilters={this.props.selectedFilters}
+                        />
+
                         <FilterOverlayTitle
-                            title="Substance Classes"
-                            followsTitle={true}
-                            level={2}
+                            title="Information" />
+
+                        <Text style={styles.infoText}>
+                            Monthly, INFECT imports a subset of the latest 365 days of bacterial
+                            resistance data from the Swiss Center for Antibiotic resistance.
+                        </Text>
+                        <Text style={styles.infoText}>
+                            INFECT accepts no responsibility or liability with regard to any
+                            problems incurred as a result of using this site or any linked external
+                            sites.
+                        </Text>
+                        <Button
+                            onPress={this.openDisclaimer}
+                            color={styleDefinitions.colors.green}
+                            title="More information"
+                            style={styles.infoButton}
                         />
 
-                        { this.sortedSubstanceClassFilters.map((substanceClass, index) => (
-                            <FilterOverlaySwitchItem
-                                key={substanceClass.value}
-                                name={substanceClass.niceValue}
-                                borderTop={index === 0}
-                                selected={this.isFilterSelected(substanceClass)}
-                                selectionChangeHandler={
-                                    () => this.itemSelectionChangeHandler(substanceClass)
-                                }
-                            />
-                        )) }
-
-
-                        <FilterOverlaySwitchItem
-                            name="Test"
-                            borderTop={true}
-                            selected={true}
-                            selectionChangeHandler={this.itemSelectionChangeHandler.bind(this)}
-                        />
-                        <FilterOverlaySwitchItem
-                            name="Test2"
-                            selectionChangeHandler={this.itemSelectionChangeHandler.bind(this)}
-                        />
-                        <FilterOverlayTitle title="Substance Class" level={2}/>
+                        { /* Add margin to bottom of container (that's covered by «Apply filters
+                             button) */ }
+                        <View style={styles.bottomMarginContainer} />
 
                     </ScrollView>
                 </View>
@@ -164,6 +158,10 @@ const styles = StyleSheet.create({
         // borderColor: 'skyblue',
         // borderWidth: 1,
     },
+    bottomMarginContainer: {
+        height: 80,
+        width: '100%',
+    },
     applyFiltersButton: {
         position: 'absolute',
         left: padding,
@@ -190,6 +188,15 @@ const styles = StyleSheet.create({
         right: 0,
         height: '100%',
         backgroundColor: styleDefinitions.colors.darkBackgroundGrey,
+    },
+    infoText: {
+        marginLeft: padding,
+        marginRight: padding,
+        color: styleDefinitions.colors.white,
+        ...styleDefinitions.fonts.condensed,
+    },
+    infoButton: {
+        ...styleDefinitions.fonts.bold,
     },
     container: {
         flex: 1,

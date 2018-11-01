@@ -26,9 +26,11 @@ export default {
         blackGreen: '#31330b',
         highlightBackground: '#a9ddf2',
         darkBackgroundGrey: '#363636',
-        mediumBackgroundGrey: '#4B4B4B',
+        mediumBackgroundGrey: '#4b4b4b',
         lightBackgroundGrey: '#848484',
-        lightForegroundGrey: '#BCBCBC',
+        lightForegroundGrey: '#bcbcbc',
+        white: '#ffffff',
+        black: '#000000'
     },
     shadows: {
         primaryButton: {
