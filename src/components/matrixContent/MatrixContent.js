@@ -17,8 +17,9 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+
+const window = Dimensions.get('window');
+
 log('Dimensions:', Dimensions.get('window'));
 log('Screen dimensions:', Dimensions.get('screen'));
 
@@ -27,6 +28,7 @@ const { Animated } = DangerZone;
 const {
     max,
     min,
+    add,
     multiply,
     sub,
 } = Animated;
@@ -34,12 +36,21 @@ const {
 @observer
 export default class MatrixContent extends React.Component {
 
-    width = Math.max(windowWidth, 1200);
+    windowWidth = window.width;
+    windowHeight = window.height;
+    animatedWindowWidth = new Animated.Value(window.width);
+    animatedWindowHeight = new Animated.Value(window.height);
 
-    state = {
-        // Needed to re-render on android so that onLayout is fired
-        renderCount: 0,
-    }
+    // Base layout is a horizontally and vertically divided table:
+    // - top left: logo
+    // - top right: substance classes
+    // - bottom left: bacteria
+    // - bottom right: resistances
+    // Top row includes substance class headers!
+    leftColumnWidth = new Animated.Value(0);
+    topRowHeight = new Animated.Value(0);
+    rightColumnWidth = sub(this.animatedWindowWidth, this.leftColumnWidth);
+    bottomRowHeight = sub(this.animatedWindowHeight, this.topRowHeight)
 
     /**
      * Height of the colored lines that represent substance classes
@@ -76,10 +87,20 @@ export default class MatrixContent extends React.Component {
         // Store dimensions on matrixView so that radius can be calculated
         this.props.matrix.setDimensions({
             // Resistance cirlces/fonts for labels should not be too small
-            width: this.width,
-            height: windowHeight,
+            width: Math.max(this.windowWidth, 1200),
+            height: this.windowHeight,
         });
         log('default radius is %o', this.props.matrix.defaultRadius);
+
+        // Whenever window dimensions change (rotation landscape/portrait), update animated
+        // window dimensions
+        Dimensions.addEventListener('change', (ev) => {
+            log('MatrixContent: Window dimensions changed to', ev.window);
+            this.windowWidth = ev.window.width;
+            this.windowHeight = ev.window.height;
+            this.animatedWindowWidth.setValue(this.windowWidth);
+            this.animatedWindowHeight.setValue(this.windowHeight);
+        });
 
     }
 
@@ -116,24 +137,36 @@ export default class MatrixContent extends React.Component {
                 layoutHandlerFired = true;
 
                 log('MatrixContent: Set initial layout');
-                this.props.handleContainerLayout({
-                    // Its crucial that these values correspond to the ones defined for
-                    // resistanceContainer (render method below)
-                    width: Math.round(windowWidth - this.bacteriumLabelColumnWidth -
-                        this.layoutElementPadding),
-                    height: Math.round(windowHeight - this.antibioticLabelRowHeight -
-                        this.layoutElementPadding),
-                });
-                this.props.handleContentLayout({
-                    width: Math.round(this.visibleAntibioticsWidth),
-                    height: Math.round(this.visibleBacteriaHeight),
-                });
+                this.sendLayoutToProps();
+
+                this.leftColumnWidth.setValue(this.bacteriumLabelColumnWidth);
+                this.topRowHeight.setValue(this.antibioticLabelRowHeight +
+                    this.substanceClassMaxHeight);
 
             },
         );
 
     }
 
+
+    /**
+     * Updates container and content layout on parent container (PanHandler)
+     */
+    sendLayoutToProps() {
+        this.props.handleContainerLayout({
+            // Its crucial that these values correspond to the ones defined for
+            // resistanceContainer (render method below)
+            width: Math.round(this.windowWidth - this.bacteriumLabelColumnWidth -
+                this.layoutElementPadding),
+            height: Math.round(this.windowHeight - this.antibioticLabelRowHeight -
+                this.layoutElementPadding),
+        });
+        this.props.handleContentLayout({
+            width: Math.round(this.visibleAntibioticsWidth),
+            height: Math.round(this.visibleBacteriaHeight),
+        });
+
+    }
 
     /* @computed get halfSpace() {
         return this.props.matrix.spaceBetweenGroups / 2;
@@ -345,16 +378,21 @@ export default class MatrixContent extends React.Component {
             -0.5,
         );
 
+        const substanceClassContainerHeight = add(
+            this.bottomRowHeight,
+            this.substanceClassMaxHeight,
+        );
+
 
         return (
             <View style={ styles.container }>
 
-                <View
+                <Animated.View
                     style={[
                         styles.logoContainer,
                         {
-                            width: this.bacteriumLabelColumnWidth,
-                            height: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
+                            width: this.leftColumnWidth,
+                            height: this.topRowHeight,
                         },
                     ]}
                 >
@@ -364,18 +402,18 @@ export default class MatrixContent extends React.Component {
                             fillColor={styleDefinitions.colors.darkGreen}
                             height={36 * 30.64 / 20.23} />
                     </View>
-                </View>
+                </Animated.View>
 
 
-                { /* SUBSTANCE CLASSES */ }
+                { /* SUBSTANCE CLASSES (headers and lines) */ }
                 { this.props.matrix.defaultRadius &&
 
-                    <View
+                    <Animated.View
                         style={[styles.substanceClassesContainer, {
-                            left: this.bacteriumLabelColumnWidth,
+                            left: this.leftColumnWidth,
                             top: this.antibioticLabelRowHeight,
-                            width: windowWidth - this.bacteriumLabelColumnWidth,
-                            height: windowHeight - this.antibioticLabelRowHeight,
+                            width: this.rightColumnWidth,
+                            height: substanceClassContainerHeight,
                         }]}
                     >
                         <Animated.View
@@ -421,7 +459,7 @@ export default class MatrixContent extends React.Component {
                                 />
                             )) }
                         </Animated.View>
-                    </View>
+                    </Animated.View>
                 }
 
 
@@ -431,20 +469,21 @@ export default class MatrixContent extends React.Component {
                      set the stage (container) and calculate its size for PanPinch */ }
                 { this.props.matrix.defaultRadius &&
 
-                    <View
+                    /* Resistance view (scrollable area) */
+                    <Animated.View
                         style={[styles.resistancesContainer, {
-                            left: this.bacteriumLabelColumnWidth,
+                            left: this.leftColumnWidth,
                             top: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
-                            width: windowWidth - this.bacteriumLabelColumnWidth,
-                            height: windowHeight - this.antibioticLabelRowHeight -
-                                this.substanceClassMaxHeight,
+                            width: this.rightColumnWidth,
+                            height: this.bottomRowHeight,
                         }]}
                         onLayout={ev =>
                             this.props.handleContainerLayout(ev.nativeEvent.layout)
                         }
                     >
 
-                        { /* Resistances: Below labels (z-index) */ }
+                        { /* Resistances (scrolling view) */ }
+                        { /* Must be above labels (for a lower z-index) */ }
                         <Animated.View
                             style={[
                                 styles.resistanceCirclesContainer,
@@ -498,7 +537,7 @@ export default class MatrixContent extends React.Component {
                         />
 
 
-                    </View>
+                    </Animated.View>
 
                 }
 
@@ -559,12 +598,12 @@ export default class MatrixContent extends React.Component {
 
 
                 { /* BACTERIA */ }
-                <View
+                <Animated.View
                     style={[
                         styles.bacteriumLabelsContainer,
                         {
-                            width: this.bacteriumLabelColumnWidth,
-                            top: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
+                            width: this.leftColumnWidth,
+                            top: this.topRowHeight,
                             // Height: We need some additional height for Android or bottom-most
                             // label is cut off when zooming out (as we increase the font size)
                             // height: !this.props.matrix.defaultRadius ? 0 :
@@ -576,8 +615,7 @@ export default class MatrixContent extends React.Component {
                             // this.visibleBacteriaHeight + this.props.matrix.defaultRadius,
                             // windowHeight,
                             // ),
-                            height: windowHeight - this.antibioticLabelRowHeight -
-                                this.substanceClassMaxHeight,
+                            height: this.bottomRowHeight,
                             paddingTop: this.layoutElementPadding,
                         },
                         this.labelOpacity,
@@ -617,7 +655,7 @@ export default class MatrixContent extends React.Component {
 
                     </Animated.View>
 
-                </View>
+                </Animated.View>
 
             </View>
         );
@@ -681,6 +719,7 @@ const styles = StyleSheet.create({
     resistancesContainer: {
         position: 'absolute',
         overflow: 'hidden', // Force same behavior on iOS and Android
+        // backgroundColor: 'coral',
         // borderWidth: 1,
         // borderColor: 'salmon',
     },
@@ -691,6 +730,7 @@ const styles = StyleSheet.create({
         // This is really, really fucking stupid: If we don't have a border, Android (that does
         // basically not know overflow:visible) will do an overflow:visible.
         borderColor: 'transparent',
+        // borderColor: 'navy',
     },
     resistanceCirclesContainer: {
         position: 'absolute',
