@@ -472,7 +472,7 @@ export default class MatrixContent extends React.Component {
                             ]}
                         >
                             <SubstanceClassHeaders
-                                substanceClasses={this.props.matrix.substanceClasses}
+                                matrix={this.props.matrix}
                                 height={this.substanceClassHeight}
                             />
                         </Animated.View>

@@ -17,11 +17,11 @@ export default class SubstanceClassHeaderItem extends React.Component {
     constructor(...props) {
         super(...props);
 
-        const { xPosition } = this.props.substanceClass;
+        const xPosition = this.props.matrix.xPositions.get(this.props.substanceClass);
         this.updateAnimatedValues(xPosition);
 
         reaction(
-            () => xPosition,
+            () => this.props.matrix.xPositions.get(this.props.substanceClass),
             newXPosition => this.updateAnimatedValues(newXPosition),
         );
     }

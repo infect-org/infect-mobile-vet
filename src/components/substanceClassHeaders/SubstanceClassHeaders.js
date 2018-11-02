@@ -34,10 +34,11 @@ export default class SubstanceClassHeaders extends React.Component {
 
         return (
             <View style={styles.container}>
-                { this.props.substanceClasses.filter(this.isLeaf).map(substanceClass => (
+                { this.props.matrix.substanceClasses.filter(this.isLeaf).map(substanceClass => (
                     <SubstanceClassHeaderItem
                         key={substanceClass.substanceClass.id}
                         substanceClass={substanceClass}
+                        matrix={this.props.matrix}
                         height={this.props.height}
                     />
                 )) }

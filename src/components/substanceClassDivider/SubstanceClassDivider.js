@@ -14,15 +14,20 @@ export default class SubstanceClassDivider extends React.Component {
     constructor(...props) {
         super(...props);
 
-        const { xPosition } = this.props.substanceClass;
+        const xPosition = this.props.matrix.xPositions.get(this.props.substanceClass);
         this.xPosition = new Animated.Value(xPosition ? xPosition.left : 0);
         this.opacity = new Animated.Value(xPosition ? 1 : 0);
         this.animatedMatrixHeight = new Animated.Value(this.matrixHeight);
 
         reaction(
-            () => xPosition,
+            () => this.props.matrix.xPositions.get(this.props.substanceClass),
             (newXPosition) => {
-                // log('SubstanceClassDivider: Update xPosition to', xPosition);
+                log(
+                    'SubstanceClassDivider: Update xPosition for',
+                    this.props.substanceClass.substanceClass.name,
+                    'to',
+                    xPosition,
+                );
                 if (newXPosition) {
                     this.xPosition.setValue(newXPosition.left);
                     this.opacity.setValue(1);
