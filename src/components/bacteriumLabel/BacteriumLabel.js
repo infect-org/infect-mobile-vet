@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction, trace } from 'mobx';
+import { computed, reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
@@ -26,6 +26,7 @@ export default class BacteriumLabel extends React.Component {
     constructor(...props) {
         super(...props);
         this.setupAnimatedProps();
+        // observe(this, 'activeBacteriumBackground', change => console.log('CHANGE', change));
     }
 
     /**
@@ -58,6 +59,7 @@ export default class BacteriumLabel extends React.Component {
         );
 
 
+        // Update animated property whenever (observable) yPosition changes
         reaction(
             () => this.props.matrix.yPositions.get(this.props.bacterium),
             (yPosition) => {
@@ -93,12 +95,12 @@ export default class BacteriumLabel extends React.Component {
         const { bacterium } = this.props.bacterium;
         // TODO: Remove substr, as soon as all short names are in DB
         return bacterium.shortName || bacterium.name.substr(0, 8);
-        /* .split(' ')
-        .map((subName, index) => (index === 0 ?
-            subName.substr(0, 4) :
-            `${subName.substr(0, 2)}.`
-        ))
-        .join(' '); */
+    }
+
+    @computed get isSelected() {
+        return this.props.matrix.activeResistance &&
+            this.props.matrix.activeResistance.resistance.bacterium ===
+            this.props.bacterium.bacterium;
     }
 
     /**
@@ -106,19 +108,15 @@ export default class BacteriumLabel extends React.Component {
      * is highlighted (background color). Returns the background color of the current bacterium.
      */
     @computed get activeBacteriumBackground() {
-        if (
-            this.props.matrix && this.props.matrix.activeResistance &&
-            this.props.matrix.activeResistance.resistance.bacterium ===
-            this.props.bacterium.bacterium
-        ) {
-            return styleDefinitions.colors.highlightBackground;
-        }
-        return 'transparent';
+        return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
+
+    /* componentWillReact() {
+        console.log('WILL UPDTATE');
+    } */
 
     render() {
 
-        trace();
         log('BacteriumLabel: Render bacterium label');
 
         // Use a View around the text because Text is not animatable
@@ -145,7 +143,7 @@ export default class BacteriumLabel extends React.Component {
                         { backgroundColor: this.activeBacteriumBackground },
                     ]}
                     onLayout={this.labelLayoutHandler}>
-                    {this.shortName}
+                    { this.shortName }
                 </Text>
             </Animated.View>
         );

@@ -63,7 +63,12 @@ export default class FilterOverlay extends React.Component {
         );
 
         log('FilterOverlay: Mounted');
-        this.props.componentStates.update('filters', componentStates.ready);
+        setTimeout(() => {
+            // When componentDidMount, it hasn't been drawn yet. Delay to prevent flackering of
+            // screen
+            // TODO: Remove & improve!
+            this.props.componentStates.update('filters', componentStates.ready);
+        }, 300);
     }
 
     openDisclaimer() {

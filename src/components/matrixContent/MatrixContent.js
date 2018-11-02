@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
+import { computed, reaction, trace } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
 import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
@@ -52,6 +52,9 @@ export default class MatrixContent extends React.Component {
     rightColumnWidth = sub(this.animatedWindowWidth, this.leftColumnWidth);
     bottomRowHeight = sub(this.animatedWindowHeight, this.topRowHeight)
 
+    animatedVisibleBacteriaHeight = new Animated.Value(0);
+    animatedVisibleAntibioticsWidth = new Animated.Value(0);
+
     /**
      * Height of the colored lines that represent substance classes
      */
@@ -77,6 +80,81 @@ export default class MatrixContent extends React.Component {
     labelZoomCaps = {
         max: 1.2,
         min: 0.7,
+    }
+
+
+    constructor(...props) {
+        super(...props);
+        this.setupAnimatedValues();
+    }
+
+    /**
+     * Setup animated values that depend on this.props (which are not available at the time
+     * object properties are initialized)
+     */
+    setupAnimatedValues() {
+
+        /**
+         * Zoom for labels: Is capped so that they don't get too big or small
+         */
+        this.cappedLabelZoom = min(
+            this.labelZoomCaps.max,
+            max(
+                this.labelZoomCaps.min,
+                this.props.animatedZoom,
+            ),
+        );
+
+        /**
+         * Container should always look like right:0 – as zoom origin is center/center, we have
+         * to move it
+         */
+        const bacteriaLabelContainerWidth = this.bacteriumLabelColumnWidth * 2;
+        this.bacteriaLabelContainerLeft = !this.props.matrix.defaultRadius ? 0 : multiply(
+            sub(
+                this.props.animatedZoom,
+                1,
+            ),
+            // This corresponds to the container's width
+            bacteriaLabelContainerWidth,
+            -0.5,
+        );
+
+
+        const antibioticLabelContainerHeight = this.props.matrix.defaultRadius ?
+            this.antibioticLabelRowHeight * 2 : 0;
+        this.antibioticLabelContainerTop = multiply(
+            sub(
+                this.props.animatedZoom,
+                1,
+            ),
+            antibioticLabelContainerHeight,
+            -0.5,
+        );
+
+        this.substanceClassContainerHeight = add(
+            this.bottomRowHeight,
+            this.substanceClassMaxHeight,
+        );
+
+        // Update animatedVisibleBacteriaHeight whenever variables we depend on change
+        reaction(
+            () => this.visibleBacteriaHeight,
+            (height) => {
+                log('MatrixContent: Update animated visible bacteria height to', height);
+                this.animatedVisibleBacteriaHeight.setValue(height);
+            },
+        );
+
+        // Update animatedVisibleAntibioticsWidth whenever variables we depend on change
+        reaction(
+            () => this.visibleAntibioticsWidth,
+            (width) => {
+                log('MatrixContent: Update animated visible antibiotics width to', width);
+                this.animatedVisibleAntibioticsWidth.setValue(width);
+            },
+        );
+
     }
 
 
@@ -153,6 +231,7 @@ export default class MatrixContent extends React.Component {
      * Updates container and content layout on parent container (PanHandler)
      */
     sendLayoutToProps() {
+        log('MatrixContent: Update content and container layout on parent');
         this.props.handleContainerLayout({
             // Its crucial that these values correspond to the ones defined for
             // resistanceContainer (render method below)
@@ -182,6 +261,7 @@ export default class MatrixContent extends React.Component {
      * height of all labels or labels won't be visible.
      */
     @computed get visibleBacteriaHeight() {
+        // Wait until radius is known (layout has been measured)
         if (!this.props.matrix.defaultRadius) return 0;
         // Add 1 to number of bacteria to be sure everything's visible
         const height = (this.props.matrix.defaultRadius * 2 + this.props.matrix.space) *
@@ -338,50 +418,8 @@ export default class MatrixContent extends React.Component {
     render() {
 
         log('MatrixContent: Render');
+        trace();
 
-        /**
-         * Zoom for labels: Is capped so that they don't get too big or small
-         */
-        const cappedLabelZoom = min(
-            this.labelZoomCaps.max,
-            max(
-                this.labelZoomCaps.min,
-                this.props.animatedZoom,
-            ),
-        );
-
-
-        /**
-         * Container should always look like right:0 – as zoom origin is center/center, we have
-         * to move it
-         */
-        const bacteriaLabelContainerWidth = this.bacteriumLabelColumnWidth * 2;
-        const bacteriaLabelContainerLeft = !this.props.matrix.defaultRadius ? 0 : multiply(
-            sub(
-                this.props.animatedZoom,
-                1,
-            ),
-            // This corresponds to the container's width
-            bacteriaLabelContainerWidth,
-            -0.5,
-        );
-
-
-        const antibioticLabelContainerHeight = this.props.matrix.defaultRadius ?
-            this.antibioticLabelRowHeight * 2 : 0;
-        const antibioticLabelContainerTop = multiply(
-            sub(
-                this.props.animatedZoom,
-                1,
-            ),
-            antibioticLabelContainerHeight,
-            -0.5,
-        );
-
-        const substanceClassContainerHeight = add(
-            this.bottomRowHeight,
-            this.substanceClassMaxHeight,
-        );
 
 
         return (
@@ -413,13 +451,13 @@ export default class MatrixContent extends React.Component {
                             left: this.leftColumnWidth,
                             top: this.antibioticLabelRowHeight,
                             width: this.rightColumnWidth,
-                            height: substanceClassContainerHeight,
+                            height: this.substanceClassContainerHeight,
                         }]}
                     >
                         <Animated.View
                             style={[
                                 {
-                                    width: this.visibleAntibioticsWidth,
+                                    width: this.animatedVisibleAntibioticsWidth,
                                     height: this.substanceClassMaxHeight,
                                     position: 'absolute',
                                 },
@@ -443,8 +481,8 @@ export default class MatrixContent extends React.Component {
                         <Animated.View
                             style={[
                                 {
-                                    width: this.visibleAntibioticsWidth,
-                                    height: this.visibleBacteriaHeight,
+                                    width: this.animatedVisibleAntibioticsWidth,
+                                    height: this.animatedVisibleBacteriaHeight,
                                     position: 'absolute',
                                     top: this.substanceClassHeight,
                                 },
@@ -488,8 +526,8 @@ export default class MatrixContent extends React.Component {
                             style={[
                                 styles.resistanceCirclesContainer,
                                 {
-                                    width: this.visibleAntibioticsWidth,
-                                    height: this.visibleBacteriaHeight,
+                                    width: this.animatedVisibleAntibioticsWidth,
+                                    height: this.animatedVisibleBacteriaHeight,
                                 },
                                 this.getResistanceTransformation(),
                             ]}
@@ -531,8 +569,8 @@ export default class MatrixContent extends React.Component {
                              becomes available */ }
                         <ActiveResistanceDetail
                             matrix={this.props.matrix}
-                            width={this.visibleAntibioticsWidth}
-                            height={this.visibleBacteriaHeight}
+                            width={this.animatedVisibleAntibioticsWidth}
+                            height={this.animatedVisibleBacteriaHeight}
                             resistanceTransformation={this.getResistanceTransformation()}
                         />
 
@@ -544,13 +582,13 @@ export default class MatrixContent extends React.Component {
 
 
                 { /* ANTIBIOTICS */ }
-                <View
+                <Animated.View
                     style={[
                         styles.antibioticLabelsContainer,
                         {
                             height: this.antibioticLabelRowHeight,
                             left: this.bacteriumLabelColumnWidth,
-                            width: this.visibleAntibioticsWidth,
+                            width: this.animatedVisibleAntibioticsWidth,
                         },
                         this.labelOpacity,
                     ]}
@@ -561,14 +599,14 @@ export default class MatrixContent extends React.Component {
                         style={[
                             styles.antibioticContainer,
                             {
-                                width: this.visibleAntibioticsWidth,
-                                height: antibioticLabelContainerHeight,
+                                width: this.animatedVisibleAntibioticsWidth,
+                                height: this.antibioticLabelContainerHeight,
                             },
                             {
                                 transform: [{
                                     translateX: this.props.animatedLeft,
                                 }, {
-                                    translateY: antibioticLabelContainerTop,
+                                    translateY: this.antibioticLabelContainerTop,
                                 }, {
                                     scale: this.props.animatedZoom,
                                 }],
@@ -585,7 +623,7 @@ export default class MatrixContent extends React.Component {
                                     this.antibioticLabelRowHeight : 0}
                                 antibiotic={ab}
                                 animatedZoom={this.props.animatedZoom}
-                                cappedLabelZoom={cappedLabelZoom}
+                                cappedLabelZoom={this.cappedLabelZoom}
                                 maxZoom={this.labelZoomCaps.max}
                                 key={ab.antibiotic.id}
                                 matrix={this.props.matrix} />
@@ -593,7 +631,7 @@ export default class MatrixContent extends React.Component {
 
                     </Animated.View>
 
-                </View>
+                </Animated.View>
 
 
 
@@ -626,13 +664,13 @@ export default class MatrixContent extends React.Component {
                         style={[
                             styles.bacteriumLabels,
                             {
-                                width: bacteriaLabelContainerWidth,
+                                width: this.bacteriaLabelContainerWidth,
                                 right: this.layoutElementPadding,
-                                height: this.visibleBacteriaHeight,
+                                height: this.animatedVisibleBacteriaHeight,
                                 // + this.props.matrix.defaultRadius, (may be needed for android)
                                 // Beware: THE FUCKING ORDER MATTERS!
                                 transform: [{
-                                    translateX: bacteriaLabelContainerLeft,
+                                    translateX: this.bacteriaLabelContainerLeft,
                                 }, {
                                     translateY: this.props.animatedTop,
                                 }, {
@@ -646,7 +684,7 @@ export default class MatrixContent extends React.Component {
                             <BacteriumLabel
                                 key={bact.bacterium.id}
                                 containerHeight={this.props.containerHeight}
-                                cappedLabelZoom={cappedLabelZoom}
+                                cappedLabelZoom={this.cappedLabelZoom}
                                 animatedZoom={this.props.animatedZoom}
                                 maxZoom={this.labelZoomCaps.max}
                                 bacterium={bact}

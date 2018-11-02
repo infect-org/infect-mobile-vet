@@ -30,6 +30,8 @@ export default class SubstanceClassHeaders extends React.Component {
 
     render() {
 
+        log('SubstanceClassHeaders: Render');
+
         return (
             <View style={styles.container}>
                 { this.props.substanceClasses.filter(this.isLeaf).map(substanceClass => (

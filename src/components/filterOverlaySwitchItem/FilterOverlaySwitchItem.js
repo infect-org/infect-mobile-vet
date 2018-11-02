@@ -18,7 +18,7 @@ export default class FilterOverlaySwitchItem extends React.Component {
     }
 
     @computed get selected() {
-        log('FilterOverlaySwitchItem: Is filter selected?', this.props.item);
+        // log('FilterOverlaySwitchItem: Is filter selected?', this.props.item);
         return this.props.selectedFilters.isSelected(this.props.item);
     }
 

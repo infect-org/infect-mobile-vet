@@ -17,7 +17,8 @@ const {
 @observer
 export default class AntibioticLabel extends React.Component {
 
-    left = 0;
+    left = new Animated.Value(0);
+    opacity = new Animated.Value(0);
 
     @observable labelDimensions = {
         height: 0,
@@ -29,26 +30,63 @@ export default class AntibioticLabel extends React.Component {
     // Rotation of labels in degrees
     labelRotationDeg = -60;
 
+
     constructor(...params) {
         super(...params);
-        reaction(
-            // TODO: When setValue is available, use setValue and remove forceUpdate
-            () => this.props.matrix.defaultRadius,
-            () => {
-                this.setupAnimatedProps();
-                this.forceUpdate();
-            },
-        );
+        this.updateAnimatedPositionsWhenNeeded();
+        this.setupAnimatedProps();
+        // observe(this, 'shortName', change => console.log('CHANGE shortName', change));
     }
 
     /**
-     * We must update our Animated stuff whenever new data is available or the old values won't be
-     * available any more. TODO: Use setValue when it becomes available
+     * Whenever (observable) position changes, update our Animated.Values
+     */
+    updateAnimatedPositionsWhenNeeded() {
+        reaction(
+            () => this.props.matrix.xPositions.get(this.props.antibiotic),
+            (position) => {
+                if (position) {
+                    this.left.setValue(position.left);
+                    this.opacity.setValue(1);
+                } else {
+                    this.opacity.setValue(0);
+                }
+            },
+        );
+
+    }
+
+
+    /**
+     * Setup animated properties that depend on this.props (which are not ready when object
+     * properties are initialized)
      */
     setupAnimatedProps() {
-        const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        this.left = position ? position.left : 0;
-        this.opacity = this.props.antibiotic.visible ? 1 : 0;
+
+        this.cappedLabelZoomAdjustment = divide(
+            this.props.cappedLabelZoom,
+            this.props.animatedZoom,
+        );
+
+        // When zooming in, we zoom from center/center – have therefore to move the labels up
+        // in order to align at the bottom.
+        // CAREFUL: When we zoom out, labels become bigger (as we want them to be at a minimum
+        // size!)
+        // Only needed on Android. On iOS, container has height 0 and overflow: visible
+
+        this.adjustedTop = multiply(
+            sub(this.cappedLabelZoomAdjustment, 1),
+            this.props.matrix.antibioticLabelRowHeight,
+            -0.5,
+        );
+
+        // When zooming beyond label zoom, we have to adjust a little bit for the fact that
+        // every label zooms from center/center (and we need bottom/left)
+        this.adjustedLeft = multiply(
+            sub(this.cappedLabelZoomAdjustment, 1),
+            this.props.matrix.antibioticLabelRowHeight,
+            0.5,
+        );
     }
 
 
@@ -167,48 +205,20 @@ export default class AntibioticLabel extends React.Component {
         };
     }
 
+    @computed get isSelected() {
+        return this.props.matrix.activeResistance &&
+            this.props.matrix.activeResistance.resistance.antibiotic ===
+            this.props.antibiotic.antibiotic;
+    }
+
     @computed get activeAntibioticBackground() {
-        if (this.props.matrix && this.props.matrix.activeResistance) {
-            if (this.props.matrix.activeResistance.resistance.antibiotic ===
-                this.props.antibiotic.antibiotic) {
-                return styleDefinitions.colors.highlightBackground;
-            }
-        }
-        return 'transparent';
+        return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
 
 
     render() {
 
         log('AntibioticLabel: Render');
-
-        if (this.props.matrix.defaultRadius) this.setupAnimatedProps();
-
-        const cappedLabelZoomAdjustment = divide(
-            this.props.cappedLabelZoom,
-            this.props.animatedZoom,
-        );
-
-        // When zooming in, we zoom from center/center – have therefore to move the labels up
-        // in order to align at the bottom.
-        // CAREFUL: When we zoom out, labels become bigger (as we want them to be at a minimum
-        // size!)
-        // Only needed on Android. On iOS, container has height 0 and overflow: visible
-
-        const adjustedTop = multiply(
-            sub(cappedLabelZoomAdjustment, 1),
-            this.props.matrix.antibioticLabelRowHeight,
-            -0.5,
-        );
-
-
-        // When zooming beyond label zoom, we have to adjust a little bit for the fact that
-        // every label zooms from center/center (and we need bottom/left)
-        const adjustedLeft = multiply(
-            sub(cappedLabelZoomAdjustment, 1),
-            this.props.matrix.antibioticLabelRowHeight,
-            0.5,
-        );
 
         return (
             // Basic placement of label: Just set x/y
@@ -221,11 +231,11 @@ export default class AntibioticLabel extends React.Component {
                         opacity: this.opacity,
                         left: this.left,
                         transform: [{
-                            translateY: adjustedTop,
+                            translateY: this.adjustedTop,
                         }, {
-                            translateX: adjustedLeft,
+                            translateX: this.adjustedLeft,
                         }, {
-                            scale: cappedLabelZoomAdjustment,
+                            scale: this.cappedLabelZoomAdjustment,
                         }],
                     },
                 ]}

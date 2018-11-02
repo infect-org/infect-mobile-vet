@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
+// import { computed } from 'mobx';
 import { DangerZone } from 'expo';
 import ResistanceDetail from './ResistanceDetail';
+import log from '../../helpers/log';
 
 const { Animated } = DangerZone;
 
@@ -13,10 +15,23 @@ const { Animated } = DangerZone;
 @observer
 export default class ActiveResistanceDetail extends React.Component {
 
+    /**
+     * Dont add/remove detail from dom, just hide it. Why? Because performance sucks (especially
+     * on android) if we re-render the whole circle. IDK why.
+     */
+    /* @computed get opacity() {
+        return this.props.matrix.activeResistance !== undefined ? 1 : 0;
+    } */
+
     render() {
+
+        log('ActiveResistanceDetail: Render');
+
         return (
             <View
-                style={styles.container}
+                style={[
+                    styles.container,
+                ]}
                 pointerEvents="none"
             >
                 { this.props.matrix.activeResistance &&

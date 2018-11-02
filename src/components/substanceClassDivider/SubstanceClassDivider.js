@@ -1,26 +1,42 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
+import { computed, trace, reaction } from 'mobx';
+import { DangerZone } from 'expo';
 import log from '../../helpers/log';
+
+const { Animated } = DangerZone;
 
 @observer
 export default class SubstanceClassDivider extends React.Component {
 
-    @computed get dividerStyle() {
+
+    constructor(...props) {
+        super(...props);
+
         const { xPosition } = this.props.substanceClass;
-        const style = {
-            left: xPosition ? xPosition.left : 0,
-            opacity: xPosition ? 1 : 0,
-            backgroundColor: this.props.substanceClass.lineColor,
-            height: this.matrixHeight,
-            top: 0,
-        };
-        log(
-            'SubstanceClassDivider: Divider style, left is', style.left, 'for subsClass',
-            this.props.substanceClass.substanceClass.name,
+        this.xPosition = new Animated.Value(xPosition ? xPosition.left : 0);
+        this.opacity = new Animated.Value(xPosition ? 1 : 0);
+        this.animatedMatrixHeight = new Animated.Value(this.matrixHeight);
+
+        reaction(
+            () => xPosition,
+            (newXPosition) => {
+                // log('SubstanceClassDivider: Update xPosition to', xPosition);
+                if (newXPosition) {
+                    this.xPosition.setValue(newXPosition.left);
+                    this.opacity.setValue(1);
+                } else {
+                    this.opacity.setValue(0);
+                }
+            },
         );
-        return style;
+
+        reaction(
+            () => this.matrixHeight,
+            height => this.animatedMatrixHeight.setValue(height),
+        );
+
     }
 
     @computed get matrixHeight() {
@@ -31,12 +47,21 @@ export default class SubstanceClassDivider extends React.Component {
     }
 
     render() {
+
         log('SubstanceClassDivider: Render');
+        trace();
+
         return (
-            <View
+            <Animated.View
                 style={ [
                     styles.substanceClassDivider,
                     this.dividerStyle,
+                    {
+                        left: this.xPosition,
+                        opacity: this.opacity,
+                        height: this.animatedMatrixHeight,
+                        backgroundColor: this.props.substanceClass.lineColor,
+                    },
                 ] }
             />
         );
@@ -46,6 +71,8 @@ export default class SubstanceClassDivider extends React.Component {
 
 const styles = StyleSheet.create({
     substanceClassDivider: {
+        // borderWidth: 10,
+        // borderColor: 'navy',
         position: 'absolute',
         top: 0,
         width: StyleSheet.hairlineWidth,
