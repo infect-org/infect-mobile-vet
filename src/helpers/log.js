@@ -4,7 +4,7 @@
 export default function log(...content) {
 
     // For live environment, disable all logs (they tend to cause troubles)
-    return;
+    // return;
 
     console.log(...content);
     return;

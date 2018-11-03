@@ -213,7 +213,6 @@ export default class MatrixContent extends React.Component {
             width: Math.max(this.windowWidth, 1200),
             height: this.windowHeight,
         });
-        log('default radius is %o', this.props.matrix.defaultRadius);
 
         // Whenever window dimensions change (rotation landscape/portrait), update animated
         // window dimensions
@@ -586,8 +585,12 @@ export default class MatrixContent extends React.Component {
                             >
                                 { this.props.matrix.resistances.map(res => (
                                     <Resistance
-                                        animatedAntibiotic={this.animatedAntibiotics.get(res.resistance.antibiotic)}
-                                        animatedBacterium={this.animatedBacteria.get(res.resistance.bacterium)}
+                                        animatedAntibiotic={
+                                            this.animatedAntibiotics.get(res.resistance.antibiotic)
+                                        }
+                                        animatedBacterium={
+                                            this.animatedBacteria.get(res.resistance.bacterium)
+                                        }
                                         key={this.getResistanceKey(res)}
                                         matrix={this.props.matrix}
                                         resistance={res}

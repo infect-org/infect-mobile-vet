@@ -35,8 +35,11 @@ export default class AnimatedAntibiotic {
     @computed get computedLeft() {
         // When matrixView.defaultRadius is not available, xPosition.left might be undefined or
         // NaN. Use 0 in those cases.
-        return this.xPosition && !Number.isNaN(this.xPosition.left) && this.xPosition.left ?
-            this.xPosition.left : 0;
+        return (
+            this.xPosition &&
+            !Number.isNaN(this.xPosition.left) &&
+            this.xPosition.left !== undefined
+        ) ? this.xPosition.left : 0;
     }
 
     /**

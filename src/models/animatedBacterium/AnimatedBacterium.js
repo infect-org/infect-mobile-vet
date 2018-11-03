@@ -35,8 +35,11 @@ export default class AnimatedBacterium {
     @computed get computedTop() {
         // AnimatedBacterium is initialized from MainView before matrixView.defaultRadius is set.
         // At this time, top will be NaN – use 0 as NaN is not accepted by Animated.View
-        const top = this.yPosition && !Number.isNaN(this.yPosition.top) ? this.yPosition.top : 0;
-        return top;
+        return (
+            this.yPosition &&
+            !Number.isNaN(this.yPosition.top) &&
+            this.yPosition.top !== undefined
+        ) ? this.yPosition.top : 0;
     }
 
     /**
