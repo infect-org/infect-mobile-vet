@@ -14,6 +14,8 @@ import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 import componentStates from '../../models/componentStates/componentStates';
 import InfectLogo from '../infectLogo/InfectLogo';
 import styleDefinitions from '../../helpers/styleDefinitions';
+import AnimatedAntibiotic from '../../models/animatedAntibiotic/AnimatedAntibiotic';
+import AnimatedBacterium from '../../models/animatedBacterium/AnimatedBacterium';
 
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
@@ -83,10 +85,53 @@ export default class MatrixContent extends React.Component {
     }
 
 
+    /**
+     * Holds all instances of AnimatedAntibiotic, key is antibiotic (raw model), value is instance
+     * of AnimatedAntibiotic
+     */
+    animatedAntibiotics = new Map();
+
+    /**
+     * Holds all instances of AnimatedBacterium, key is bacterium (raw model), value is instance
+     * of AnimatedBacterium
+     */
+    animatedBacteria = new Map();
+
+
+
     constructor(...props) {
         super(...props);
         this.setupAnimatedValues();
+        this.setupAnimatedAntibiotics();
+        this.setupAnimatedBacteria();
     }
+
+
+    setupAnimatedAntibiotics() {
+        log('MatrixContent: Setup animatedAntibiotics');
+        this.props.matrix.antibiotics.forEach((antibiotic) => {
+            this.animatedAntibiotics.set(
+                // Use base model (not matrixView model)
+                antibiotic.antibiotic,
+                new AnimatedAntibiotic(antibiotic, this.props.matrix),
+            );
+        });
+        log('MatrixContent: animatedAntibiotics are', this.animatedAntibiotics);
+    }
+
+    setupAnimatedBacteria() {
+        log('MatrixContent: Setup animatedBacteria');
+        this.props.matrix.sortedBacteria.forEach((bacterium) => {
+            this.animatedBacteria.set(
+                // Use base model (not matrixView model)
+                bacterium.bacterium,
+                new AnimatedBacterium(bacterium, this.props.matrix),
+            );
+        });
+        log('MatrixContent: animatedBacteria are', this.animatedBacteria);
+    }
+
+
 
     /**
      * Setup animated values that depend on this.props (which are not available at the time
@@ -541,6 +586,8 @@ export default class MatrixContent extends React.Component {
                             >
                                 { this.props.matrix.resistances.map(res => (
                                     <Resistance
+                                        animatedAntibiotic={this.animatedAntibiotics.get(res.resistance.antibiotic)}
+                                        animatedBacterium={this.animatedBacteria.get(res.resistance.bacterium)}
                                         key={this.getResistanceKey(res)}
                                         matrix={this.props.matrix}
                                         resistance={res}
@@ -622,6 +669,7 @@ export default class MatrixContent extends React.Component {
                                 moveLabelDownBy={this.props.matrix.defaultRadius ?
                                     this.antibioticLabelRowHeight : 0}
                                 antibiotic={ab}
+                                animatedAntibiotic={this.animatedAntibiotics.get(ab.antibiotic)}
                                 animatedZoom={this.props.animatedZoom}
                                 cappedLabelZoom={this.cappedLabelZoom}
                                 maxZoom={this.labelZoomCaps.max}
@@ -684,6 +732,7 @@ export default class MatrixContent extends React.Component {
                             <BacteriumLabel
                                 key={bact.bacterium.id}
                                 containerHeight={this.props.containerHeight}
+                                animatedBacterium={this.animatedBacteria.get(bact.bacterium)}
                                 cappedLabelZoom={this.cappedLabelZoom}
                                 animatedZoom={this.props.animatedZoom}
                                 maxZoom={this.labelZoomCaps.max}

@@ -47,7 +47,7 @@ export default class SubstanceClassDivider extends React.Component {
     @computed get matrixHeight() {
         const height = ((this.props.matrix.defaultRadius * 2) + this.props.matrix.space) *
             this.props.matrix.sortedVisibleBacteria.length;
-        log('SubstanceClassDivider: Height is', height);
+        // log('SubstanceClassDivider: Height is', height);
         return height;
     }
 

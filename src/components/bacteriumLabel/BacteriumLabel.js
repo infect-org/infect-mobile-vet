@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
+import { computed } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
@@ -17,16 +17,12 @@ const {
 @observer
 export default class BacteriumLabel extends React.Component {
 
-    originalTop = new Animated.Value(0);
-    top = new Animated.Value(0);
     width = new Animated.Value(0);
     widthSet = false;
-    opacity = new Animated.Value(1);
 
     constructor(...props) {
         super(...props);
         this.setupAnimatedProps();
-        // observe(this, 'activeBacteriumBackground', change => console.log('CHANGE', change));
     }
 
     /**
@@ -37,7 +33,7 @@ export default class BacteriumLabel extends React.Component {
         this.top = multiply(
             // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
             divide(this.props.animatedZoom, this.props.cappedLabelZoom),
-            this.originalTop,
+            this.props.animatedBacterium.top,
         );
 
 
@@ -56,20 +52,6 @@ export default class BacteriumLabel extends React.Component {
         this.cappedLabelZoomAdjustment = divide(
             this.props.cappedLabelZoom,
             this.props.animatedZoom,
-        );
-
-
-        // Update animated property whenever (observable) yPosition changes
-        reaction(
-            () => this.props.matrix.yPositions.get(this.props.bacterium),
-            (yPosition) => {
-                if (yPosition) {
-                    this.originalTop.setValue(yPosition.top);
-                    this.opacity.setValue(1);
-                } else {
-                    this.opacity.setValue(0);
-                }
-            },
         );
 
     }
@@ -126,7 +108,7 @@ export default class BacteriumLabel extends React.Component {
                     styles.labelTextContainer,
                     {
                         width: this.labelWidth,
-                        opacity: this.opacity,
+                        opacity: this.props.animatedBacterium.opacity,
                         transform: [{
                             scale: this.cappedLabelZoomAdjustment,
                         }, {

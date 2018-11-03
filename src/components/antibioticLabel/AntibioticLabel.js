@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { observer } from 'mobx-react';
 import { DangerZone } from 'expo';
-import { computed, observable, action, reaction } from 'mobx';
+import { computed, observable, action } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
@@ -17,9 +17,6 @@ const {
 @observer
 export default class AntibioticLabel extends React.Component {
 
-    left = new Animated.Value(0);
-    opacity = new Animated.Value(0);
-
     @observable labelDimensions = {
         height: 0,
         width: 0,
@@ -33,28 +30,9 @@ export default class AntibioticLabel extends React.Component {
 
     constructor(...params) {
         super(...params);
-        this.updateAnimatedPositionsWhenNeeded();
         this.setupAnimatedProps();
-        // observe(this, 'shortName', change => console.log('CHANGE shortName', change));
     }
 
-    /**
-     * Whenever (observable) position changes, update our Animated.Values
-     */
-    updateAnimatedPositionsWhenNeeded() {
-        reaction(
-            () => this.props.matrix.xPositions.get(this.props.antibiotic),
-            (position) => {
-                if (position) {
-                    this.left.setValue(position.left);
-                    this.opacity.setValue(1);
-                } else {
-                    this.opacity.setValue(0);
-                }
-            },
-        );
-
-    }
 
 
     /**
@@ -92,24 +70,6 @@ export default class AntibioticLabel extends React.Component {
 
     get rotationRad() {
         return this.labelRotationDeg * (Math.PI / 180);
-    }
-
-    /**
-     * Returns the basic x/y transformation that is applied to the label
-     */
-    @computed get top() {
-        // We only know the transformation after defaultRadius is available; before just don't
-        // position anything
-        if (!this.props.matrix.defaultRadius) return 0;
-        // Label must be at the top for android; at the bottom for iOS
-        let top;
-        // Move down a little to account for props.maxZoom
-        if (Platform.OS === 'android') {
-            top = this.props.matrix.antibioticLabelRowHeight * (this.props.maxZoom - 1) - 10;
-        } else {
-            top = this.props.matrix.antibioticLabelRowHeight * this.props.maxZoom;
-        }
-        return top;
     }
 
     labelTextLayoutHandler = (ev) => {
@@ -228,8 +188,8 @@ export default class AntibioticLabel extends React.Component {
                     // Dimensions are needed for Android (no overflow: visible)
                     this.labelContainerDimensions,
                     {
-                        opacity: this.opacity,
-                        left: this.left,
+                        opacity: this.props.animatedAntibiotic.opacity,
+                        left: this.props.animatedAntibiotic.left,
                         transform: [{
                             translateY: this.adjustedTop,
                         }, {

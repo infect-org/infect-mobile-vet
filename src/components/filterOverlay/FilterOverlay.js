@@ -87,73 +87,74 @@ export default class FilterOverlay extends React.Component {
         return (
             <Animated.View
                 style={[
-                    styles.filterOverlayContainer,
+                    styles.filterOverlayBackground,
                     {
                         top: this.top,
                         opacity: this.opacity,
                     },
                 ]}>
+                <View style={styles.filterOverlayContainer}>
+                    <View style={styles.container}>
+                        <ScrollView>
 
-                <View style={styles.container}>
-                    <ScrollView>
+                            <AntibioticFilters
+                                filterValues={this.props.filterValues}
+                                selectedFilters={this.props.selectedFilters}
+                            />
 
-                        <AntibioticFilters
-                            filterValues={this.props.filterValues}
-                            selectedFilters={this.props.selectedFilters}
-                        />
+                            <BacteriaFilters
+                                filterValues={this.props.filterValues}
+                                selectedFilters={this.props.selectedFilters}
+                            />
 
-                        <BacteriaFilters
-                            filterValues={this.props.filterValues}
-                            selectedFilters={this.props.selectedFilters}
-                        />
+                            <PopulationFilters
+                                filterValues={this.props.filterValues}
+                                selectedFilters={this.props.selectedFilters}
+                            />
 
-                        <PopulationFilters
-                            filterValues={this.props.filterValues}
-                            selectedFilters={this.props.selectedFilters}
-                        />
+                            <View style={{ height: 20 }} />
 
-                        <View style={{ height: 20 }} />
+                            <FilterOverlayTitle
+                                title="Information" />
 
-                        <FilterOverlayTitle
-                            title="Information" />
+                            <Text style={styles.infoText}>
+                                Monthly, INFECT imports a subset of the latest 365 days of bacterial
+                                resistance data from the Swiss Center for Antibiotic resistance.
+                            </Text>
+                            <Text style={styles.infoText}>
+                                INFECT accepts no responsibility or liability with regard to any
+                                problems incurred as a result of using this site or any linked external
+                                sites.
+                            </Text>
+                            <Button
+                                onPress={this.openDisclaimer}
+                                color={styleDefinitions.colors.green}
+                                title="More information"
+                                style={styles.infoButton}
+                            />
 
-                        <Text style={styles.infoText}>
-                            Monthly, INFECT imports a subset of the latest 365 days of bacterial
-                            resistance data from the Swiss Center for Antibiotic resistance.
-                        </Text>
-                        <Text style={styles.infoText}>
-                            INFECT accepts no responsibility or liability with regard to any
-                            problems incurred as a result of using this site or any linked external
-                            sites.
-                        </Text>
-                        <Button
-                            onPress={this.openDisclaimer}
-                            color={styleDefinitions.colors.green}
-                            title="More information"
-                            style={styles.infoButton}
-                        />
+                            { /* Add margin to bottom of container (that's covered by «Apply filters
+                                 button) */ }
+                            <View style={styles.bottomMarginContainer} />
 
-                        { /* Add margin to bottom of container (that's covered by «Apply filters
-                             button) */ }
-                        <View style={styles.bottomMarginContainer} />
+                        </ScrollView>
+                    </View>
 
-                    </ScrollView>
-                </View>
-
-                { /* Apply filters button */ }
-                <View style={styles.applyFiltersButtonContainer}>
-                    <TouchableHighlight
-                        onPress={this.handleApplyButtonPress.bind(this)}
-                        style={styles.container}
-                    >
-                        <View style={styles.applyFiltersButton}>
-                            <View style={styles.applyFiltersButtonTextContainer}>
-                                <Text style={styles.applyFiltersButtonText}>
-                                    Apply filters
-                                </Text>
+                    { /* Apply filters button */ }
+                    <View style={styles.applyFiltersButtonContainer}>
+                        <TouchableHighlight
+                            onPress={this.handleApplyButtonPress.bind(this)}
+                            style={styles.container}
+                        >
+                            <View style={styles.applyFiltersButton}>
+                                <View style={styles.applyFiltersButtonTextContainer}>
+                                    <Text style={styles.applyFiltersButtonText}>
+                                        Apply filters
+                                    </Text>
+                                </View>
                             </View>
-                        </View>
-                    </TouchableHighlight>
+                        </TouchableHighlight>
+                    </View>
                 </View>
             </Animated.View>
         );
@@ -195,11 +196,19 @@ const styles = StyleSheet.create({
         fontSize: 25,
         textAlign: 'center',
     },
-    filterOverlayContainer: {
+    filterOverlayBackground: {
         position: 'absolute',
         left: 0,
         right: 0,
         height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    },
+    filterOverlayContainer: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: '25%',
         backgroundColor: styleDefinitions.colors.darkBackgroundGrey,
     },
     infoText: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
 import Matrix from '../matrix/Matrix';
 import FilterOverlay from '../filterOverlay/FilterOverlay';
@@ -9,6 +9,37 @@ import componentStates from '../../models/componentStates/componentStates';
 
 @observer
 export default class MainView extends React.Component {
+
+    constructor(...props) {
+        super(...props);
+        this.addAntibioticFilter = this.addAntibioticFilter.bind(this);
+        this.addBacteriumFilter = this.addBacteriumFilter.bind(this);
+    }
+
+    addAntibioticFilter() {
+        const antibiotics = this.props.filterValues.getValuesForProperty('antibiotic', 'name');
+        if (antibiotics.length) {
+            const antibiotic = antibiotics[0];
+            if (this.props.selectedFilters.isSelected(antibiotic)) {
+                this.props.selectedFilters.removeFilter(antibiotic);
+            } else {
+                this.props.selectedFilters.addFilter(antibiotic);
+            }
+        }
+    }
+
+    addBacteriumFilter() {
+        const bacteria = this.props.filterValues.getValuesForProperty('bacterium', 'name');
+        if (bacteria.length) {
+            const bacterium = bacteria[0];
+            if (this.props.selectedFilters.isSelected(bacterium)) {
+                this.props.selectedFilters.removeFilter(bacterium);
+            } else {
+                this.props.selectedFilters.addFilter(bacterium);
+            }
+        }
+    }
+
 
     render() {
 
@@ -31,6 +62,34 @@ export default class MainView extends React.Component {
                         filterOverlayModel={this.props.filterOverlayModel}
                     />
                 </View>
+
+                { /* Just for testing (adds antibiotic to filters */ }
+                <TouchableHighlight onPress={this.addAntibioticFilter}>
+                    <View
+                        style={{
+                            width: 20,
+                            height: 20,
+                            backgroundColor: 'navy',
+                            position: 'absolute',
+                            bottom: 20,
+                            left: 20,
+                        }}
+                    />
+                </TouchableHighlight>
+                <TouchableHighlight onPress={this.addBacteriumFilter}>
+                    <View
+                        style={{
+                            width: 20,
+                            height: 20,
+                            backgroundColor: 'salmon',
+                            position: 'absolute',
+                            bottom: 20,
+                            left: 50,
+                        }}
+                    />
+                </TouchableHighlight>
+
+
 
                 { /* Filter overlay */ }
                 { /* Only render when everything's ready to prevent multiple (expensive)

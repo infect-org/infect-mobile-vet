@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction } from 'mobx';
 import { DangerZone } from 'expo';
@@ -29,23 +29,26 @@ export default class Resistance extends React.Component {
 
 
     /**
-     * Use Animated.Values to not re-render Resistance everytime something changes
+     * Use Animated.Values to not re-render Resistance everytime something changes.
+     * See https://github.com/kmagiera/react-native-reanimated#and – returns value of first falsy
+     * parameter or value of last truthy parameter.
      */
-    opacity = new Animated.Value(1);
-    originalLeft = new Animated.Value(this.props.resistance.xPosition ?
-        this.props.resistance.xPosition.left : 0);
-    originalTop = new Animated.Value(this.props.resistance.yPosition ?
-        this.props.resistance.yPosition.top : 0);
+    opacity = Animated.and(
+        this.props.animatedAntibiotic.opacity,
+        this.props.animatedBacterium.opacity,
+    );
+
     radius = new Animated.Value(this.props.resistance.radius);
 
-    top = Animated.sub(this.originalTop, this.radius);
+    top = Animated.sub(this.props.animatedBacterium.top, this.radius);
     left = Animated.add(
         Animated.sub(
-            this.originalLeft,
-            Animated.divide(this.circleMinWidth, 2),
+            this.props.animatedAntibiotic.left,
+            this.circleMinWidth / 2,
         ),
         this.props.matrix.defaultRadius,
     );
+
     diameter = Animated.multiply(this.radius, 2);
     circleTop = Animated.sub(
         this.props.matrix.defaultRadius,
@@ -67,7 +70,7 @@ export default class Resistance extends React.Component {
      * @type {Object}
      * @private
      */
-    previousPosition = { left: 0, width: 0, top: 0 }
+    previousValues = { left: undefined, visible: undefined };
 
 
     /**
@@ -83,31 +86,11 @@ export default class Resistance extends React.Component {
         this.props.onRender();
 
         reaction(
-            () => this.props.resistance.visible,
-            (visible) => {
-                log('Resistance: Visibility changed to', visible);
-                this.opacity.setValue(visible ? 1 : 0);
-            },
-        );
-
-        reaction(
             () => this.props.resistance.radius,
             (radius) => {
                 log('Resistance: Update radius to', radius);
                 this.radius.setValue(radius);
             },
-        );
-
-        reaction(
-            () => this.props.resistance.xPosition,
-            // Leave left unchanged if xPosition is not available
-            xPosition => xPosition && this.originalLeft.setValue(xPosition.left),
-        );
-
-        reaction(
-            () => this.props.resistance.yPosition,
-            // Leave top unchanged if yPosition is not available
-            yPosition => yPosition && this.originalTop.setValue(yPosition.top),
         );
 
     }
@@ -118,19 +101,6 @@ export default class Resistance extends React.Component {
         const resistance = bestValue.value === 1 ? 1 : bestValue.value.toFixed(2).substr(1);
         // Return susceptibility, not resistance
         return Math.round((1 - resistance) * 100);
-    }
-
-    @computed get position() {
-        const xPos = this.props.resistance.xPosition;
-        const yPos = this.props.resistance.yPosition;
-        // If resistance is invisible (because of filters), xPos and yPos will be undefined. We
-        // have to handle this case.
-        if (!xPos || !yPos) return this.previousPosition;
-        const minRadius = this.circleMinWidth / 2;
-        const left = xPos.left - minRadius + this.props.matrix.defaultRadius;
-        const position = { left, top: yPos.top, width: this.circleMinWidth };
-        this.previousPosition = position;
-        return position;
     }
 
     @computed get circleBackgroundColor() {
