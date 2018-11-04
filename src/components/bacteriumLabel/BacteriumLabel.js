@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
+import { computed, reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
@@ -37,6 +37,12 @@ export default class BacteriumLabel extends React.Component {
         );
 
 
+        reaction(
+            () => this.labelWidth,
+            width => this.width.setValue(width),
+        );
+
+
         // Adjust left by the amount animatedZoom exceeds cappedLabelZoom. As we shrink the label
         // when zoom increases, we have to move in the opposite direction.
         this.left = multiply(
@@ -61,7 +67,6 @@ export default class BacteriumLabel extends React.Component {
         // Make sure we only handle layout once; if not, we might run into an infinite loop.
         if (this.widthSet) return;
         const { width } = ev.nativeEvent.layout;
-        this.width.setValue(width);
         this.props.bacterium.setWidth(width);
         this.widthSet = true;
     };

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { observer } from 'mobx-react';
 import { DangerZone } from 'expo';
-import { computed, observable, action } from 'mobx';
+import { computed, observable, action, reaction } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
@@ -21,6 +21,8 @@ export default class AntibioticLabel extends React.Component {
         height: 0,
         width: 0,
     }
+
+    antibioticsLabelsRowHeight = new Animated.Value(0);
 
     layoutMeasured = false;
 
@@ -41,6 +43,11 @@ export default class AntibioticLabel extends React.Component {
      */
     setupAnimatedProps() {
 
+        reaction(
+            () => this.props.matrix.antibioticLabelRowHeight,
+            height => this.antibioticsLabelsRowHeight.setValue(height),
+        );
+
         this.cappedLabelZoomAdjustment = divide(
             this.props.cappedLabelZoom,
             this.props.animatedZoom,
@@ -54,7 +61,7 @@ export default class AntibioticLabel extends React.Component {
 
         this.adjustedTop = multiply(
             sub(this.cappedLabelZoomAdjustment, 1),
-            this.props.matrix.antibioticLabelRowHeight,
+            this.antibioticsLabelsRowHeight,
             -0.5,
         );
 
@@ -62,7 +69,7 @@ export default class AntibioticLabel extends React.Component {
         // every label zooms from center/center (and we need bottom/left)
         this.adjustedLeft = multiply(
             sub(this.cappedLabelZoomAdjustment, 1),
-            this.props.matrix.antibioticLabelRowHeight,
+            this.antibioticsLabelsRowHeight,
             0.5,
         );
     }

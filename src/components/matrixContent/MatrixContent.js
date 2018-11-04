@@ -57,6 +57,9 @@ export default class MatrixContent extends React.Component {
     animatedVisibleBacteriaHeight = new Animated.Value(0);
     animatedVisibleAntibioticsWidth = new Animated.Value(0);
 
+    bacteriaLabelsContainerWidth = new Animated.Value(0);
+    antibioticsLabelsContainerHeight = new Animated.Value(0);
+
     /**
      * Height of the colored lines that represent substance classes
      */
@@ -150,30 +153,37 @@ export default class MatrixContent extends React.Component {
             ),
         );
 
+        reaction(
+            () => this.bacteriumLabelColumnWidth,
+            width => this.bacteriaLabelsContainerWidth.setValue(width * 2),
+        );
+
+        reaction(
+            () => this.antibioticLabelRowHeight,
+            height => this.antibioticsLabelsContainerHeight.setValue(height * 2),
+        );
+
         /**
          * Container should always look like right:0 – as zoom origin is center/center, we have
          * to move it
          */
-        const bacteriaLabelContainerWidth = this.bacteriumLabelColumnWidth * 2;
-        this.bacteriaLabelContainerLeft = !this.props.matrix.defaultRadius ? 0 : multiply(
+        this.bacteriaLabelContainerLeft = multiply(
             sub(
                 this.props.animatedZoom,
                 1,
             ),
             // This corresponds to the container's width
-            bacteriaLabelContainerWidth,
+            this.bacteriaLabelsContainerWidth,
             -0.5,
         );
 
 
-        const antibioticLabelContainerHeight = this.props.matrix.defaultRadius ?
-            this.antibioticLabelRowHeight * 2 : 0;
         this.antibioticLabelContainerTop = multiply(
             sub(
                 this.props.animatedZoom,
                 1,
             ),
-            antibioticLabelContainerHeight,
+            this.antibioticsLabelsContainerHeight,
             -0.5,
         );
 
@@ -650,7 +660,7 @@ export default class MatrixContent extends React.Component {
                             styles.antibioticContainer,
                             {
                                 width: this.animatedVisibleAntibioticsWidth,
-                                height: this.antibioticLabelContainerHeight,
+                                height: this.antibioticsLabelsContainerHeight,
                             },
                             {
                                 transform: [{
@@ -715,7 +725,7 @@ export default class MatrixContent extends React.Component {
                         style={[
                             styles.bacteriumLabels,
                             {
-                                width: this.bacteriaLabelContainerWidth,
+                                width: this.bacteriaLabelsContainerWidth,
                                 right: this.layoutElementPadding,
                                 height: this.animatedVisibleBacteriaHeight,
                                 // + this.props.matrix.defaultRadius, (may be needed for android)
@@ -781,6 +791,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: '100%',
         bottom: 0,
+        overflow: 'hidden',
         // borderColor: 'salmon',
         // borderWidth: 1,
     },
@@ -795,6 +806,7 @@ const styles = StyleSheet.create({
     bacteriumLabels: {
         height: '100%',
         position: 'absolute',
+        overflow: 'hidden',
         // borderColor: 'salmon',
         // borderWidth: 1,
     },
