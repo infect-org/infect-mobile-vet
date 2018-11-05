@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { trace } from 'mobx';
 import { observer } from 'mobx-react';
 import { DangerZone } from 'expo';
 import PanPinch from 'react-native-pan-pinch';
@@ -43,7 +44,10 @@ export default class Matrix extends React.Component {
     }
 
     render() {
+        
         log('Matrix: Render');
+        trace();
+
         return (
             <View
                 style={styles.container}

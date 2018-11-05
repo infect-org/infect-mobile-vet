@@ -14,6 +14,7 @@ export default class MainView extends React.Component {
         super(...props);
         this.addAntibioticFilter = this.addAntibioticFilter.bind(this);
         this.addBacteriumFilter = this.addBacteriumFilter.bind(this);
+        this.addPopulationFilter = this.addPopulationFilter.bind(this);
     }
 
     addAntibioticFilter() {
@@ -38,6 +39,20 @@ export default class MainView extends React.Component {
                 this.props.selectedFilters.addFilter(bacterium);
             }
         }
+    }
+
+    addPopulationFilter() {
+        const regions = this.props.filterValues.getValuesForProperty('region', 'id');
+        log('MainView: Regions', regions);
+        if (regions.length) {
+            const region = regions[0];
+            if (this.props.selectedFilters.isSelected(region)) {
+                this.props.selectedFilters.removeFilter(region);
+            } else {
+                this.props.selectedFilters.addFilter(region);
+            }
+        }
+
     }
 
 
@@ -85,6 +100,18 @@ export default class MainView extends React.Component {
                             position: 'absolute',
                             bottom: 20,
                             left: 50,
+                        }}
+                    />
+                </TouchableHighlight>
+                <TouchableHighlight onPress={this.addPopulationFilter}>
+                    <View
+                        style={{
+                            width: 20,
+                            height: 20,
+                            backgroundColor: 'deepskyblue',
+                            position: 'absolute',
+                            bottom: 20,
+                            left: 80,
                         }}
                     />
                 </TouchableHighlight>
