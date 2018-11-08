@@ -39,6 +39,7 @@ export default class FilterOverlay extends React.Component {
         super(props);
         props.componentStates.update('filters', componentStates.rendering);
         this.openDisclaimer = this.openDisclaimer.bind(this);
+        this.closeOverlay = this.closeOverlay.bind(this);
     }
 
     componentDidMount() {
@@ -75,7 +76,7 @@ export default class FilterOverlay extends React.Component {
         Linking.openURL('https://infect.info/#information');
     }
 
-    handleApplyButtonPress() {
+    closeOverlay() {
         this.props.filterOverlayModel.hide();
     }
 
@@ -87,12 +88,22 @@ export default class FilterOverlay extends React.Component {
         return (
             <Animated.View
                 style={[
-                    styles.filterOverlayBackground,
+                    styles.filterOverlay,
                     {
                         top: this.top,
                         opacity: this.opacity,
                     },
                 ]}>
+                
+                { /* Background (clickable) */ }
+                <TouchableHighlight
+                    onPress={this.closeOverlay}
+                    style={styles.filterOverlayBackgroundContainer}
+                >
+                    <View style={styles.filterOverlayBackground} />
+                </TouchableHighlight>
+                
+                { /* Content */ }
                 <View style={styles.filterOverlayContainer}>
                     <View style={styles.container}>
                         <ScrollView>
@@ -143,7 +154,7 @@ export default class FilterOverlay extends React.Component {
                     { /* Apply filters button */ }
                     <View style={styles.applyFiltersButtonContainer}>
                         <TouchableHighlight
-                            onPress={this.handleApplyButtonPress.bind(this)}
+                            onPress={this.closeOverlay}
                             style={styles.container}
                         >
                             <View style={styles.applyFiltersButton}>
@@ -180,27 +191,37 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: padding,
         right: padding,
-        height: 50,
         top: 0,
-        borderRadius: 5,
         backgroundColor: styleDefinitions.colors.green,
+        ...styleDefinitions.buttons.primaryButton,
         ...styleDefinitions.shadows.primaryButton,
     },
     applyFiltersButtonTextContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        ...styleDefinitions.buttons.textContainer,
     },
     applyFiltersButtonText: {
-        ...styleDefinitions.fonts.bold,
-        fontSize: 25,
-        textAlign: 'center',
+        ...styleDefinitions.buttons.primaryText,
     },
-    filterOverlayBackground: {
+    filterOverlay: {
         position: 'absolute',
         left: 0,
         right: 0,
+        // Is positioned at top: 100%, therefore use height instead of top/bottom props
         height: '100%',
+    },
+    filterOverlayBackgroundContainer: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,        
+    },
+    filterOverlayBackground: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
     },
     filterOverlayContainer: {
@@ -208,8 +229,17 @@ const styles = StyleSheet.create({
         top: 0,
         right: 0,
         bottom: 0,
-        left: '25%',
+        left: '20%',
         backgroundColor: styleDefinitions.colors.darkBackgroundGrey,
+        // Shadow:
+        elevation: 4,
+        shadowColor: '#000',
+        shadowRadius: 10,
+        shadowOpacity: 0.5,
+        shadowOffset: {
+            width: 5,
+            height: 5,
+        },
     },
     infoText: {
         marginLeft: padding,
@@ -223,8 +253,4 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    /* contentPadding: {
-        paddingLeft: padding,
-        paddingRight: padding,
-    }, */
 });

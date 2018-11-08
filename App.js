@@ -53,6 +53,10 @@ export default class App extends React.Component {
         this.setupModelStateWatchers();
     }
 
+    componentDidMount() {
+        console.log('StatusBar:', StatusBar.curentHeight);
+    }
+
     /**
      * We want to have the current status of models/components at one central place – update
      * componentStates whenever models change

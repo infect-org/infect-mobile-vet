@@ -1,5 +1,9 @@
 import { Platform } from 'react-native';
 
+const bold = {
+    fontFamily: Platform.OS === 'ios' ? 'Avenir-Heavy' : 'sans-serif-medium',
+};
+
 export default {
     // https://github.com/react-native-training/react-native-fonts
     fonts: {
@@ -7,9 +11,7 @@ export default {
             fontFamily: Platform.OS === 'ios' ? 'AvenirNextCondensed-Medium' :
                 'sans-serif-condensed',
         },
-        bold: {
-            fontFamily: Platform.OS === 'ios' ? 'Avenir-Heavy' : 'sans-serif-medium',
-        },
+        bold,
     },
     // Deprecated, use fonts.condensed!
     base: {
@@ -34,6 +36,22 @@ export default {
         lightForegroundGrey: '#bcbcbc',
         white: '#ffffff',
         black: '#000000',
+    },
+    buttons: {
+        primaryButton: {
+            height: 50,
+            borderRadius: 5,
+        },
+        primaryText: {
+            ...bold,
+            fontSize: 25,
+            textAlign: 'center',
+        },
+        textContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
     },
     shadows: {
         primaryButton: {

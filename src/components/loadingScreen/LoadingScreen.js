@@ -23,6 +23,7 @@ export default class LoadingScreen extends React.Component {
 
     render() {
         log('LoadingScreen: Render');
+        // return null;
         return (
             <View
                 style={[
