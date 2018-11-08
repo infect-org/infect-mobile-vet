@@ -10,7 +10,7 @@ import {
     Button,
 } from 'react-native';
 import { observer } from 'mobx-react';
-import { reaction } from 'mobx';
+import { reaction, computed } from 'mobx';
 import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 import styleDefinitions from '../../helpers/styleDefinitions';
@@ -40,6 +40,7 @@ export default class FilterOverlay extends React.Component {
         props.componentStates.update('filters', componentStates.rendering);
         this.openDisclaimer = this.openDisclaimer.bind(this);
         this.closeOverlay = this.closeOverlay.bind(this);
+        this.removeAllFilters = this.removeAllFilters.bind(this);
     }
 
     componentDidMount() {
@@ -72,12 +73,20 @@ export default class FilterOverlay extends React.Component {
         }, 300);
     }
 
+    removeAllFilters() {
+        this.props.selectedFilters.removeAllFilters();
+    }
+
     openDisclaimer() {
         Linking.openURL('https://infect.info/#information');
     }
 
     closeOverlay() {
         this.props.filterOverlayModel.hide();
+    }
+
+    @computed get showResetAllFiltersButton() {
+        return this.props.selectedFilters.originalFilters.length > 1;
     }
 
 
@@ -107,6 +116,22 @@ export default class FilterOverlay extends React.Component {
                 <View style={styles.filterOverlayContainer}>
                     <View style={styles.container}>
                         <ScrollView>
+
+                            { /* Remove all filters */ }
+                            { this.showResetAllFiltersButton &&
+                                <TouchableHighlight
+                                    onPress={this.removeAllFilters}
+                                >
+                                    <View style={styles.removeFiltersButton}>
+                                        <View style={styleDefinitions.buttons.textContainer}>
+                                            <Text style={styleDefinitions.buttons.primaryText}>
+                                                × Remove all filters
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </TouchableHighlight>
+                            }
+
 
                             <AntibioticFilters
                                 filterValues={this.props.filterValues}
@@ -186,6 +211,11 @@ const styles = StyleSheet.create({
     bottomMarginContainer: {
         height: 80,
         width: '100%',
+    },
+    removeFiltersButton: {
+        margin: padding,
+        ...styleDefinitions.buttons.primaryButton,
+        backgroundColor: styleDefinitions.colors.green,
     },
     applyFiltersButton: {
         position: 'absolute',

@@ -20,12 +20,7 @@ export default class MainView extends React.Component {
     addAntibioticFilter() {
         const antibiotics = this.props.filterValues.getValuesForProperty('antibiotic', 'name');
         if (antibiotics.length) {
-            const antibiotic = antibiotics[0];
-            if (this.props.selectedFilters.isSelected(antibiotic)) {
-                this.props.selectedFilters.removeFilter(antibiotic);
-            } else {
-                this.props.selectedFilters.addFilter(antibiotic);
-            }
+            this.props.selectedFilters.toggleFilter(antibiotics[0]);
         }
     }
 
@@ -67,6 +62,7 @@ export default class MainView extends React.Component {
                     matrix={this.props.matrix}
                     selectedFilters={this.props.selectedFilters}
                     componentStates={this.props.componentStates}
+                    windowSize={this.props.windowSize}
                 />
 
                 { /* Filter overlay button; no feedback needed as it opens overlay and

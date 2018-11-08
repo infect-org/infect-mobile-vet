@@ -60,6 +60,7 @@ export default class Matrix extends React.Component {
                     <MatrixContent
                         style={styles.container}
                         matrix={this.props.matrix}
+                        windowSize={this.props.windowSize}
                         zoomRange={this.zoomRange}
                         selectedFilters={this.props.selectedFilters}
                         componentStates={this.props.componentStates}

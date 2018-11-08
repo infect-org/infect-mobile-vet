@@ -20,11 +20,6 @@ import AnimatedBacterium from '../../models/animatedBacterium/AnimatedBacterium'
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
 
-const window = Dimensions.get('window');
-
-log('Dimensions:', Dimensions.get('window'));
-log('Screen dimensions:', Dimensions.get('screen'));
-
 const { Animated } = DangerZone;
 
 const {
@@ -38,11 +33,6 @@ const {
 @observer
 export default class MatrixContent extends React.Component {
 
-    windowWidth = window.width;
-    windowHeight = window.height;
-    animatedWindowWidth = new Animated.Value(window.width);
-    animatedWindowHeight = new Animated.Value(window.height);
-
     // Base layout is a horizontally and vertically divided table:
     // - top left: logo
     // - top right: substance classes
@@ -51,8 +41,8 @@ export default class MatrixContent extends React.Component {
     // Top row includes substance class headers!
     leftColumnWidth = new Animated.Value(0);
     topRowHeight = new Animated.Value(0);
-    rightColumnWidth = sub(this.animatedWindowWidth, this.leftColumnWidth);
-    bottomRowHeight = sub(this.animatedWindowHeight, this.topRowHeight)
+    rightColumnWidth = sub(this.props.windowSize.animatedWidth, this.leftColumnWidth);
+    bottomRowHeight = sub(this.props.windowSize.animatedHeight, this.topRowHeight)
 
     animatedVisibleBacteriaHeight = new Animated.Value(0);
     animatedVisibleAntibioticsWidth = new Animated.Value(0);
@@ -220,18 +210,8 @@ export default class MatrixContent extends React.Component {
         // Store dimensions on matrixView so that radius can be calculated
         this.props.matrix.setDimensions({
             // Resistance cirlces/fonts for labels should not be too small
-            width: Math.max(this.windowWidth, 1200),
-            height: this.windowHeight,
-        });
-
-        // Whenever window dimensions change (rotation landscape/portrait), update animated
-        // window dimensions
-        Dimensions.addEventListener('change', (ev) => {
-            log('MatrixContent: Window dimensions changed to', ev.window);
-            this.windowWidth = ev.window.width;
-            this.windowHeight = ev.window.height;
-            this.animatedWindowWidth.setValue(this.windowWidth);
-            this.animatedWindowHeight.setValue(this.windowHeight);
+            width: Math.max(this.props.windowSize.width, 1200),
+            height: this.props.windowSize.height,
         });
 
     }
@@ -289,9 +269,9 @@ export default class MatrixContent extends React.Component {
         this.props.handleContainerLayout({
             // Its crucial that these values correspond to the ones defined for
             // resistanceContainer (render method below)
-            width: Math.round(this.windowWidth - this.bacteriumLabelColumnWidth -
+            width: Math.round(this.props.windowSize.width - this.bacteriumLabelColumnWidth -
                 this.layoutElementPadding),
-            height: Math.round(this.windowHeight - this.antibioticLabelRowHeight -
+            height: Math.round(this.props.windowSize.height - this.antibioticLabelRowHeight -
                 this.layoutElementPadding),
         });
         this.props.handleContentLayout({
@@ -565,7 +545,7 @@ export default class MatrixContent extends React.Component {
                     <Animated.View
                         style={[styles.resistancesContainer, {
                             left: this.leftColumnWidth,
-                            top: this.antibioticLabelRowHeight + this.substanceClassMaxHeight,
+                            top: this.topRowHeight,
                             width: this.rightColumnWidth,
                             height: this.bottomRowHeight,
                         }]}
@@ -818,13 +798,6 @@ const styles = StyleSheet.create({
         bottom: 0,
         // backgroundColor: 'rgba(200, 10, 120, 0.3)',
     },
-    resistancesContainer: {
-        position: 'absolute',
-        overflow: 'hidden', // Force same behavior on iOS and Android
-        // backgroundColor: 'coral',
-        // borderWidth: 1,
-        // borderColor: 'salmon',
-    },
     substanceClassesContainer: {
         position: 'absolute',
         overflow: 'hidden',
@@ -836,7 +809,15 @@ const styles = StyleSheet.create({
     },
     resistanceCirclesContainer: {
         position: 'absolute',
+        overflow: 'hidden',
         // borderWidth: 1,
         // borderColor: 'pink',
+    },
+    resistancesContainer: {
+        position: 'absolute',
+        overflow: 'hidden', // Force same behavior on iOS and Android
+        // backgroundColor: 'coral',
+        // borderWidth: 1,
+        // borderColor: 'salmon',
     },
 });
