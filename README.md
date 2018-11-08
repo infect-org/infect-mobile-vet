@@ -1,3 +1,10 @@
+# Channels
+
+We have 3 release channels: 
+- `production` for the live environment (apps that can be downloaded from stores)
+- `staging` for TestFlight
+- `test` for tests through Expo
+
 # Setup
 
 - `cp config.js.dist config.js`

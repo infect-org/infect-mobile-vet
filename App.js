@@ -14,7 +14,7 @@ import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSi
 import config from './src/config';
 import styleDefinitions from './src/helpers/styleDefinitions';
 import ErrorMessages from './src/components/errorMessages/ErrorMessages';
-import LoadingScreen from './src/components/loadingScreen/LoadingScreen';
+import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen';
 import MainView from './src/components/mainView/MainView';
 import log from './src/helpers/log';
 
@@ -45,16 +45,22 @@ console.disableYellowBox = true;
 export default class App extends React.Component {
 
     constructor() {
+
         super();
+
+        // Main app (logic shared with the web)
         this.app = new InfectApp(config);
         this.setupApp();
 
-        this.handleSafeAreaLayoutChange = this.handleSafeAreaLayoutChange.bind(this);
+        // View models for mobile app
         this.filterOverlayModel = new FilterOverlayModel();
         this.componentStates = new ComponentStatesModel();
         this.componentStates.setup();
         this.setupModelStateWatchers();
         this.windowSize = new AnimatedWindowSize();
+
+        this.handleSafeAreaLayoutChange = this.handleSafeAreaLayoutChange.bind(this);
+
     }
 
     componentDidMount() {
@@ -121,10 +127,15 @@ export default class App extends React.Component {
                     // We need to measure the layout of a direct descendant of SafeAreaView with
                     // full height/width (flex, not absolute!) to get the safe area's dimensions
                     onLayout={this.handleSafeAreaLayoutChange}
-                    >
+                >
 
                     { /* Render matrix as soon as data is ready (resistances are loaded last). */ }
-                    { this.app.resistances.status.identifier === 'ready' &&
+                    {
+                        // Don't check resistances loading status here: Will switch back to 
+                        // 'loading' when population filters are set/removed, App.js will re-render
+                        // this.app.antibiotics.status.identifier === 'ready' &&
+                        // this.app.bacteria.status.identifier === 'ready' &&
+                        this.app.resistances.status.identifier === 'ready' &&
 
                         <View style={styles.container}>
                             <MainView
@@ -143,10 +154,10 @@ export default class App extends React.Component {
                          it or its opacity change and all gesture handlers on the matrix would not work
                          any more */ }
                     <View
-                        style={styles.loadingScreenContainer}
+                        style={styles.initialLoadingScreenContainer}
                         pointerEvents="none"
                     >
-                        <LoadingScreen
+                        <InitialLoadingScreen
                             version={appConfig.expo.version}
                             componentStates={this.componentStates}
                         />
@@ -167,7 +178,7 @@ export default class App extends React.Component {
 
 
 const styles = StyleSheet.create({
-    loadingScreenContainer: {
+    initialLoadingScreenContainer: {
         position: 'absolute',
         left: 0,
         right: 0,

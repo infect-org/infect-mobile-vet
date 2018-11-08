@@ -143,10 +143,10 @@ export default class FilterOverlay extends React.Component {
                                 selectedFilters={this.props.selectedFilters}
                             />
 
-                            <PopulationFilters
+                            { /* <PopulationFilters
                                 filterValues={this.props.filterValues}
                                 selectedFilters={this.props.selectedFilters}
-                            />
+                            /> */ }
 
                             <View style={{ height: 20 }} />
 

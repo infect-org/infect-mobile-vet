@@ -8,13 +8,14 @@ import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
 
 @observer
-export default class LoadingScreen extends React.Component {
+export default class InitialLoadingScreen extends React.Component {
 
     logoWidth = 150;
 
     @computed get opacity() {
-        return this.props.componentStates.components.get('filters') === componentStates.ready ?
-            0 : 1;
+        // Hide as soon as all components were ready once – when states change later, the initial
+        // loading screen should not be displayed any more
+        return this.props.componentStates.allComponentsWereReady ? 0: 1;
     }
 
     getStateText(state) {
@@ -22,7 +23,7 @@ export default class LoadingScreen extends React.Component {
     }
 
     render() {
-        log('LoadingScreen: Render');
+        log('InitialLoadingScreen: Render');
         // return null;
         return (
             <View

@@ -75,6 +75,7 @@ export default class MainView extends React.Component {
                 </View>
 
                 { /* Just for testing (adds antibiotic to filters */ }
+                { /*
                 <TouchableHighlight onPress={this.addAntibioticFilter}>
                     <View
                         style={{
@@ -111,6 +112,7 @@ export default class MainView extends React.Component {
                         }}
                     />
                 </TouchableHighlight>
+                */ }
 
 
 
