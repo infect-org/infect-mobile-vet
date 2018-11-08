@@ -1,3 +1,11 @@
+# Releases
+
+- Update version in `package.json` and `app.json`
+- Update android version (Integer) in `app.json`
+- `git tag` & Co.
+- Publish to **correct** channel: `expo p --release channel test`
+- Publish to app store if SDK version changes
+
 # Channels
 
 We have 3 release channels: 

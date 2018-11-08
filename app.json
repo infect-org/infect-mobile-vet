@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "INFECT",
+    "name": "INFECT by anresis",
     "description": "INFECT for mobile phones",
     "slug": "infect-app",
     "privacy": "public",
@@ -9,7 +9,7 @@
       "ios",
       "android"
     ],
-    "version": "1.5.0",
+    "version": "1.5.1",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
