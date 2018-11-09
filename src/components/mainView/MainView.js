@@ -53,7 +53,7 @@ export default class MainView extends React.Component {
 
     render() {
 
-        log('MainView: Render');
+        console.log('MainView: Render');
 
         return (
             <View style={styles.container}>
@@ -74,9 +74,9 @@ export default class MainView extends React.Component {
                     />
                 </View>
 
+
                 { /* Just for testing (adds antibiotic to filters */ }
-                { /*
-                <TouchableHighlight onPress={this.addAntibioticFilter}>
+                { /* <TouchableHighlight onPress={this.addAntibioticFilter}>
                     <View
                         style={{
                             width: 20,
@@ -116,11 +116,12 @@ export default class MainView extends React.Component {
 
 
 
+
                 { /* Filter overlay */ }
                 { /* Only render when everything's ready to prevent multiple (expensive)
                      re-renderings whenever a filter is added */ }
-                { this.props.componentStates.components.get('resistances') ===
-                    componentStates.ready &&
+                { (this.props.componentStates.highestComponentStates.get('resistances') >=
+                    componentStates.rendering) &&
                     <FilterOverlay
                         filterOverlayModel={this.props.filterOverlayModel}
                         filterValues={this.props.filterValues}

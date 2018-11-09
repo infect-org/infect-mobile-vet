@@ -53,7 +53,7 @@ export default class FilterOverlay extends React.Component {
         reaction(
             () => this.props.filterOverlayModel.isVisible,
             (isVisible) => {
-                log('FilterOverlay: Visibility changed to', isVisible);
+                console.log('FilterOverlay: Visibility changed to', isVisible);
                 if (isVisible) {
                     this.top.setValue(0);
                     this.opacity.setValue(1);
@@ -64,7 +64,7 @@ export default class FilterOverlay extends React.Component {
             },
         );
 
-        log('FilterOverlay: Mounted');
+        console.log('FilterOverlay: Mounted');
         setTimeout(() => {
             // When componentDidMount, it hasn't been drawn yet. Delay to prevent flackering of
             // screen
@@ -86,13 +86,13 @@ export default class FilterOverlay extends React.Component {
     }
 
     @computed get showResetAllFiltersButton() {
-        return this.props.selectedFilters.originalFilters.length > 1;
+        return this.props.selectedFilters.originalFilters.length > 0;
     }
 
 
     render() {
 
-        log('FilterOverlay: Render');
+        console.log('FilterOverlay: Render');
 
         return (
             <Animated.View
@@ -103,7 +103,7 @@ export default class FilterOverlay extends React.Component {
                         opacity: this.opacity,
                     },
                 ]}>
-                
+
                 { /* Background (clickable) */ }
                 <TouchableHighlight
                     onPress={this.closeOverlay}
@@ -143,10 +143,10 @@ export default class FilterOverlay extends React.Component {
                                 selectedFilters={this.props.selectedFilters}
                             />
 
-                            { /* <PopulationFilters
+                            <PopulationFilters
                                 filterValues={this.props.filterValues}
                                 selectedFilters={this.props.selectedFilters}
-                            /> */ }
+                            />
 
                             <View style={{ height: 20 }} />
 
@@ -159,8 +159,8 @@ export default class FilterOverlay extends React.Component {
                             </Text>
                             <Text style={styles.infoText}>
                                 INFECT accepts no responsibility or liability with regard to any
-                                problems incurred as a result of using this site or any linked external
-                                sites.
+                                problems incurred as a result of using this site or any linked
+                                external sites.
                             </Text>
                             <Button
                                 onPress={this.openDisclaimer}

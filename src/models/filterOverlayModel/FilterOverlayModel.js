@@ -6,12 +6,12 @@ export default class FilterOverlay {
     @observable isVisible = false;
 
     @action show() {
-        log('FilterOverlayModel: Show');
+        console.log('FilterOverlayModel: Show');
         this.isVisible = true;
     }
 
     @action hide() {
-        log('FilterOverlayModel: Hide');
+        console.log('FilterOverlayModel: Hide');
         this.isVisible = false;
     }
 

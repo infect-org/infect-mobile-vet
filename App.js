@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, StatusBar, SafeAreaView } from 'react-native';
 import { observer } from 'mobx-react';
-import { configure, reaction, trace } from 'mobx';
+import { configure, reaction, trace, computed } from 'mobx';
 // import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
@@ -15,6 +15,7 @@ import config from './src/config';
 import styleDefinitions from './src/helpers/styleDefinitions';
 import ErrorMessages from './src/components/errorMessages/ErrorMessages';
 import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen';
+import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay';
 import MainView from './src/components/mainView/MainView';
 import log from './src/helpers/log';
 
@@ -69,22 +70,51 @@ export default class App extends React.Component {
 
     /**
      * We want to have the current status of models/components at one central place – update
-     * componentStates whenever models change
+     * componentStates whenever the models (stores from infect-frontend-logic) status changes
+     * TODO: Clean this up!
      */
     setupModelStateWatchers() {
         ['resistances', 'bacteria', 'antibiotics'].forEach((modelType) => {
             reaction(
                 () => this.app[modelType].status.identifier,
                 (status) => {
-                    log('App: Update componentState of', modelType, 'to', status);
+                    console.log(
+                        'App: Update componentState of',
+                        modelType,
+                        'to fetcher status',
+                        status,
+                    );
+                    if (status === 'loading') {
+                        this.componentStates.update(modelType, componentStates.loading);
+                    }
+                    // status is a fetcher state, not a componentState state!
                     if (status === 'ready') {
-                        const newState = modelType === 'bacteria' || modelType === 'antibiotics' ?
-                            componentStates.ready : componentStates.rendering;
-                        this.componentStates.update(modelType, newState);
+                        // Resistance: Go to rendering state, will change to ready when rendering is
+                        // done. For antibiotics and bacteria, go straight to ready (we don't watch
+                        // their rendering state).
+                        if (
+                            modelType === 'resistances' &&
+                            // After initial loading screen was displayed, go from loading to ready
+                            // again (rendering won't be observed!)
+                            !this.componentStates.allHighestStatesAreReady
+                        ) {
+                            this.componentStates.update(modelType, componentStates.rendering);
+                        } else {
+                            this.componentStates.update(modelType, componentStates.ready);
+                        }
                     }
                 },
             );
         });
+    }
+
+    /**
+     * Show matrix once resistances were loaded (don't redraw matrix if population filters are set
+     * and resistances status switches back to loading)
+     */
+    @computed get showMatrix() {
+        return this.componentStates.highestComponentStates.get('resistances') >=
+            componentStates.rendering;
     }
 
     /**
@@ -101,7 +131,7 @@ export default class App extends React.Component {
     }
 
     /**
-     * We need to know the size of the safe area to draw the matrix within this area. Store it 
+     * We need to know the size of the safe area to draw the matrix within this area. Store it
      * centrally in this.windowSize.
      */
     handleSafeAreaLayoutChange(ev) {
@@ -112,7 +142,7 @@ export default class App extends React.Component {
     @observer
     render() {
 
-        log('App: Render');
+        console.log('App: Render');
         trace();
 
         return (
@@ -131,11 +161,12 @@ export default class App extends React.Component {
 
                     { /* Render matrix as soon as data is ready (resistances are loaded last). */ }
                     {
-                        // Don't check resistances loading status here: Will switch back to 
+                        // Don't check resistances loading status here: Will switch back to
                         // 'loading' when population filters are set/removed, App.js will re-render
                         // this.app.antibiotics.status.identifier === 'ready' &&
                         // this.app.bacteria.status.identifier === 'ready' &&
-                        this.app.resistances.status.identifier === 'ready' &&
+                        // TODO: Switch to bact/ab loaded to speed things up (a little bit)
+                        this.showMatrix &&
 
                         <View style={styles.container}>
                             <MainView
@@ -149,16 +180,26 @@ export default class App extends React.Component {
                         </View>
                     }
 
-                    { /* Loading screen
-                         Don't render it conditionally. If we did, the whole app would re-render when
-                         it or its opacity change and all gesture handlers on the matrix would not work
-                         any more */ }
+                    { /* Loading screen for initlal load (with logo and states)
+                         Don't render it conditionally. If we did, the whole app would re-render
+                         when it or its opacity change and all gesture handlers on the matrix would
+                         not work any more */ }
                     <View
-                        style={styles.initialLoadingScreenContainer}
+                        style={styles.loadingScreenContainer}
                         pointerEvents="none"
                     >
                         <InitialLoadingScreen
                             version={appConfig.expo.version}
+                            componentStates={this.componentStates}
+                        />
+                    </View>
+
+                    { /* Loading screen for population filters (after initial load) */ }
+                    <View
+                        style={styles.loadingScreenContainer}
+                        pointerEvents="none"
+                    >
+                        <LoadingOverlay
                             componentStates={this.componentStates}
                         />
                     </View>
@@ -178,7 +219,7 @@ export default class App extends React.Component {
 
 
 const styles = StyleSheet.create({
-    initialLoadingScreenContainer: {
+    loadingScreenContainer: {
         position: 'absolute',
         left: 0,
         right: 0,

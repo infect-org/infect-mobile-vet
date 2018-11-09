@@ -1,17 +1,35 @@
-import { observable, action } from 'mobx';
+import { observable, computed, action } from 'mobx';
 import componentStates from '../componentStates/componentStates';
 import log from '../../helpers/log';
 
 export default class ComponentStatesModel {
 
+    /**
+     * Current state of the components
+     * @type {Map} key: component name (see this.componentNames), value: state (see componentStates)
+     */
     @observable components = new Map();
+    /**
+     * Highest state a component has ever reached. Is needed to not re-render App.js and not display
+     * InitialLoadingOverlay once resistances are ready.
+     * @type {Map} key: component name (see this.componentNames), value: state (see componentStates)
+     */
+    @observable highestComponentStates = new Map();
     @observable componentNames = ['bacteria', 'antibiotics', 'resistances', 'filters'];
 
-    // Update to true when all components were ready once – don't display loadingScreen afterwards
-    @observable allComponentsWereReady = false;
+    /**
+     * Returns true if all components were ready once
+     */
+    @computed get allHighestStatesAreReady() {
+        return [...this.highestComponentStates.values()]
+            .every(state => state === componentStates.ready);
+    }
 
     @action setup() {
-        this.componentNames.forEach(name => this.components.set(name, componentStates.loading));
+        this.componentNames.forEach((name) => {
+            this.components.set(name, componentStates.loading);
+            this.highestComponentStates.set(name, componentStates.loading);
+        });
     }
 
     /**
@@ -21,23 +39,16 @@ export default class ComponentStatesModel {
      * @param {String} state State, one of componentStates
      */
     @action update(component, state) {
-        if (!this.components.has(component)) throw new Error(`ComponentStatesModel: Cannot update state of component ${component}, does not exist.`);
-        if (!componentStates[state]) throw new Error(`ComponentStatesModel: Cannot update state to ${state}, as this is not a valid component state.`);
-        log('FilterOverlayModel: Update state of', component, 'to', state);
+        if (!this.components.has(component)) {
+            throw new Error(`ComponentStatesModel: Cannot update state of component ${component}, does not exist.`);
+        }
+        if (!Object.values(componentStates).includes(state)) {
+            throw new Error(`ComponentStatesModel: Cannot update state of ${component} to ${state}, as this is not a valid component state.`);
+        }
+        console.log('FilterOverlayModel: Update state of', component, 'to', state);
         this.components.set(component, state);
-        const allComponentsReady = [...this.components.values()]
-            .every(componentState => componentState === componentStates.ready);
-        if (allComponentsReady) this.updateAllComponentsWereReady(true);
-    }
-
-    /**
-     * Update this.allComponentsWereReady
-     * @param  {boolean} newValue
-     * @private
-     */
-    @action updateAllComponentsWereReady(newValue) {
-        console.log('ComponentStatesModel: updateAllComponentsWereReady to', newValue);
-        this.allComponentsWereReady = newValue;
+        const previousHighestState = this.highestComponentStates.get(component);
+        if (state > previousHighestState) this.highestComponentStates.set(component, state);
     }
 
 }

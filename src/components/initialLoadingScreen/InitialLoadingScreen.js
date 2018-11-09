@@ -15,11 +15,13 @@ export default class InitialLoadingScreen extends React.Component {
     @computed get opacity() {
         // Hide as soon as all components were ready once – when states change later, the initial
         // loading screen should not be displayed any more
-        return this.props.componentStates.allComponentsWereReady ? 0: 1;
+        return this.props.componentStates.allHighestStatesAreReady ? 0 : 1;
     }
 
     getStateText(state) {
-        return state === componentStates.ready ? state : `${state}…`;
+        // Get text (key) for state
+        const text = Object.keys(componentStates).find(key => componentStates[key] === state);
+        return state === componentStates.ready ? text : `${text}…`;
     }
 
     render() {

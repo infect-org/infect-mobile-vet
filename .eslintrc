@@ -10,4 +10,9 @@
         "no-mixed-operators": 0
     },
     "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "legacyDecorators": true
+        }
+    }
 }

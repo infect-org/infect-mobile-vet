@@ -45,7 +45,7 @@ export default class Matrix extends React.Component {
 
     render() {
         
-        log('Matrix: Render');
+        console.log('Matrix: Render');
         trace();
 
         return (
