@@ -111,7 +111,7 @@ export default class FilterOverlay extends React.Component {
                 >
                     <View style={styles.filterOverlayBackground} />
                 </TouchableHighlight>
-                
+
                 { /* Content */ }
                 <View style={styles.filterOverlayContainer}>
                     <View style={styles.container}>
@@ -191,7 +191,9 @@ export default class FilterOverlay extends React.Component {
                             </View>
                         </TouchableHighlight>
                     </View>
+
                 </View>
+
             </Animated.View>
         );
     }
@@ -244,7 +246,7 @@ const styles = StyleSheet.create({
         top: 0,
         right: 0,
         bottom: 0,
-        left: 0,        
+        left: 0,
     },
     filterOverlayBackground: {
         position: 'absolute',

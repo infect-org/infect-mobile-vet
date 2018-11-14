@@ -1,13 +1,23 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { computed } from 'mobx';
+import { View, StyleSheet, Platform } from 'react-native';
+import { computed, observable, action } from 'mobx';
 import { observer } from 'mobx-react';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
+import FilterOverlayPicker from '../filterOverlayPicker/FilterOverlayPicker';
 import log from '../../helpers/log';
 
 @observer
 export default class AntibioticFilters extends React.Component {
+
+    @observable isSubstancesPickerVisible = false;
+
+    constructor(...props) {
+        super(...props);
+        this.toggleSubstancesPicker = this.toggleSubstancesPicker.bind(this);
+        this.handleSubstanceClassPickerChange = this.handleSubstanceClassPickerChange.bind(this);
+        this.itemSelectionChangeHandler = this.itemSelectionChangeHandler.bind(this);
+    }
 
     componentDidMount() {
         log('AntibioticFilters: Mounted');
@@ -27,6 +37,13 @@ export default class AntibioticFilters extends React.Component {
             .sort(this.sortByProperty('niceValue'));
         log('AntibioticFilters: Substances are', substances);
         return substances;
+    }
+
+    @computed get selectedSubstanceFilters() {
+        return this.sortedSubstanceFilters.filter((name) => {
+            const filterIsSelected = this.props.selectedFilters.isSelected(name);
+            return filterIsSelected;
+        });
     }
 
     @computed get applications() {
@@ -58,10 +75,30 @@ export default class AntibioticFilters extends React.Component {
      * @private
      */
     itemSelectionChangeHandler(item) {
-        if (this.isFilterSelected(item)) this.props.selectedFilters.removeFilter(item);
-        else this.props.selectedFilters.addFilter(item);
+        this.props.selectedFilters.toggleFilter(item);
     }
 
+    @action toggleSubstancesPicker() {
+        this.isSubstancesPickerVisible = !this.isSubstancesPickerVisible;
+    }
+
+    /**
+     * Invoked when substance in picker is changed; toggle filter, hide picker.
+     * @param  {SubstanceClassMatrixView} substance
+     */
+    handleSubstanceClassPickerChange(substance) {
+        // Get model from sub
+        console.log('Toggle', substance);
+        this.itemSelectionChangeHandler(substance);
+        this.toggleSubstancesPicker();
+    }
+
+    @computed get substanceClassPickerHeight() {
+        if (Platform.OS === 'android') return 50;
+        // iOS:
+        if (this.isSubstancesPickerVisible) return 200;
+        return 0;
+    }
 
     render() {
 
@@ -77,18 +114,39 @@ export default class AntibioticFilters extends React.Component {
                     followsTitle={true}
                     level={2}
                 />
-                { this.sortedSubstanceFilters.map((substance, index) => (
+                { /* Selected substances: Checkbox */ }
+                { this.selectedSubstanceFilters.map((substance, index) => (
                     <FilterOverlaySwitchItem
                         item={substance}
                         selectedFilters={this.props.selectedFilters}
                         key={substance.value}
                         name={substance.niceValue}
                         borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(substance)
-                        }
+                        selectionChangeHandler={this.itemSelectionChangeHandler}
                     />
                 ))}
+                { /* All substances: Dropdown/Picker */ }
+                { Platform.OS === 'ios' &&
+                    <FilterOverlaySwitchItem
+                        item={{}}
+                        selectedFilters={this.props.selectedFilters}
+                        name="Select substances …"
+                        // Only display top border if no elements are selected
+                        borderTop={this.selectedSubstanceFilters.length === 0}
+                        hideCheckbox={true}
+                        selectionChangeHandler={this.toggleSubstancesPicker}
+                    />
+                }
+                <View
+                    style={[{
+                        height: this.substanceClassPickerHeight,
+                    }]}
+                >
+                    <FilterOverlayPicker
+                        items={this.sortedSubstanceFilters}
+                        selectionChangeHandler={this.handleSubstanceClassPickerChange}
+                    />
+                </View>
 
                 { /* Substance Classes */ }
                 <FilterOverlayTitle
@@ -101,9 +159,7 @@ export default class AntibioticFilters extends React.Component {
                         selectedFilters={this.props.selectedFilters}
                         key={substanceClass.value}
                         borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(substanceClass)
-                        }
+                        selectionChangeHandler={this.itemSelectionChangeHandler}
                     />
                 )) }
 
@@ -118,9 +174,7 @@ export default class AntibioticFilters extends React.Component {
                         item={application}
                         selectedFilters={this.props.selectedFilters}
                         borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(application)
-                        }
+                        selectionChangeHandler={this.itemSelectionChangeHandler}
                     />
                 )) }
 

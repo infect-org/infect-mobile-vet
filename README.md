@@ -6,7 +6,7 @@
 - Publish to **correct** channel: `expo p --release channel test`
 - Publish to app store if SDK version changes
 
-# Channels
+# Release Channels
 
 We have 3 release channels: 
 - `production` for the live environment (apps that can be downloaded from stores)
