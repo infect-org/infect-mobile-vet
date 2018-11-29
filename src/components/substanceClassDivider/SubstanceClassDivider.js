@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, trace, reaction } from 'mobx';
+import { computed, reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 
@@ -54,7 +54,6 @@ export default class SubstanceClassDivider extends React.Component {
     render() {
 
         log('SubstanceClassDivider: Render');
-        trace();
 
         return (
             <Animated.View

@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Dimensions, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction, trace } from 'mobx';
+import { computed, reaction } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
 import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
@@ -452,9 +452,6 @@ export default class MatrixContent extends React.Component {
     render() {
 
         log('MatrixContent: Render');
-        trace();
-
-
 
         return (
             <View style={ styles.container }>

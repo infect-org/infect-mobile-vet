@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Image } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
+import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
 
 const loadingIndicator = require('../../../assets/infect-animated-loading-indicator.gif');
@@ -13,7 +14,7 @@ export default class LoadingOverlay extends React.Component {
      * Show overlay if resistances are not ready *and* only after initial load is done
      */
     @computed get show() {
-        console.log(
+        log(
             'LoadingOverlay: show?',
             this.props.componentStates.components.get('resistances'),
         );
@@ -22,7 +23,7 @@ export default class LoadingOverlay extends React.Component {
     }
 
     render() {
-        console.log('LoadingOverlay: render');
+        log('LoadingOverlay: render');
         return (
             <View style={styles.container}>
                 { this.show &&

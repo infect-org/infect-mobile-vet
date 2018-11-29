@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, StatusBar, SafeAreaView } from 'react-native';
 import { observer } from 'mobx-react';
-import { configure, reaction, trace, computed } from 'mobx';
+import { configure, reaction, computed } from 'mobx';
 // import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
@@ -65,7 +65,7 @@ export default class App extends React.Component {
     }
 
     componentDidMount() {
-        console.log('StatusBar:', StatusBar.curentHeight);
+        log('StatusBar:', StatusBar.curentHeight);
     }
 
     /**
@@ -78,7 +78,7 @@ export default class App extends React.Component {
             reaction(
                 () => this.app[modelType].status.identifier,
                 (status) => {
-                    console.log(
+                    log(
                         'App: Update componentState of',
                         modelType,
                         'to fetcher status',
@@ -135,15 +135,14 @@ export default class App extends React.Component {
      * centrally in this.windowSize.
      */
     handleSafeAreaLayoutChange(ev) {
-        console.log('handleSafeAreaLayoutChange', ev.nativeEvent.layout);
+        log('handleSafeAreaLayoutChange', ev.nativeEvent.layout);
         this.windowSize.update(ev.nativeEvent.layout);
     }
 
     @observer
     render() {
 
-        console.log('App: Render');
-        trace();
+        log('App: Render');
 
         return (
             <SafeAreaView
