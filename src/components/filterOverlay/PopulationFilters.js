@@ -4,50 +4,32 @@ import { computed } from 'mobx';
 import { observer } from 'mobx-react';
 import { filterTypes } from 'infect-frontend-logic';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
-import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
+// import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
+import FilterList from './FilterList';
 import log from '../../helpers/log';
+
+/**
+ * Get first number of a string, needed to sort age groups. '15-32' returns 15; '>=64' returns 64;
+ * '<15' returns 14, as it needs to be placed before '15-32'.
+ * @param  {String} ageGroup niceValue for an ageGroup, e.g. >15 or 15-32
+ * @return {Number}
+ */
+function getFirstNumber(ageGroup) {
+    const firstNumberMatch = ageGroup.match(/\d+/);
+    if (!firstNumberMatch) return 0;
+    const firstNumber = parseInt(firstNumberMatch[0], 10);
+    if (ageGroup[0] === '<') return firstNumber - 1;
+    return firstNumber;
+}
 
 @observer
 export default class PopulationFilters extends React.Component {
 
-    componentDidMount() {
-        log('PopulationFilters: Mounted');
-    }
-
-    @computed get regionFilters() {
-        return this.props.filterValues.getValuesForProperty(filterTypes.region, 'id');
-    }
-
     @computed get ageGroupFilters() {
-        return this.props.filterValues.getValuesForProperty(filterTypes.ageGroup, 'id');
+        return this.props.filterValues
+            .getValuesForProperty(filterTypes.ageGroup, 'id')
+            .sort((a, b) => getFirstNumber(a.niceValue) - getFirstNumber(b.niceValue));
     }
-
-    @computed get patientSettingFilters() {
-        return this.props.filterValues.getValuesForProperty(filterTypes.hospitalStatus, 'id');
-    }
-
-    /**
-     * Sorts values by a given property
-     * @private
-     */
-    sortByProperty(property) {
-        return (a, b) => (a[property] < b[property] ? -1 : 1);
-    }
-
-    isFilterSelected(item) {
-        log('PopulationFilters: Is filter selected?', item);
-        return this.props.selectedFilters.isSelected(item);
-    }
-
-    /**
-     * Handles click on a filter: adds or removes item from/to selectedFilters
-     * @private
-     */
-    itemSelectionChangeHandler(item) {
-        if (this.isFilterSelected(item)) this.props.selectedFilters.removeFilter(item);
-        else this.props.selectedFilters.addFilter(item);
-    }
-
 
     render() {
 
@@ -63,51 +45,35 @@ export default class PopulationFilters extends React.Component {
                     followsTitle={true}
                     level={2}
                 />
-                { this.regionFilters.map((region, index) => (
-                    <FilterOverlaySwitchItem
-                        item={region}
-                        selectedFilters={this.props.selectedFilters}
-                        key={region.value}
-                        borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(region)
-                        }
-                    />
-                ))}
+                <FilterList
+                    property={filterTypes.region}
+                    name="id"
+                    sortProperty="niceValue"
+                    filterValues={this.props.filterValues}
+                    selectedFilters={this.props.selectedFilters}
+                />
 
                 { /* Age Group */ }
                 <FilterOverlayTitle
                     title="Age Group"
                     level={2}
                 />
-                { this.ageGroupFilters.map((ageGroup, index) => (
-                    <FilterOverlaySwitchItem
-                        item={ageGroup}
-                        selectedFilters={this.props.selectedFilters}
-                        key={ageGroup.value}
-                        borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(ageGroup)
-                        }
-                    />
-                ))}
+                <FilterList
+                    items={this.ageGroupFilters}
+                    selectedFilters={this.props.selectedFilters}
+                />
 
                 { /* In/out patients */ }
                 <FilterOverlayTitle
                     title="Patient Setting"
                     level={2}
                 />
-                { this.patientSettingFilters.map((patientSetting, index) => (
-                    <FilterOverlaySwitchItem
-                        item={patientSetting}
-                        selectedFilters={this.props.selectedFilters}
-                        key={patientSetting.value}
-                        borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(patientSetting)
-                        }
-                    />
-                ))}
+                <FilterList
+                    property={filterTypes.hospitalStatus}
+                    name="id"
+                    filterValues={this.props.filterValues}
+                    selectedFilters={this.props.selectedFilters}
+                />
 
             </View>
         );

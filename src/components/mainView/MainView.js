@@ -53,7 +53,7 @@ export default class MainView extends React.Component {
 
     render() {
 
-        console.log('MainView: Render');
+        log('MainView: Render');
 
         return (
             <View style={styles.container}>
@@ -127,6 +127,7 @@ export default class MainView extends React.Component {
                         filterValues={this.props.filterValues}
                         selectedFilters={this.props.selectedFilters}
                         componentStates={this.props.componentStates}
+                        windowSize={this.props.windowSize}
                     />
                 }
             </View>

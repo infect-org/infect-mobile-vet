@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { trace, reaction } from 'mobx';
+import { reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 
@@ -47,7 +47,6 @@ export default class SubstanceClassHeaderItem extends React.Component {
     render() {
 
         log('SubstanceClassHeaderItem: Render');
-        trace();
 
         // substanceClass has no xPosition if it's not visible (because of filters). Make sure we
         // don't access child properties of xPosition if substanceClass is invisible.

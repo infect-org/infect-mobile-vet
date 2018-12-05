@@ -52,6 +52,15 @@ export default {
             justifyContent: 'center',
             alignItems: 'center',
         },
+        secondaryButton: {
+            height: 40,
+            borderRadius: 4,
+        },
+        secondaryText: {
+            ...bold,
+            fontSize: 20,
+            textAlign: 'center',
+        },
     },
     shadows: {
         primaryButton: {

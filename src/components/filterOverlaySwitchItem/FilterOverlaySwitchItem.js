@@ -12,11 +12,30 @@ import FilterOverlaySwitchItemCheckMark from './FilterOverlaySwitchItemCheckMark
 @observer
 export default class FilterOverlaySwitchItem extends React.Component {
 
-    handleSwitchPress() {
-        log('FilterOverlaySwitchItem: Item pressed.');
-        this.props.selectionChangeHandler();
+    constructor(...props) {
+        super(...props);
+        this.handleSwitchPress = this.handleSwitchPress.bind(this);
     }
 
+    /**
+     * Handle click on switchItem: Delegate handling to parent component if it passed a valid
+     * selectionChangeHandler prop. Call it with the model that was passed in as prop.item.
+     */
+    handleSwitchPress() {
+        log('FilterOverlaySwitchItem: Item pressed.');
+        if (!this.props.selectionChangeHandler) return;
+        if (
+            this.props.selectionChangeHandler &&
+            typeof this.props.selectionChangeHandler !== 'function'
+        ) {
+            throw new Error(`FilterOverlayPicker: Attribute selectionChangeHandler passed is not a function, but ${typeof this.props.selectionChangeHandler}`);
+        }
+        this.props.selectionChangeHandler(this.props.item);
+    }
+
+    /**
+     * See if current item is selected; defines if checkbox is checked or not
+     */
     @computed get selected() {
         // log('FilterOverlaySwitchItem: Is filter selected?', this.props.item);
         return this.props.selectedFilters.isSelected(this.props.item);
@@ -31,7 +50,7 @@ export default class FilterOverlaySwitchItem extends React.Component {
             styles.checkboxCircleNotSelected;
 
         return (
-            <TouchableHighlight onPress={this.handleSwitchPress.bind(this)}>
+            <TouchableHighlight onPress={this.handleSwitchPress}>
                 <View
                     style={[
                         styles.filterListItem, {
@@ -39,25 +58,29 @@ export default class FilterOverlaySwitchItem extends React.Component {
                         },
                     ]}>
                     { /* Adjust checkbox vertically */ }
-                    <View style={styles.checkboxCircleContainer}>
-                        <View style={styles.container}>
-                            <View
-                                style={[
-                                    styles.checkboxCircle,
-                                    circleSelectedStateStyle,
-                                ]}
-                            >
-                                <View style={styles.checkmark}>
-                                    <FilterOverlaySwitchItemCheckMark
-                                        height={16}
-                                        width={16}
-                                        strokeColor={styleDefinitions.colors.mediumBackgroundGrey}
-                                        strokeWidth={2}
-                                    />
+                    { !this.props.hideCheckbox &&
+                        <View style={styles.checkboxCircleContainer}>
+                            <View style={styles.container}>
+                                <View
+                                    style={[
+                                        styles.checkboxCircle,
+                                        circleSelectedStateStyle,
+                                    ]}
+                                >
+                                    <View style={styles.checkmark}>
+                                        <FilterOverlaySwitchItemCheckMark
+                                            height={16}
+                                            width={16}
+                                            strokeColor={
+                                                styleDefinitions.colors.mediumBackgroundGrey
+                                            }
+                                            strokeWidth={2}
+                                        />
+                                    </View>
                                 </View>
                             </View>
                         </View>
-                    </View>
+                    }
                     { /* Adjust text vertically */ }
                     <View style={[styles.container]}>
                         <Text style={styles.label}>

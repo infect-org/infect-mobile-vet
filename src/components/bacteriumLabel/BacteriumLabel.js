@@ -98,10 +98,6 @@ export default class BacteriumLabel extends React.Component {
         return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
 
-    /* componentWillReact() {
-        console.log('WILL UPDTATE');
-    } */
-
     render() {
 
         log('BacteriumLabel: Render bacterium label');

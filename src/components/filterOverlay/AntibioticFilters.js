@@ -1,67 +1,51 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { computed } from 'mobx';
+import { computed, observable, action } from 'mobx';
 import { observer } from 'mobx-react';
+import { filterTypes } from 'infect-frontend-logic';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
+import FilterList from './FilterList';
+// import FilterOverlayPicker from '../filterOverlayPicker/FilterOverlayPicker';
 import log from '../../helpers/log';
 
+/**
+ * View for all antibiotic related filters (substances, substance classes, application) in the
+ * filter overlay.
+ */
 @observer
 export default class AntibioticFilters extends React.Component {
+
+    @observable isSubstancesPickerVisible = false;
+
+    constructor(...props) {
+        super(...props);
+        this.toggleSubstancesPicker = this.toggleSubstancesPicker.bind(this);
+        this.toggleSubstanceClassesPicker = this.toggleSubstanceClassesPicker.bind(this);
+    }
 
     componentDidMount() {
         log('AntibioticFilters: Mounted');
     }
 
-    /**
-     * Returns all substance classes, sorted by niceValue
-     * @private
-     */
-    @computed get sortedSubstanceClassFilters() {
-        return this.props.filterValues.getValuesForProperty('substanceClass', 'name')
-            .sort(this.sortByProperty('niceValue'));
-    }
-
-    @computed get sortedSubstanceFilters() {
-        const substances = this.props.filterValues.getValuesForProperty('antibiotic', 'name')
-            .sort(this.sortByProperty('niceValue'));
-        log('AntibioticFilters: Substances are', substances);
-        return substances;
-    }
-
     @computed get applications() {
         const applications = [
-            this.props.filterValues.getValuesForProperty('antibiotic', 'po')
+            this.props.filterValues.getValuesForProperty(filterTypes.antibiotic, 'po')
                 .find(item => item.value === true),
-            this.props.filterValues.getValuesForProperty('antibiotic', 'iv')
+            this.props.filterValues.getValuesForProperty(filterTypes.antibiotic, 'iv')
                 .find(item => item.value === true),
         ];
         log('AntibioticFilters: Applications are', applications);
         return applications;
     }
 
-    /**
-     * Sorts values by a given property
-     * @private
-     */
-    sortByProperty(property) {
-        return (a, b) => (a[property] < b[property] ? -1 : 1);
+    @action toggleSubstancesPicker() {
+        this.props.changeDetailPanelContent(filterTypes.antibiotic);
     }
 
-    isFilterSelected(item) {
-        log('AntibioticFilters: Is filter selected?', item);
-        return this.props.selectedFilters.isSelected(item);
+    @action toggleSubstanceClassesPicker() {
+        this.props.changeDetailPanelContent(filterTypes.substanceClass);
     }
-
-    /**
-     * Handles click on a filter: adds or removes item from/to selectedFilters
-     * @private
-     */
-    itemSelectionChangeHandler(item) {
-        if (this.isFilterSelected(item)) this.props.selectedFilters.removeFilter(item);
-        else this.props.selectedFilters.addFilter(item);
-    }
-
 
     render() {
 
@@ -71,58 +55,71 @@ export default class AntibioticFilters extends React.Component {
             <View style={styles.container}>
                 <FilterOverlayTitle title="Antibiotics"/>
 
+
                 { /* Substances */ }
                 <FilterOverlayTitle
                     title="Substances"
                     followsTitle={true}
                     level={2}
                 />
-                { this.sortedSubstanceFilters.map((substance, index) => (
+                { /* Selected substances: Checkbox */ }
+                <FilterList
+                    property={filterTypes.antibiotic}
+                    name="name"
+                    sortProperty="niceValue"
+                    filterValues={this.props.filterValues}
+                    selectedFilters={this.props.selectedFilters}
+                    limitToSelected={true}
+                />
+                { /* All substances: Toggle detail view */ }
+                <View style={styles.detailViewSwitchItem}>
                     <FilterOverlaySwitchItem
-                        item={substance}
+                        item={{}}
                         selectedFilters={this.props.selectedFilters}
-                        key={substance.value}
-                        name={substance.niceValue}
-                        borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(substance)
-                        }
+                        name="Select substances …"
+                        borderTop={true}
+                        hideCheckbox={true}
+                        selectionChangeHandler={this.toggleSubstancesPicker}
                     />
-                ))}
+                </View>
+
 
                 { /* Substance Classes */ }
                 <FilterOverlayTitle
                     title="Substance Classes"
                     level={2}
                 />
-                { this.sortedSubstanceClassFilters.map((substanceClass, index) => (
+                { /* Selected substance classes */ }
+                <FilterList
+                    property={filterTypes.substanceClass}
+                    name="name"
+                    sortProperty="niceValue"
+                    filterValues={this.props.filterValues}
+                    selectedFilters={this.props.selectedFilters}
+                    limitToSelected={true}
+                />
+                { /* All substanceClasses: Toggle detail view */ }
+                <View style={styles.detailViewSwitchItem}>
                     <FilterOverlaySwitchItem
-                        item={substanceClass}
+                        item={{}}
                         selectedFilters={this.props.selectedFilters}
-                        key={substanceClass.value}
-                        borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(substanceClass)
-                        }
+                        name="Select substance classes …"
+                        borderTop={true}
+                        hideCheckbox={true}
+                        selectionChangeHandler={this.toggleSubstanceClassesPicker}
                     />
-                )) }
+                </View>
+
 
                 { /* Application */ }
                 <FilterOverlayTitle
                     title="Application"
                     level={2}
                 />
-                { this.applications.map((application, index) => (
-                    <FilterOverlaySwitchItem
-                        key={application.niceValue}
-                        item={application}
-                        selectedFilters={this.props.selectedFilters}
-                        borderTop={index === 0}
-                        selectionChangeHandler={
-                            () => this.itemSelectionChangeHandler(application)
-                        }
-                    />
-                )) }
+                <FilterList
+                    items={this.applications}
+                    selectedFilters={this.props.selectedFilters}
+                />
 
             </View>
         );
@@ -133,5 +130,11 @@ export default class AntibioticFilters extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    // Items that switch detail view have a borderTop; if items are selected, they are displayed
+    // right above and have a border bottom; to prevent a double-border (2px), we move the detail
+    // view item up by -1px: It's not noticeable with or without filters selected.
+    detailViewSwitchItem: {
+        top: -1,
     },
 });

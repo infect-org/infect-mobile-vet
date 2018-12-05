@@ -45,7 +45,7 @@ export default class ComponentStatesModel {
         if (!Object.values(componentStates).includes(state)) {
             throw new Error(`ComponentStatesModel: Cannot update state of ${component} to ${state}, as this is not a valid component state.`);
         }
-        console.log('FilterOverlayModel: Update state of', component, 'to', state);
+        log('FilterOverlayModel: Update state of', component, 'to', state);
         this.components.set(component, state);
         const previousHighestState = this.highestComponentStates.get(component);
         if (state > previousHighestState) this.highestComponentStates.set(component, state);

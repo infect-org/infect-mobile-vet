@@ -1,17 +1,17 @@
 # Releases
 
 - Update version in `package.json` and `app.json`
-- Update android version (Integer) in `app.json`
+- Update android version (Integer) in `app.json` **if** you plan a google play release
 - `git tag` & Co.
-- Publish to **correct** channel: `expo p --release channel test`
-- Publish to app store if SDK version changes
+- Publish to **correct** channel: `expo p --release channel testing`
+- Publish to app store (if needed, e.g. SDK version or splash screen changes)
 
-# Channels
+# Release Channels
 
 We have 3 release channels: 
 - `production` for the live environment (apps that can be downloaded from stores)
 - `staging` for TestFlight
-- `test` for tests through Expo
+- `testing` for tests through Expo
 
 # Setup
 
@@ -20,4 +20,4 @@ We have 3 release channels:
 - `npm i`
 - `npm i -g expo-cli`
 - `npm start`
-- Test locally with a simulator or use [Expo](https://expo.io/) client on your mobile phone. 
+- Test locally with a simulator or use [Expo](https://expo.io/) client on your mobile phone
