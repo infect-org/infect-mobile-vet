@@ -10,7 +10,7 @@ import log from '../../helpers/log';
 
 /**
  * Get first number of a string, needed to sort age groups. '15-32' returns 15; '>=64' returns 64;
- * '>15' returns 14, as it needs to be placed before '15-32'.
+ * '<15' returns 14, as it needs to be placed before '15-32'.
  * @param  {String} ageGroup niceValue for an ageGroup, e.g. >15 or 15-32
  * @return {Number}
  */

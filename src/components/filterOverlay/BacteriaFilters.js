@@ -8,6 +8,9 @@ import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwi
 import log from '../../helpers/log';
 import FilterList from './FilterList';
 
+/**
+ * View for all bacteria related filters (names, gram, shape, metabolism) in the filter overlay.
+ */
 @observer
 export default class BacteriaFilters extends React.Component {
 
@@ -16,26 +19,29 @@ export default class BacteriaFilters extends React.Component {
         this.toggleBacteria = this.toggleBacteria.bind(this);
     }
 
-    @computed get shapes() {
-        // Strangely, there's a shape in the DB that doesn't have a value (it's undefined) …
-        return this.props.filterValues.getValuesForProperty(filterTypes.bacterium, 'shape')
-            .filter(item => item.value !== undefined);
-    }
-
     toggleBacteria() {
         this.props.changeDetailPanelContent(filterTypes.bacterium);
     }
 
+    /**
+     * Returns metabolisms. As they are not stored as a property of a bacterium in the database
+     * (but rather as two separate properties 'aerobic' and 'anaerobic' which both might be true
+     * or false), we have to simplify things and merge those two properties into one single list.
+     * @return {Array} List of metabolisms, 'aerobic' and 'anaerobic'
+     */
     @computed get metabolisms() {
-        const applications = [
+        // First: Get both metabolisms (aerobic and anaerobic). Each of those contains values for
+        // false and true.
+        // After: Only take the true values (aerobic: true and anaerobic: true).
+        // After: Return those two values for metabolisms.
+        const metabolisms = [
             this.props.filterValues.getValuesForProperty(filterTypes.bacterium, 'aerobic')
                 .find(item => item.value === true),
             this.props.filterValues.getValuesForProperty(filterTypes.bacterium, 'anaerobic')
                 .find(item => item.value === true),
         ];
-        log('BacteriaFilters: Metabolisms are', applications);
-        return applications;
-
+        log('BacteriaFilters: Metabolisms are', metabolisms);
+        return metabolisms;
     }
 
 
@@ -80,22 +86,25 @@ export default class BacteriaFilters extends React.Component {
                     level={2}
                 />
                 <FilterList
-                    items={this.gramValues}
                     selectedFilters={this.props.selectedFilters}
                     property={filterTypes.bacterium}
                     name="gram"
                     filterValues={this.props.filterValues}
                 />
 
+                { /* Shape */ }
                 <FilterOverlayTitle
                     title="Shape"
                     level={2}
                 />
                 <FilterList
-                    items={this.shapes}
                     selectedFilters={this.props.selectedFilters}
+                    property={filterTypes.bacterium}
+                    name="shape"
+                    filterValues={this.props.filterValues}
                 />
 
+                { /* Metabolism */ }
                 <FilterOverlayTitle
                     title="Metabolism"
                     level={2}

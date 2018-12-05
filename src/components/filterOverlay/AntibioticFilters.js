@@ -9,6 +9,10 @@ import FilterList from './FilterList';
 // import FilterOverlayPicker from '../filterOverlayPicker/FilterOverlayPicker';
 import log from '../../helpers/log';
 
+/**
+ * View for all antibiotic related filters (substances, substance classes, application) in the
+ * filter overlay.
+ */
 @observer
 export default class AntibioticFilters extends React.Component {
 

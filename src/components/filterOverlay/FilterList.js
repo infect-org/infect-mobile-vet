@@ -30,7 +30,7 @@ export default class FilterList extends React.Component {
      * filterValues.
      * @return {Array} Items to display in list
      */
-    @computed get items() {
+    @computed get filterValues() {
         // Items property is available: Use those items directly
         if (this.props.items) return this.props.items;
 
@@ -39,27 +39,30 @@ export default class FilterList extends React.Component {
         if (!this.props.name || !this.props.property) {
             throw new Error(`FilterList: If you don't pass in items, you must at least pass property and name props, you provided ${this.props.property} and ${this.props.name} instead.`);
         }
-        const values = this.props.filterValues.getValuesForProperty(
+        const filterValues = this.props.filterValues.getValuesForProperty(
             this.props.property,
             this.props.name,
         );
         // Sort, if needed
-        const { sortProperty } = this.props;
-        const sortFunction = (a, b) => (a[sortProperty] < b[sortProperty] ? -1 : 1);
-        if (this.props.sortProperty) values.sort(sortFunction);
+        if (this.props.sortProperty) {
+            const { sortProperty } = this.props;
+            const sortFunction = (a, b) => (a[sortProperty] < b[sortProperty] ? -1 : 1);
+            if (sortProperty) filterValues.sort(sortFunction);
+        }
         // Limit to selected, if needed
-        let filteredValues = values;
+        let filteredFilterValues = filterValues;
         if (this.props.limitToSelected) {
-            filteredValues = values.filter(value => this.props.selectedFilters.isSelected(value));
+            filteredFilterValues = filterValues.filter(value =>
+                this.props.selectedFilters.isSelected(value));
         }
 
-        return filteredValues;
+        return filteredFilterValues;
     }
 
     render() {
         return (
             <View style={styles.container}>
-                { this.items.map((item, index) => (
+                { this.filterValues.map((item, index) => (
                     <FilterOverlaySwitchItem
                         key={item.niceValue}
                         item={item}

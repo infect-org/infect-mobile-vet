@@ -31,6 +31,14 @@ const maxScreenDimension = Math.max(
     Dimensions.get('window').height,
 );
 
+/**
+ * View for the overlay that opens when filter button is tapped. Contains:
+ * - filters for antibitotics, bacteria, population
+ * - two HorizontalPanes for a two level deep navigation through filters (long lists are split
+ *   into a second dimension)
+ * - an about text and link
+ * - a button to remove all filters and close the overlay
+ */
 @observer
 export default class FilterOverlay extends React.Component {
 
@@ -44,7 +52,7 @@ export default class FilterOverlay extends React.Component {
     @observable currentPanel = { index: 0 };
 
     // Content that should be displayed in FilterOverlayDetailView, either substance,
-    // substanceClass or bacteria. Use Object to not cause re-render of FilterOverlay when it 
+    // substanceClass or bacteria. Use Object to not cause re-render of FilterOverlay when it
     // changes
     @observable selectedDetail = { filters: undefined };
 
