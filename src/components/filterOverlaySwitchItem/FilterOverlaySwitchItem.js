@@ -45,7 +45,7 @@ export default class FilterOverlaySwitchItem extends React.Component {
 
         log('FilterOverlaySwitchItem: Render');
 
-        const borderTopWidth = this.props.borderTop ? 1 : 0;
+        const borderTopWidth = this.props.borderTop ? StyleSheet.hairlineWidth : 0;
         const circleSelectedStateStyle = this.selected ? styles.checkboxCircleSelected :
             styles.checkboxCircleNotSelected;
 

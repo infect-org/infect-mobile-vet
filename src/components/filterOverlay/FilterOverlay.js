@@ -9,9 +9,10 @@ import {
     Dimensions,
     Linking,
     Button,
+    TextInput,
 } from 'react-native';
 import { observer } from 'mobx-react';
-import { reaction, computed, observable, action } from 'mobx';
+import { reaction, computed, observable, action, trace } from 'mobx';
 import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 import styleDefinitions from '../../helpers/styleDefinitions';
@@ -23,6 +24,7 @@ import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 import HorizontalPanel from '../horizontalPanels/HorizontalPanel';
 import HorizontalPanels from '../horizontalPanels/HorizontalPanels';
 import FilterOverlayDetailView from './FilterOverlayDetailView';
+import FilterOverlaySearchResults from '../filterOverlaySearchResults/FilterOverlaySearchResults';
 
 const { Animated, Easing } = DangerZone;
 const padding = 20;
@@ -50,6 +52,9 @@ export default class FilterOverlay extends React.Component {
     // Index of panel that should be visible, see HorizontalPanels. Use object to not cause
     // re-render of FilterOverlay when it changes.
     @observable currentPanel = { index: 0 };
+
+    // Current search term in search filter text input
+    @observable searchTerm = '';
 
     // Content that should be displayed in FilterOverlayDetailView, either substance,
     // substanceClass or bacteria. Use Object to not cause re-render of FilterOverlay when it
@@ -103,6 +108,14 @@ export default class FilterOverlay extends React.Component {
         this.props.componentStates.update('filters', componentStates.ready);
     }
 
+    /**
+     * Resets search term to ''. We should try not modify properties from the outside, therefore
+     * we pass this method to our children.
+     */
+    @action resetSearchTerm() {
+        this.searchTerm = '';
+    }
+
     removeAllFilters() {
         this.props.selectedFilters.removeAllFilters();
     }
@@ -129,10 +142,20 @@ export default class FilterOverlay extends React.Component {
         }
     }
 
+    /**
+     * Handles onChangeText events fired on the filter search input. Shows and updates search
+     * results.
+     * @param {String} searchText   Current input value
+     */
+    @action.bound handleSearchTextChange(searchText) {
+        this.searchTerm = searchText;
+    }
+
     render() {
 
         log('FilterOverlay: Render');
-        // trace();
+        console.log('FilterOverlay: Render, searchTerm is', this.searchTerm);
+        trace();
 
         return (
             <Animated.View
@@ -144,7 +167,7 @@ export default class FilterOverlay extends React.Component {
                     },
                 ]}>
 
-                { /* Background (clickable) */ }
+                { /* Semi-transparent background (clickable) */ }
                 <TouchableOpacity
                     onPress={this.closeOverlay}
                     style={styles.filterOverlayBackgroundContainer}
@@ -170,76 +193,119 @@ export default class FilterOverlay extends React.Component {
 
                             { /* Filter list (main filters) */ }
                             <View style={styles.filterOverlayMainContent}>
-                                <ScrollView>
 
-                                    { /* Remove all filters */ }
-                                    { this.showResetAllFiltersButton &&
-                                        <TouchableWithoutFeedback
-                                            onPress={this.removeAllFilters}
-                                        >
-                                            <View style={styles.removeFiltersButton}>
-                                                <View
-                                                    style={styleDefinitions.buttons.textContainer}
-                                                >
-                                                    <Text
+                                <View style={styles.searchTextInputContainer}>
+                                    <TextInput
+                                        style={ styles.searchTextInput}
+                                        placeholder="Search filters"
+                                        placeholderTextColor={
+                                            styleDefinitions.colors.lightForegroundGrey
+                                        }
+                                        onChangeText={this.handleSearchTextChange}
+                                        clearButtonMode="while-editing"
+                                        // Setting the value makes sure value is reset to '' when
+                                        // a search result is clicked.
+                                        value={this.searchTerm}
+                                    />
+                                </View>
+
+
+                                { /* If no search terrm was entered, display list of all available
+                                     filters */ }
+                                { this.searchTerm === '' &&
+                                    <ScrollView>
+
+                                        { /* Remove all filters */ }
+                                        { this.showResetAllFiltersButton &&
+                                            <TouchableWithoutFeedback
+                                                onPress={this.removeAllFilters}
+                                            >
+                                                <View style={styles.removeFiltersButton}>
+                                                    <View
                                                         style={
-                                                            styleDefinitions.buttons.secondaryText
+                                                            styleDefinitions.buttons.textContainer
                                                         }
                                                     >
-                                                        × Remove all filters
-                                                    </Text>
+                                                        <Text style={
+                                                            styleDefinitions.buttons.secondaryText
+                                                        }>
+                                                            × Remove all filters
+                                                        </Text>
+                                                    </View>
                                                 </View>
-                                            </View>
-                                        </TouchableWithoutFeedback>
-                                    }
+                                            </TouchableWithoutFeedback>
+                                        }
 
 
-                                    <AntibioticFilters
-                                        filterValues={this.props.filterValues}
-                                        selectedFilters={this.props.selectedFilters}
-                                        changeDetailPanelContent={this.changeDetailPanelContent}
-                                    />
-
-                                    <BacteriaFilters
-                                        filterValues={this.props.filterValues}
-                                        selectedFilters={this.props.selectedFilters}
-                                        changeDetailPanelContent={this.changeDetailPanelContent}
-                                    />
-
-                                    <PopulationFilters
-                                        filterValues={this.props.filterValues}
-                                        selectedFilters={this.props.selectedFilters}
-                                    />
-
-                                    <View style={{ height: 20 }} />
-
-                                    <FilterOverlayTitle
-                                        title="Information" />
-
-                                    <Text style={styles.infoText}>
-                                        Monthly, INFECT imports a subset of the latest 365 days of
-                                        bacterial resistance data from the Swiss Center for
-                                        Antibiotic resistance.
-                                    </Text>
-                                    <Text style={styles.infoText}>
-                                        INFECT accepts no responsibility or liability with regard
-                                        to any problems incurred as a result of using this site
-                                        or any linked external sites.
-                                    </Text>
-                                    <View style={styles.infoButtonContainer}>
-                                        <Button
-                                            onPress={this.openDisclaimer}
-                                            color={styleDefinitions.colors.green}
-                                            title="More information"
-                                            style={styles.infoButton}
+                                        <AntibioticFilters
+                                            filterValues={this.props.filterValues}
+                                            selectedFilters={this.props.selectedFilters}
+                                            changeDetailPanelContent={this.changeDetailPanelContent}
                                         />
-                                    </View>
 
-                                    { /* Add margin to bottom of container (that's covered by
-                                         «Apply filters» button) */ }
-                                    <View style={styles.bottomMarginContainer} />
+                                        <BacteriaFilters
+                                            filterValues={this.props.filterValues}
+                                            selectedFilters={this.props.selectedFilters}
+                                            changeDetailPanelContent={this.changeDetailPanelContent}
+                                        />
 
-                                </ScrollView>
+                                        <PopulationFilters
+                                            filterValues={this.props.filterValues}
+                                            selectedFilters={this.props.selectedFilters}
+                                        />
+
+                                        <View style={{ height: 20 }} />
+
+                                        <FilterOverlayTitle
+                                            title="Information" />
+
+                                        <Text style={styles.infoText}>
+                                            Monthly, INFECT imports a subset of the latest 365
+                                            days of bacterial resistance data from the Swiss Center
+                                            for Antibiotic resistance.
+                                        </Text>
+                                        <Text style={styles.infoText}>
+                                            INFECT accepts no responsibility or liability with
+                                            regard to any problems incurred as a result of using
+                                            this site or any linked external sites.
+                                        </Text>
+                                        <View style={styles.infoButtonContainer}>
+                                            <Button
+                                                onPress={this.openDisclaimer}
+                                                color={styleDefinitions.colors.green}
+                                                title="More information"
+                                                style={styles.infoButton}
+                                            />
+                                        </View>
+
+                                        { /* Add margin to bottom of container (that's covered by
+                                             «Apply filters» button) */ }
+                                        <View style={styles.bottomMarginContainer} />
+
+                                    </ScrollView>
+                                }
+
+
+                                { /* If search term was entered, display all filters that match
+                                     the search term */ }
+                                { this.searchTerm !== '' &&
+                                    <ScrollView>
+
+                                        <FilterOverlaySearchResults
+                                            searchTerm={this.searchTerm}
+                                            resetSearchTerm={this.resetSearchTerm.bind(this)}
+                                            filterValues={this.props.filterValues}
+                                            selectedFilters={this.props.selectedFilters}
+                                        />
+
+                                        { /* Add margin to bottom of container (that's covered by
+                                             «Apply filters» button) */ }
+                                        <View style={styles.bottomMarginContainer} />
+
+                                    </ScrollView>
+                                }
+
+
                             </View>
                         </HorizontalPanel>
 
@@ -390,5 +456,20 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
+    },
+    searchTextInputContainer: {
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: padding,
+        paddingRight: padding,
+    },
+    searchTextInput: {
+        ...styleDefinitions.fonts.bold,
+        fontSize: 16,
+        padding: 10,
+        height: 40,
+        borderColor: styleDefinitions.colors.lightForegroundGrey,
+        color: styleDefinitions.colors.white,
+        borderWidth: StyleSheet.hairlineWidth,
     },
 });
