@@ -289,7 +289,12 @@ export default class FilterOverlay extends React.Component {
                                 { /* If search term was entered, display all filters that match
                                      the search term */ }
                                 { this.searchTerm !== '' &&
-                                    <ScrollView>
+                                    <ScrollView
+                                        keyboardShouldPersistTaps="always"
+                                    >
+                                        { /* keyboardShouldPersistTaps allows us to close the search
+                                             input keyboard AND select the tapped entry at the same
+                                             time (with 1 instead of 2 taps) */ }
 
                                         <FilterOverlaySearchResults
                                             searchTerm={this.searchTerm}
