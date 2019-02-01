@@ -6,9 +6,9 @@ export default function log(...content) {
     // For live environment, disable all logs (they tend to cause troubles)
     return;
 
-    // FUUUUUUCK!!!!!!!!!!!!!!!!!!!!!!
-    // Don't enable, will kill console, app won't load
-    // !!!!!!!!!!!!!!!!!!!!!!FUUUUUUCK
+    // CAUTION!!!!!!!!!!!!!!!!!!!!!!
+    // Don't enable logging, will kill console, app won't load
+    // !!!!!!!!!!!!!!!!!!!!!!CAUTION
 
 
     console.log(...content);

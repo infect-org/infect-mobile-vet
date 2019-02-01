@@ -6,6 +6,10 @@ import log from '../../helpers/log';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
 
 
+/**
+ * Displays a list of results for the searchTerm entered through the filter overlay. Handles clicks
+ * on results.
+ */
 @observer
 export default class FilterOverlaySearchResults extends React.Component {
 

@@ -12,7 +12,7 @@ import {
     TextInput,
 } from 'react-native';
 import { observer } from 'mobx-react';
-import { reaction, computed, observable, action, trace } from 'mobx';
+import { reaction, computed, observable, action } from 'mobx';
 import { DangerZone } from 'expo';
 import log from '../../helpers/log';
 import styleDefinitions from '../../helpers/styleDefinitions';
@@ -154,8 +154,8 @@ export default class FilterOverlay extends React.Component {
     render() {
 
         log('FilterOverlay: Render');
-        console.log('FilterOverlay: Render, searchTerm is', this.searchTerm);
-        trace();
+        // console.log('FilterOverlay: Render, searchTerm is', this.searchTerm);
+        // trace();
 
         return (
             <Animated.View
@@ -203,7 +203,7 @@ export default class FilterOverlay extends React.Component {
                                         }
                                         onChangeText={this.handleSearchTextChange}
                                         clearButtonMode="while-editing"
-                                        // Setting the value makes sure value is reset to '' when
+                                        // Binding the value makes sure value is reset to '' when
                                         // a search result is clicked.
                                         value={this.searchTerm}
                                     />
