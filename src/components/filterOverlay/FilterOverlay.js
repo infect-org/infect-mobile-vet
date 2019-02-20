@@ -292,9 +292,11 @@ export default class FilterOverlay extends React.Component {
                                     <ScrollView
                                         keyboardShouldPersistTaps="always"
                                     >
-                                        { /* keyboardShouldPersistTaps allows us to close the search
-                                             input keyboard AND select the tapped entry at the same
-                                             time (with 1 instead of 2 taps) */ }
+                                        { /* Default for keyboardShouldPersistTaps is "never" which
+                                             requires two taps on a search result: 1st closes the
+                                             keyboard, 2nd selects result. "always" selects result
+                                             on 1st tap but does not close keyboard. This has to be
+                                             done manually (see FilterOverlaySearchResults) */ }
 
                                         <FilterOverlaySearchResults
                                             searchTerm={this.searchTerm}

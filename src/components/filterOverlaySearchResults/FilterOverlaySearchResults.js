@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Keyboard } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, action } from 'mobx';
 import log from '../../helpers/log';
@@ -43,6 +43,9 @@ export default class FilterOverlaySearchResults extends React.Component {
     @action.bound itemSelectionChangeHandler(selectedSearchResult) {
         this.props.resetSearchTerm();
         this.props.selectedFilters.toggleFilter(selectedSearchResult);
+        // As we use keyboardShouldPersistTaps="always", keyboard must be closed manually. Must be
+        // done after we resetSearchTerm or it will pop up again.
+        Keyboard.dismiss();
     }
 
 
