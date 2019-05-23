@@ -9,7 +9,7 @@
       "ios",
       "android"
     ],
-    "version": "1.8.2",
+    "version": "1.8.3",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
@@ -23,7 +23,7 @@
     },
     "android": {
       "package": "info.infect.app",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": []
     },
     "githubUrl": "https://github.com/infect-org/infect-mobile-app",
