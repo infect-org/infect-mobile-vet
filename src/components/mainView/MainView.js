@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableHighlight, AppState } from 'react-native';
 import { observer } from 'mobx-react';
-import { PageHit } from 'expo-analytics';
+import { PageHit, ScreenHit } from 'expo-analytics';
 import Matrix from '../matrix/Matrix';
 import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
@@ -32,20 +32,20 @@ export default class MainView extends React.Component {
     }
 
     /**
-     * send a PageHit at Google Analytics
+     * send a ScreenHit to Google Analytics
      */
     trackPageHitAtGoogleAnalytics() {
-        this.props.googleAnalytics.hit(new PageHit('Home'))
+        this.props.googleAnalytics.hit(new ScreenHit('Home'))
             .then(() => {
-                console.log('GoogleAnalytics: added PageHit «Home»!');
+                console.log('GoogleAnalytics: added ScreenHit «Home»!');
             })
             .catch((e) => {
-                console.log(`GoogleAnalytics: could not add PageHit «Home»: ${e.message}`);
+                console.log(`GoogleAnalytics: could not add ScreenHit «Home»: ${e.message}`);
             });
     }
 
     componentDidMount() {
-        // send a PageHit at Google Analytics
+        // send a ScreenHit at Google Analytics
         this.trackPageHitAtGoogleAnalytics();
 
         // add event listener for app state changes
@@ -60,7 +60,7 @@ export default class MainView extends React.Component {
     /**
      * this function is used for tracking app state changes
      * if we come from inactive or brackground to active and the last reload was longer
-     * then half an hour, we track a page hit at google analytics
+     * then half an hour, we track a screen hit at google analytics
      *
      * @param {String} nextAppState
      */
