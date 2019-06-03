@@ -1,77 +1,21 @@
 import React from 'react';
-import { View, StyleSheet, TouchableHighlight, AppState } from 'react-native';
+import { View, StyleSheet, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
-import { PageHit, ScreenHit } from 'expo-analytics';
 import Matrix from '../matrix/Matrix';
 import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
 import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
+import GoogleAnalytics from '../googleAnalytics/GoogleAnalytics.js';
 
 @observer
 export default class MainView extends React.Component {
-
-    /**
-     * the current app state like inactive, background, active
-     *
-     */
-    appState = AppState.currentState
-
-    /**
-     * when was the app last reloaded?
-     * we track to google analytics, if it comes to foreground after x minutes
-     */
-    lastReload = new Date()
 
     constructor(...props) {
         super(...props);
         this.addAntibioticFilter = this.addAntibioticFilter.bind(this);
         this.addBacteriumFilter = this.addBacteriumFilter.bind(this);
         this.addPopulationFilter = this.addPopulationFilter.bind(this);
-        this.handleAppStateChange = this.handleAppStateChange.bind(this);
-    }
-
-    /**
-     * send a ScreenHit to Google Analytics
-     */
-    trackPageHitAtGoogleAnalytics() {
-        this.props.googleAnalytics.hit(new ScreenHit('Home'))
-            .then(() => {
-                console.log('GoogleAnalytics: added ScreenHit «Home»!');
-            })
-            .catch((e) => {
-                console.log(`GoogleAnalytics: could not add ScreenHit «Home»: ${e.message}`);
-            });
-    }
-
-    componentDidMount() {
-        // send a ScreenHit at Google Analytics
-        this.trackPageHitAtGoogleAnalytics();
-
-        // add event listener for app state changes
-        AppState.addEventListener('change', this.handleAppStateChange);
-    }
-
-    componentWillUnmount() {
-        // remove the eventlistener for the app state
-        AppState.removeEventListener('change', this.handleAppStateChange);
-    }
-
-    /**
-     * this function is used for tracking app state changes
-     * if we come from inactive or brackground to active and the last reload was longer
-     * then half an hour, we track a screen hit at google analytics
-     *
-     * @param {String} nextAppState
-     */
-    handleAppStateChange(nextAppState) {
-        if (this.appState.match(/inactive|background/) && nextAppState === 'active') {
-            if ((Math.abs(new Date() - this.lastReload) / 1000) >= 1800) {
-                this.lastReload = new Date();
-                this.trackPageHitAtGoogleAnalytics();
-            }
-        }
-        this.appState = nextAppState;
     }
 
     addAntibioticFilter() {
@@ -107,13 +51,19 @@ export default class MainView extends React.Component {
 
     }
 
-
     render() {
 
         log('MainView: Render');
 
         return (
             <View style={styles.container}>
+
+                {/* Add google analytics screen tracking */}
+                <GoogleAnalytics
+                    screenName='Home'
+                    trackingKey={this.props.googleAnalyticsTrackingKey}
+                />
+
                 <Matrix
                     style={styles.matrix}
                     matrix={this.props.matrix}

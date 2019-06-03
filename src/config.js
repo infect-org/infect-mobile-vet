@@ -10,9 +10,7 @@ export default {
         ageGroups: 'generics.ageGroup',
         hospitalStatus: 'generics.hospitalStatus',
     },
-    google: {
-        analytics: {
-            trackingKey: 'UA-108372802-1',
-        },
+    appKeys: {
+        googleAnalytics: 'UA-108372802-1',
     },
 };
