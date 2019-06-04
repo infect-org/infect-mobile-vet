@@ -5,6 +5,7 @@ import { configure, reaction, computed } from 'mobx';
 // import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
+import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
 import componentStates from './src/models/componentStates/componentStates';
 import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel';
@@ -61,6 +62,10 @@ export default class App extends React.Component {
         this.windowSize = new AnimatedWindowSize();
 
         this.handleSafeAreaLayoutChange = this.handleSafeAreaLayoutChange.bind(this);
+
+        // Setup Google Analytics
+        this.googleAnalytics = new Analytics(config.appKeys.googleAnalytics);
+        this.googleAnalytics.addCustomDimension(1, 'MobileApp');
     }
 
     componentDidMount() {
@@ -174,7 +179,7 @@ export default class App extends React.Component {
                                 componentStates={this.componentStates}
                                 matrix={this.app.views.matrix}
                                 windowSize={this.windowSize}
-                                googleAnalyticsTrackingKey={config.appKeys.googleAnalytics}
+                                googleAnalytics={this.googleAnalytics}
                             />
                         </View>
                     }

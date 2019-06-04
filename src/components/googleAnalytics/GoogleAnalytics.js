@@ -1,20 +1,18 @@
 import React from 'react';
 import { AppState } from 'react-native';
 import { observer } from 'mobx-react';
-import { Analytics, ScreenHit } from 'expo-analytics';
+import { ScreenHit } from 'expo-analytics';
 
 import log from '../../helpers/log';
 
 /**
- * This component tracks «screen hits» at google analytics.
+ * This component tracks «screen hits» at Google Analytics.
  *
  * We do that if:
  * - componentDidMount
  * - app state changes to «active» and the last hit was longer then half an hour ago
  *
  * The screen name could be defined through the components «screenName» property.
- *
- * @extends {React.Component}
  */
 @observer
 export default class GoogleAnalytics extends React.Component {
@@ -26,20 +24,17 @@ export default class GoogleAnalytics extends React.Component {
 
     /**
      * When was the app last reloaded?
-     * We track to google analytics, if it comes to foreground after x minutes.
+     * We track to Google Analytics, if it comes to foreground after x minutes.
      */
-    lastReload = new Date()
+    latestReload = new Date()
 
     constructor(...props) {
         super(...props);
         this.handleAppStateChange = this.handleAppStateChange.bind(this);
 
-        if (!this.props.trackingKey) {
-            throw new Error('GoogleAnalytics constructor: property «trackingKey» is missing! We need that so we know where to track your screen hit.');
+        if (this.props.googleAnalytics === undefined) {
+            log('GoogleAnalytics constructor: property «googleAnalytics» is missing! We need that so we know where to track your screen hit.');
         }
-
-        // Setup Google Analytics
-        this.googleAnalytics = new Analytics(this.props.trackingKey);
     }
 
     /**
@@ -49,12 +44,13 @@ export default class GoogleAnalytics extends React.Component {
     trackPageHitAtGoogleAnalytics() {
         const screenName = this.props.screenName || 'undefined';
 
-        this.googleAnalytics.hit(new ScreenHit(screenName))
+        this.props.googleAnalytics.hit(new ScreenHit(screenName))
             .then(() => {
-                log(`GoogleAnalytics: added ScreenHit «${screenName}»!`);
+                console.log(`GoogleAnalytics: added ScreenHit «${screenName}»`);
+                log(`GoogleAnalytics: added ScreenHit «${screenName}»`);
             })
-            .catch((e) => {
-                log(`GoogleAnalytics: could not add ScreenHit «Home»: ${e.message}`);
+            .catch((err) => {
+                log(`GoogleAnalytics: could not add ScreenHit «Home»: ${err.message}`);
             });
     }
 
@@ -74,14 +70,14 @@ export default class GoogleAnalytics extends React.Component {
     /**
      * If we come from «inactive» or «brackground» state to the «active» state
      * and the last reload was longer then half an hour ago
-     * we track a screen hit at google analytics.
+     * we track a screen hit at Aoogle Analytics.
      *
      * @param {String} nextAppState
      */
     handleAppStateChange(nextAppState) {
         if (this.appState.match(/inactive|background/) && nextAppState === 'active') {
-            if ((Math.abs(new Date() - this.lastReload) / 1000) >= 1800) {
-                this.lastReload = new Date();
+            if ((Math.abs(new Date() - this.latestReload) / 1000) >= 1800) {
+                this.latestReload = new Date();
                 this.trackPageHitAtGoogleAnalytics();
             }
         }

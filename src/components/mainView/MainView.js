@@ -58,10 +58,10 @@ export default class MainView extends React.Component {
         return (
             <View style={styles.container}>
 
-                {/* Add google analytics screen tracking */}
+                {/* Track screen hits */}
                 <GoogleAnalytics
-                    screenName='Home'
-                    trackingKey={this.props.googleAnalyticsTrackingKey}
+                    screenName="Home"
+                    googleAnalytics={this.props.googleAnalytics}
                 />
 
                 <Matrix
