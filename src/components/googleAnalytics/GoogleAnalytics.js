@@ -41,17 +41,14 @@ export default class GoogleAnalytics extends React.Component {
      * Send a ScreenHit to Google Analytics.
      * Screen name is defined through the components «screenName» property.
      */
-    trackPageHitAtGoogleAnalytics() {
+    async trackPageHitAtGoogleAnalytics() {
         const screenName = this.props.screenName || 'undefined';
 
-        this.props.googleAnalytics.hit(new ScreenHit(screenName))
-            .then(() => {
-                console.log(`GoogleAnalytics: added ScreenHit «${screenName}»`);
-                log(`GoogleAnalytics: added ScreenHit «${screenName}»`);
-            })
-            .catch((err) => {
-                log(`GoogleAnalytics: could not add ScreenHit «Home»: ${err.message}`);
-            });
+        try {
+            await this.props.googleAnalytics.hit(new ScreenHit(screenName));
+        } catch (err) {
+            log(`GoogleAnalytics: could not add ScreenHit «${screenName}»: ${err.message}`);
+        }
     }
 
     componentDidMount() {
@@ -70,7 +67,7 @@ export default class GoogleAnalytics extends React.Component {
     /**
      * If we come from «inactive» or «brackground» state to the «active» state
      * and the last reload was longer then half an hour ago
-     * we track a screen hit at Aoogle Analytics.
+     * we track a screen hit at Google Analytics.
      *
      * @param {String} nextAppState
      */

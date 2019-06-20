@@ -12,7 +12,7 @@
   "//": "Dependencies: Make sure you use the same packages and versions as in frontend-logic!",
   "dependencies": {
     "expo": "^31.0.6",
-    "expo-analytics": "^1.0.8",
+    "expo-analytics": "1.0.8",
     "infect-frontend-logic": "^2.2.3",
     "mobx": "4.4.2",
     "mobx-react": "^5.4.3",
