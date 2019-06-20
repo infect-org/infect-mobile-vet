@@ -2,3 +2,4 @@ app.json
 node_modules/**/*
 .expo/*
 npm-debug.*
+.vscode

@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, View, StatusBar, SafeAreaView } from 'react-native';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed } from 'mobx';
-// import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
 import { Analytics } from 'expo-analytics';
@@ -52,13 +51,11 @@ export default class App extends React.Component {
 
         // Main app (logic shared with the web)
         this.app = new InfectApp(config);
-        this.setupApp();
 
         // View models for mobile app
         this.filterOverlayModel = new FilterOverlayModel();
         this.componentStates = new ComponentStatesModel();
         this.componentStates.setup();
-        this.setupModelStateWatchers();
         this.windowSize = new AnimatedWindowSize();
 
         this.handleSafeAreaLayoutChange = this.handleSafeAreaLayoutChange.bind(this);
@@ -68,8 +65,11 @@ export default class App extends React.Component {
         this.googleAnalytics.addCustomDimension(1, 'MobileApp');
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         log('StatusBar:', StatusBar.curentHeight);
+
+        this.setupModelStateWatchers();
+        await this.setupApp();
     }
 
     /**
@@ -143,7 +143,6 @@ export default class App extends React.Component {
         this.windowSize.update(ev.nativeEvent.layout);
     }
 
-    @observer
     render() {
 
         log('App: Render');

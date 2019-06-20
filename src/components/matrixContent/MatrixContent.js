@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
+import { computed, reaction, observable, action } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
 import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
@@ -90,7 +90,22 @@ export default class MatrixContent extends React.Component {
      */
     animatedBacteria = new Map();
 
-
+    /**
+     * Sadly we need this property because we have a time-issue with this.props.defaultRadius
+     * and setting the value of this.leftColumnWidth.
+     *
+     * The «ResistanceView» and the «substanceClassesContainer» were rendered before
+     * the leftColumnWidth was set, so they do not render properly.
+     *
+     * So we have a small timeout for setting this.defaultRadiusWasSetDelayed after
+     * this.props.defaultRadius is set.
+     *
+     * This may be a bug from expo, react-native
+     */
+    @observable defaultRadiusWasSetDelayed = false
+    @action setDefaultRadiusWasSetDelayed(defaultRadiusWasSetDelayed) {
+        this.defaultRadiusWasSetDelayed = defaultRadiusWasSetDelayed;
+    }
 
     constructor(...props) {
         super(...props);
@@ -255,6 +270,27 @@ export default class MatrixContent extends React.Component {
                 this.topRowHeight.setValue(this.antibioticLabelRowHeight +
                     this.substanceClassMaxHeight);
 
+            },
+        );
+
+        /**
+         * Sadly we need this reaction because we have a time-issue with this.props.defaultRadius
+         * and setting the value of this.leftColumnWidth.
+         *
+         * The «ResistanceView» and the «substanceClassesContainer» were rendered before
+         * the leftColumnWidth was set, so they do not render properly.
+         *
+         * So we have a small timeout for setting this.defaultRadiusWasSetDelayed after
+         * this.props.defaultRadius is set.
+         *
+         * This may be a bug from expo, react-native
+         */
+        reaction(
+            () => this.props.matrix.defaultRadius,
+            () => {
+                setTimeout(() => {
+                    this.setDefaultRadiusWasSetDelayed(true);
+                }, 0);
             },
         );
 
@@ -475,7 +511,16 @@ export default class MatrixContent extends React.Component {
 
 
                 { /* SUBSTANCE CLASSES (headers and lines) */ }
-                { this.props.matrix.defaultRadius &&
+                {/**
+                    * The «ResistanceView» and the «substanceClassesContainer» were rendered before
+                    * the leftColumnWidth was set, so they do not render properly.
+                    *
+                    * So we have a small timeout for setting this.defaultRadiusWasSetDelayed after
+                    * this.props.defaultRadius is set.
+                    *
+                    * This may be a bug from expo, react-native
+                */}
+                { this.defaultRadiusWasSetDelayed === true &&
 
                     <Animated.View
                         style={[styles.substanceClassesContainer, {
@@ -536,7 +581,16 @@ export default class MatrixContent extends React.Component {
                 { /* RESISTANCES */ }
                 { /* Container within which resistances will be moved/zoomed. Needed to
                      set the stage (container) and calculate its size for PanPinch */ }
-                { this.props.matrix.defaultRadius &&
+                {/**
+                    * The «ResistanceView» and the «substanceClassesContainer» were rendered before
+                    * the leftColumnWidth was set, so they do not render properly.
+                    *
+                    * So we have a small timeout for setting this.defaultRadiusWasSetDelayed after
+                    * this.props.defaultRadius is set.
+                    *
+                    * This may be a bug from expo, react-native
+                */}
+                { this.defaultRadiusWasSetDelayed === true &&
 
                     /* Resistance view (scrollable area) */
                     <Animated.View
