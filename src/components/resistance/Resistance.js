@@ -50,6 +50,8 @@ export default class Resistance extends React.Component {
             0.5,
             1,
         ),
+        // If corresponding antibiotic or bacterium is not visible, also hide resistance
+        0,
     );
 
     radius = new Animated.Value(this.props.resistance.radius);
