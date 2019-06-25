@@ -14,17 +14,17 @@ import {
 import { observer } from 'mobx-react';
 import { reaction, computed, observable, action } from 'mobx';
 import { DangerZone } from 'expo';
-import log from '../../helpers/log';
-import styleDefinitions from '../../helpers/styleDefinitions';
-import componentStates from '../../models/componentStates/componentStates';
-import AntibioticFilters from './AntibioticFilters';
-import BacteriaFilters from './BacteriaFilters';
-import PopulationFilters from './PopulationFilters';
-import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
-import HorizontalPanel from '../horizontalPanels/HorizontalPanel';
-import HorizontalPanels from '../horizontalPanels/HorizontalPanels';
-import FilterOverlayDetailView from './FilterOverlayDetailView';
-import FilterOverlaySearchResults from '../filterOverlaySearchResults/FilterOverlaySearchResults';
+import log from '../../helpers/log.js';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
+import componentStates from '../../models/componentStates/componentStates.js';
+import AntibioticFilters from './AntibioticFilters.js';
+import BacteriaFilters from './BacteriaFilters.js';
+import PopulationFilters from './PopulationFilters.js';
+import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle.js';
+import HorizontalPanel from '../horizontalPanels/HorizontalPanel.js';
+import HorizontalPanels from '../horizontalPanels/HorizontalPanels.js';
+import FilterOverlayDetailView from './FilterOverlayDetailView.js';
+import FilterOverlaySearchResults from '../filterOverlaySearchResults/FilterOverlaySearchResults.js';
 
 const { Animated, Easing } = DangerZone;
 const padding = 20;

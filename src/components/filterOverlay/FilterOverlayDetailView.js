@@ -3,9 +3,9 @@ import { View, StyleSheet, Text, TouchableHighlight, ScrollView } from 'react-na
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
 import { filterTypes } from 'infect-frontend-logic';
-import DetailViewFilters from './DetailViewFilters';
-import styleDefinitions from '../../helpers/styleDefinitions';
-import log from '../../helpers/log';
+import DetailViewFilters from './DetailViewFilters.js';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
+import log from '../../helpers/log.js';
 
 /**
  * Detail view for filterOverlay (2nd level) after user choses to add filters of a property with

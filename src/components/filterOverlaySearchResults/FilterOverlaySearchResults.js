@@ -2,8 +2,8 @@ import React from 'react';
 import { View, StyleSheet, Keyboard } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, action } from 'mobx';
-import log from '../../helpers/log';
-import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
+import log from '../../helpers/log.js';
+import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem.js';
 
 
 /**

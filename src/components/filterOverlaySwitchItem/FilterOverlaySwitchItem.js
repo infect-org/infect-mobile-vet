@@ -2,9 +2,9 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import log from '../../helpers/log';
-import styleDefinitions from '../../helpers/styleDefinitions';
-import FilterOverlaySwitchItemCheckMark from './FilterOverlaySwitchItemCheckMark';
+import log from '../../helpers/log.js';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
+import FilterOverlaySwitchItemCheckMark from './FilterOverlaySwitchItemCheckMark.js';
 
 /**
  * A single switch item (checkbox plus text) for filter overlays
