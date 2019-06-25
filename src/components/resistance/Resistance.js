@@ -3,8 +3,8 @@ import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction } from 'mobx';
 import { DangerZone } from 'expo';
-import styleDefinitions from '../../helpers/styleDefinitions';
-import log from '../../helpers/log';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
+import log from '../../helpers/log.js';
 
 const { Animated } = DangerZone;
 
@@ -30,12 +30,26 @@ export default class Resistance extends React.Component {
 
     /**
      * Use Animated.Values to not re-render Resistance everytime something changes.
-     * See https://github.com/kmagiera/react-native-reanimated#and – returns value of first falsy
-     * parameter or value of last truthy parameter.
      */
-    opacity = Animated.and(
-        this.props.animatedAntibiotic.opacity,
-        this.props.animatedBacterium.opacity,
+    opacity = Animated.cond(
+        /**
+        * Only display resistance if corresponding anitibiotic and bacterium are visible (not
+        * hidden through filters)
+        */
+        Animated.and(
+            this.props.animatedAntibiotic.opacity,
+            this.props.animatedBacterium.opacity,
+        ),
+        /**
+         * *If* corresponding antibiotic and bacterium are visible, set opacity to
+         * - 0.5 if sample size is <= 20
+         * - 1.0 if sample size is > 20
+         */
+        Animated.cond(
+            Animated.lessOrEq(this.props.resistance.mostPreciseValue.sampleSize, 20),
+            0.5,
+            1,
+        ),
     );
 
     radius = new Animated.Value(this.props.resistance.radius);
@@ -103,10 +117,6 @@ export default class Resistance extends React.Component {
         return Math.round((1 - resistance) * 100);
     }
 
-    @computed get circleBackgroundColor() {
-        return { backgroundColor: this.props.resistance.backgroundColor };
-    }
-
     render() {
 
         log('Resistance: Render');
@@ -137,9 +147,8 @@ export default class Resistance extends React.Component {
                     // { ...this.panResponder.panHandlers }
                     style={[
                         styles.resistanceCircle,
-                        // this.circleDimensions,
-                        this.circleBackgroundColor,
                         {
+                            backgroundColor: this.props.resistance.backgroundColor,
                             borderRadius: this.radius,
                             width: this.diameter,
                             height: this.diameter,
@@ -155,6 +164,7 @@ export default class Resistance extends React.Component {
                         styles.resistanceText,
                         /* Use this.circleMinWidth as width so that text doesn't break */
                         {
+                            color: this.props.resistance.fontColor,
                             width: this.circleMinWidth,
                             top: this.radius,
                         },
