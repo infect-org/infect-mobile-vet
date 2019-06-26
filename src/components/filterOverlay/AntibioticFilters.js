@@ -55,7 +55,6 @@ export default class AntibioticFilters extends React.Component {
             <View style={styles.container}>
                 <FilterOverlayTitle title="Antibiotics"/>
 
-
                 { /* Substances */ }
                 <FilterOverlayTitle
                     title="Substances"

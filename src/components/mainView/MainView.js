@@ -6,6 +6,7 @@ import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
 import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
+import GoogleAnalytics from '../googleAnalytics/GoogleAnalytics.js';
 
 @observer
 export default class MainView extends React.Component {
@@ -50,13 +51,19 @@ export default class MainView extends React.Component {
 
     }
 
-
     render() {
 
         log('MainView: Render');
 
         return (
             <View style={styles.container}>
+
+                {/* Track screen hits */}
+                <GoogleAnalytics
+                    screenName="Home"
+                    googleAnalytics={this.props.googleAnalytics}
+                />
+
                 <Matrix
                     style={styles.matrix}
                     matrix={this.props.matrix}

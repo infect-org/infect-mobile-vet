@@ -2,9 +2,9 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import log from '../../helpers/log';
-import styleDefinitions from '../../helpers/styleDefinitions';
-import FilterOverlaySwitchItemCheckMark from './FilterOverlaySwitchItemCheckMark';
+import log from '../../helpers/log.js';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
+import FilterOverlaySwitchItemCheckMark from './FilterOverlaySwitchItemCheckMark.js';
 
 /**
  * A single switch item (checkbox plus text) for filter overlays
@@ -45,7 +45,7 @@ export default class FilterOverlaySwitchItem extends React.Component {
 
         log('FilterOverlaySwitchItem: Render');
 
-        const borderTopWidth = this.props.borderTop ? 1 : 0;
+        const borderTopWidth = this.props.borderTop ? StyleSheet.hairlineWidth : 0;
         const circleSelectedStateStyle = this.selected ? styles.checkboxCircleSelected :
             styles.checkboxCircleNotSelected;
 
