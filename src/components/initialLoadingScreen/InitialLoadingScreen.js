@@ -49,7 +49,7 @@ export default class InitialLoadingScreen extends React.Component {
                 </View>
 
                 <Text style={styles.loadingScreenVersionText}>
-                    Version: Beta-{this.props.version}
+                    Version: {this.props.version}
                 </Text>
                 <Text style={styles.loadingScreenEntityStatus}>
                     Bacteria:{'\u00A0'}
