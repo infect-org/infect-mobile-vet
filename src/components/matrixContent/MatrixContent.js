@@ -456,22 +456,28 @@ export default class MatrixContent extends React.Component {
         return (
             <View style={ styles.container }>
 
-                <Animated.View
-                    style={[
-                        styles.logoContainer,
-                        {
-                            width: this.leftColumnWidth,
-                            height: this.topRowHeight,
-                        },
-                    ]}
-                >
-                    <View style={styles.logoCenterer}>
-                        <InfectLogo
-                            width={36}
-                            fillColor={styleDefinitions.colors.darkGreen}
-                            height={36 * 30.64 / 20.23} />
-                    </View>
-                </Animated.View>
+
+                { /* LOGO */ }
+                { /* Only draw after layout has been calculated (and defaultRadius is therefore
+                     available) to prevent flickering */ }
+                { this.props.matrix.defaultRadius &&
+                    <Animated.View
+                        style={[
+                            styles.logoContainer,
+                            {
+                                width: this.leftColumnWidth,
+                                height: this.topRowHeight,
+                            },
+                        ]}
+                    >
+                        <View style={styles.logoCenterer}>
+                            <InfectLogo
+                                width={45}
+                                fillColor={styleDefinitions.colors.darkGreen}
+                                height={38} />
+                        </View>
+                    </Animated.View>
+                }
 
 
                 { /* SUBSTANCE CLASSES (headers and lines) */ }
