@@ -14,7 +14,6 @@
     "@babel/runtime": "^7.4.5",
     "expo": "^33.0.0",
     "expo-analytics": "^1.0.8",
-    "expo-codemod": "^1.0.0",
     "infect-frontend-logic": "2.2.3",
     "mobx": "4.10.0",
     "mobx-react": "^6.0.3",
