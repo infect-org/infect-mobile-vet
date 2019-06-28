@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction, observable, action } from 'mobx';
+import { computed, reaction, observable, runInAction } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
 import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
@@ -106,9 +106,6 @@ export default class MatrixContent extends React.Component {
      * // TODO: Remove comment when issue has been fixed in Expo SDK.
      */
     @observable defaultRadiusWasSetDelayed = false
-    @action setDefaultRadiusWasSetDelayed(defaultRadiusWasSetDelayed) {
-        this.defaultRadiusWasSetDelayed = defaultRadiusWasSetDelayed;
-    }
 
     constructor(...props) {
         super(...props);
@@ -275,7 +272,7 @@ export default class MatrixContent extends React.Component {
 
                 // see comment on setDefaultRadiusWasSetDelayed class parameter
                 setTimeout(() => {
-                    this.setDefaultRadiusWasSetDelayed(true);
+                    runInAction(() => { this.defaultRadiusWasSetDelayed = true; });
                 }, 0);
 
             },
