@@ -50,7 +50,11 @@ export default class App extends React.Component {
 
         super();
 
-        // Disable Font-Scaling through the Text-Size accessibility settings
+        /**
+         * Disable Font-Scaling through the Text-Size accessibility settings
+         * https://stackoverflow.com/questions/41807843/how-to-disable-font-scaling-in-react-native-for-ios-app/51414341
+         * https://facebook.github.io/react-native/docs/text#allowfontscaling
+         */
         Text.defaultProps = Text.defaultProps || {};
         Text.defaultProps.allowFontScaling = false;
 
