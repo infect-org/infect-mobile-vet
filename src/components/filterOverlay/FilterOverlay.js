@@ -10,6 +10,7 @@ import {
     Linking,
     Button,
     TextInput,
+    Keyboard,
 } from 'react-native';
 import { observer } from 'mobx-react';
 import { reaction, computed, observable, action } from 'mobx';
@@ -125,6 +126,15 @@ export default class FilterOverlay extends React.Component {
     }
 
     closeOverlay() {
+        /**
+         * Make sure to dismiss the keyboard as the textInput keeps the focus if the user clicks
+         * on the «Semi-transparent background». In this case, the keyboard was still open on the
+         * matrix view.
+         *
+         * Notice: if we dismiss the keyboard here the textInput looses his focus, that's good.
+         */
+        Keyboard.dismiss();
+
         this.props.filterOverlayModel.hide();
     }
 
