@@ -57,11 +57,18 @@ export default class AnimatedAntibiotic {
             () => this.computedOpacity,
             opacity => this.setValue('opacity', opacity),
         );
+
         reaction(
-            () => this.computedLeft,
-            // Only update left value if circle is visible; if it's not, there's no need to
-            // change left position, just leave it where it was
-            left => this.computedOpacity && this.setValue('left', left),
+            () => [this.computedOpacity, this.computedLeft],
+            (args) => {
+                const [opacity, left] = args;
+
+                /**
+                 * Only update top value if circle is visible; if it's not, there's no need to
+                 * change top position, just leave it where it was
+                 */
+                if (opacity !== 0) this.setValue('left', left);
+            },
         );
     }
 

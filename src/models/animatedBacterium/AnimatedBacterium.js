@@ -57,11 +57,18 @@ export default class AnimatedBacterium {
             () => this.computedOpacity,
             opacity => this.setValue('opacity', opacity),
         );
+
         reaction(
-            () => this.computedTop,
-            // Only update top value if circle is visible; if it's not, there's no need to
-            // change top position, just leave it where it was
-            top => this.computedOpacity && this.setValue('top', top),
+            () => [this.computedOpacity, this.computedTop],
+            (args) => {
+                const [opacity, top] = args;
+
+                /**
+                 * Only update top value if circle is visible; if it's not, there's no need to
+                 * change top position, just leave it where it was
+                 */
+                if (opacity !== 0) this.setValue('top', top);
+            },
         );
     }
 
