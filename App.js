@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, StatusBar, SafeAreaView } from 'react-native';
+import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed } from 'mobx';
 // import { Constants } from 'expo';
@@ -49,6 +49,14 @@ export default class App extends React.Component {
     constructor() {
 
         super();
+
+        /**
+         * Disable Font-Scaling through the Text-Size accessibility settings
+         * https://stackoverflow.com/questions/41807843/how-to-disable-font-scaling-in-react-native-for-ios-app/51414341
+         * https://facebook.github.io/react-native/docs/text#allowfontscaling
+         */
+        Text.defaultProps = Text.defaultProps || {};
+        Text.defaultProps.allowFontScaling = false;
 
         // Main app (logic shared with the web)
         this.app = new InfectApp(config);
