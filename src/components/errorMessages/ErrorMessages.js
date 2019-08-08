@@ -7,6 +7,8 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 export default class ErrorMessages extends React.Component {
 
     render() {
+        // return null for now, implement later
+        return null;
         return (
             <View style={ styles.errorContainer }>
                 <View>

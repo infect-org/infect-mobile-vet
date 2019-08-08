@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 const bold = {
     fontFamily: Platform.OS === 'ios' ? 'Avenir-Heavy' : 'sans-serif-medium',
@@ -36,6 +36,13 @@ export default {
         lightForegroundGrey: '#bcbcbc',
         white: '#ffffff',
         black: '#000000',
+        guidelines: {
+            ligthBlue: '#A7CCEB',
+            middleBlue: '#E2ECF5',
+            darkBlue: '#3289CC',
+            buttonDarkBlue: '#85BAE3',
+            gray: '#6F6F6F',
+        },
     },
     buttons: {
         primaryButton: {
@@ -74,4 +81,9 @@ export default {
             },
         },
     },
+    markdownStyles: StyleSheet.create({
+        // see
+        // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
+        // for a full list
+    }),
 };

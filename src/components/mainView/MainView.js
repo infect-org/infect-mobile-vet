@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, TouchableHighlight } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
+import { reaction } from 'mobx';
+import { NavigationEvents } from 'react-navigation';
 import Matrix from '../matrix/Matrix';
 import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
+import GuidelineButton from '../guideline/GuidelineButton.js';
 import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
 import GoogleAnalytics from '../googleAnalytics/GoogleAnalytics.js';
@@ -51,12 +54,39 @@ export default class MainView extends React.Component {
 
     }
 
+    /**
+     * Add reaction for guidelines:
+     * If the guideline drawer model isOpen, show the diagnosislist
+     * else show the matrix/main screen
+     */
+    componentDidMount() {
+        reaction(
+            () => this.props.drawer.isOpen,
+            (isOpen) => {
+                if (isOpen === true) {
+                    this.props.navigation.navigate('Guideline', {
+                        drawer: this.props.drawer,
+                        guidelines: this.props.guidelines,
+                    });
+                } else {
+                    this.props.navigation.navigate('Main');
+                }
+            },
+        );
+    }
+
     render() {
 
         log('MainView: Render');
 
         return (
             <View style={styles.container}>
+
+                {/* If the user swipes (gesture) from Guideline Drawer,
+                    we have to close our Drawer model, otherwise we couldn't open it anymore */}
+                <NavigationEvents
+                    onDidFocus={() => this.props.drawer.close()}
+                />
 
                 {/* Track screen hits */}
                 <GoogleAnalytics
@@ -81,6 +111,16 @@ export default class MainView extends React.Component {
                     />
                 </View>
 
+                {/* Guideline button:
+                    - open diagnosis list
+                    - clear selected diagnosis
+                */}
+                <View style={styles.guidelineButtonContainer} >
+                    <GuidelineButton
+                        drawer={this.props.drawer}
+                        selectedGuideline={this.props.guidelines.selectedGuideline}
+                    />
+                </View>
 
                 { /* Just for testing (adds antibiotic to filters */ }
                 { /* <TouchableHighlight onPress={this.addAntibioticFilter}>
@@ -154,6 +194,11 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         bottom: 0,
+    },
+    guidelineButtonContainer: {
+        position: 'absolute',
+        right: 78,
+        bottom: 18,
     },
     container: {
         flex: 1,
