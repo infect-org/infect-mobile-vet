@@ -46,9 +46,12 @@ export default class DiagnosisDetail extends React.Component {
                     <Text style={styles.guidelineName}>
                         {selectedGuideline.name}
                     </Text>
-                    <Markdown>
-                        {selectedGuideline.markdownDisclaimer}
-                    </Markdown>
+
+                    {selectedGuideline.markdownDisclaimer &&
+                        <Markdown>
+                            {selectedGuideline.markdownDisclaimer}
+                        </Markdown>
+                    }
 
                     <View style={styles.therapyList}>
                         {diagnosis.therapies.map(therapy =>
@@ -72,7 +75,7 @@ export default class DiagnosisDetail extends React.Component {
 
                                 {therapy.recommendedAntibiotics.map(antibiotic =>
                                     <View
-                                        key={antibiotic.id}
+                                        key={antibiotic.antibiotic.id}
                                     >
                                         <Text style={styles.antibioticName}>
                                             {antibiotic.antibiotic.name}
@@ -82,12 +85,20 @@ export default class DiagnosisDetail extends React.Component {
                                         </Markdown>
                                     </View>)}
 
-                                <Markdown>
-                                    {therapy.markdownText}
-                                </Markdown>
+                                {therapy.markdownText &&
+                                    <Markdown>
+                                        {therapy.markdownText}
+                                    </Markdown>
+                                }
 
                             </View>)}
                     </View>
+
+                    {diagnosis.markdownText &&
+                        <Markdown>
+                            {diagnosis.markdownText}
+                        </Markdown>
+                    }
 
                     <View>
                         <Text>Datenquelle: Tobi</Text>

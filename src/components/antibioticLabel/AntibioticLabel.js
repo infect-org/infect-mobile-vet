@@ -182,6 +182,14 @@ export default class AntibioticLabel extends React.Component {
         return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
 
+    /**
+     * If the antibotic is in the selected guideline/diagnosis:
+     * - Change color of label
+     * - Render priority order (from therapy the antibiotic is in)
+     */
+    @computed get isInSelectedGuideline() {
+        return this.props.guidelineController.highlightAntibiotic(this.props.antibiotic);
+    }
 
     render() {
 
@@ -226,10 +234,28 @@ export default class AntibioticLabel extends React.Component {
                             this.labelRotatorStyle,
                         ]}
                     >
+                        {this.isInSelectedGuideline &&
+                            <View style={styles.therapyOrderView}>
+                                <Text style={styles.therapyOrderViewText}>
+                                    {
+                                        this.props
+                                            .guidelineController
+                                            .getPriorityOrderOfAntibiotic(this.props
+                                                .antibiotic.antibiotic)
+                                    }
+                                </Text>
+                            </View>
+                        }
+                        
                         <Text
                             style={[
                                 styles.labelText,
-                                { backgroundColor: this.activeAntibioticBackground },
+                                {
+                                    backgroundColor: this.activeAntibioticBackground,
+                                    color: this.isInSelectedGuideline ?
+                                        styleDefinitions.colors.guidelines.darkBlue :
+                                        styleDefinitions.colors.black,
+                                },
                             ]}
                             onLayout={ this.labelTextLayoutHandler }>
                             { this.shortName }
@@ -254,6 +280,7 @@ const styles = StyleSheet.create({
         // borderColor: 'yellow',
     },
     labelRotator: {
+        flexDirection: 'row',
         // borderWidth: 1,
         // borderColor: 'tomato',
     },
@@ -263,5 +290,21 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         // borderWidth: 1,
         // borderColor: 'green',
+    },
+    therapyOrderView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 14,
+        height: 14,
+
+        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
+        borderRadius: 12,
+
+        marginRight: 3,
+    },
+    therapyOrderViewText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#FFF',
     },
 });

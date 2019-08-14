@@ -98,6 +98,14 @@ export default class BacteriumLabel extends React.Component {
         return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
 
+    /**
+     * If the bacterium is in the selected guideline/diagnosis:
+     * - Change color of label
+     */
+    @computed get isInSelectedGuideline() {
+        return this.props.guidelineController.highlightBacterium(this.props.bacterium);
+    }
+
     render() {
 
         log('BacteriumLabel: Render bacterium label');
@@ -123,7 +131,12 @@ export default class BacteriumLabel extends React.Component {
                 <Text
                     style={[
                         styles.labelText,
-                        { backgroundColor: this.activeBacteriumBackground },
+                        {
+                            backgroundColor: this.activeBacteriumBackground,
+                            color: this.isInSelectedGuideline ?
+                                styleDefinitions.colors.guidelines.darkBlue :
+                                styleDefinitions.colors.black,
+                        },
                     ]}
                     onLayout={this.labelLayoutHandler}>
                     { this.shortName }

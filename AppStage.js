@@ -156,7 +156,7 @@ export default class App extends React.Component {
         log('App: Render');
 
         return (
-            <View
+            <SafeAreaView
                 style={styles.mainContainer}
             >
 
@@ -226,7 +226,7 @@ export default class App extends React.Component {
                     }
 
                 </View>
-            </View>
+            </SafeAreaView>
         );
     }
 }

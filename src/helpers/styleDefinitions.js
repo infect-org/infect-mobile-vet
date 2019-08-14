@@ -36,6 +36,7 @@ export default {
         lightForegroundGrey: '#bcbcbc',
         white: '#ffffff',
         black: '#000000',
+        red: '#DD1F1F',
         guidelines: {
             ligthBlue: '#A7CCEB',
             middleBlue: '#E2ECF5',

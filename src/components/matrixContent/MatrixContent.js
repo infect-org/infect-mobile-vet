@@ -17,6 +17,9 @@ import styleDefinitions from '../../helpers/styleDefinitions';
 import AnimatedAntibiotic from '../../models/animatedAntibiotic/AnimatedAntibiotic';
 import AnimatedBacterium from '../../models/animatedBacterium/AnimatedBacterium';
 
+import BacteriumRowHighlightedBackground from '../bacteriumLabel/BacteriumRowHighlightedBackground.js';
+import AntibioticColumnHighlightedBackground from '../antibioticLabel/AntibioticColumnHighlightedBackground.js';
+
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
 
@@ -479,6 +482,77 @@ export default class MatrixContent extends React.Component {
                     </Animated.View>
                 }
 
+                { this.props.matrix.defaultRadius &&
+                <Animated.View
+                    style={[
+                        {
+                            width: this.props.matrix.bacteriumLabelColumnWidth +
+                                this.props.matrix.spaceBetweenGroups +
+                                this.props.matrix.visibleAntibioticsWidth,
+                            height: '100%',
+                            overflow: 'hidden',
+                            position: 'absolute',
+                            zIndex: 4,
+                            transform: [{
+                                translateY: this.props.animatedTop,
+                            }, {
+                                scale: this.props.animatedZoom,
+                            }],
+                        },
+                    ]}
+                >
+                    {this.props.matrix.sortedBacteria.map(bacterium => (
+
+                        <BacteriumRowHighlightedBackground
+                            key={bacterium.bacterium.id}
+                            bacterium={bacterium}
+                            matrix={this.props.matrix}
+                            guidelines={this.props.guidelines}
+                            topRowHeight={this.topRowHeight}
+                            layoutElementPadding={this.layoutElementPadding}
+                            animatedBacterium={this.animatedBacteria.get(bacterium.bacterium)}
+
+                            guidelineController={this.props.guidelineController}
+                        />
+                    ))}
+                </Animated.View>
+                }
+
+                { this.props.matrix.defaultRadius &&
+                <Animated.View
+                    style={[
+                        {
+                            width: this.props.matrix.bacteriumLabelColumnWidth +
+                                this.props.matrix.spaceBetweenGroups +
+                                this.props.matrix.visibleAntibioticsWidth,
+                            height: '100%',
+                            overflow: 'hidden',
+                            position: 'absolute',
+                            zIndex: 2,
+                            transform: [{
+                                translateX: this.props.animatedLeft,
+                            }, {
+                                translateY: this.antibioticLabelContainerTop,
+                            }, {
+                                scale: this.props.animatedZoom,
+                            }],
+                        },
+                    ]}
+                >
+                    {this.props.matrix.sortedAntibiotics.map(antibiotic => (
+                        <AntibioticColumnHighlightedBackground
+                            key={antibiotic.antibiotic.id}
+                            antibiotic={antibiotic}
+                            matrix={this.props.matrix}
+                            guidelines={this.props.guidelines}
+                            layoutElementPadding={this.layoutElementPadding}
+
+                            guidelineController={this.props.guidelineController}
+                        />
+                    ))}
+                </Animated.View>
+                }
+
 
                 { /* SUBSTANCE CLASSES (headers and lines) */ }
                 { this.props.matrix.defaultRadius &&
@@ -670,7 +744,8 @@ export default class MatrixContent extends React.Component {
                                 cappedLabelZoom={this.cappedLabelZoom}
                                 maxZoom={this.labelZoomCaps.max}
                                 key={ab.antibiotic.id}
-                                matrix={this.props.matrix} />
+                                matrix={this.props.matrix}
+                                guidelineController={this.props.guidelineController} />
                         ))}
 
                     </Animated.View>
@@ -733,7 +808,8 @@ export default class MatrixContent extends React.Component {
                                 animatedZoom={this.props.animatedZoom}
                                 maxZoom={this.labelZoomCaps.max}
                                 bacterium={bact}
-                                matrix={this.props.matrix} />
+                                matrix={this.props.matrix}
+                                guidelineController={this.props.guidelineController} />
                         )) }
 
                     </Animated.View>
@@ -757,6 +833,8 @@ const styles = StyleSheet.create({
         padding: 20,
         left: 0,
         top: 0,
+        backgroundColor: '#FFF',
+        zIndex: 6,
     },
     logoCenterer: {
         flex: 1,
@@ -766,6 +844,8 @@ const styles = StyleSheet.create({
     antibioticLabelsContainer: {
         position: 'absolute',
         top: 0,
+        backgroundColor: '#FFF',
+        zIndex: 6,
         // borderWidth: 1,
         // borderColor: 'deeppink',
         overflow: 'hidden',
@@ -775,6 +855,7 @@ const styles = StyleSheet.create({
         width: '100%',
         bottom: 0,
         overflow: 'hidden',
+        zIndex: 6,
         // borderColor: 'salmon',
         // borderWidth: 1,
     },
@@ -782,6 +863,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         overflow: 'hidden',
+        backgroundColor: '#FFF',
+        zIndex: 3,
         // borderColor: 'tomato',
         // borderWidth: 1,
         // backgroundColor: 'coral',
@@ -790,6 +873,8 @@ const styles = StyleSheet.create({
         height: '100%',
         position: 'absolute',
         overflow: 'hidden',
+        backgroundColor: '#FFF',
+        zIndex: 3,
         // borderColor: 'salmon',
         // borderWidth: 1,
     },
@@ -813,12 +898,14 @@ const styles = StyleSheet.create({
     resistanceCirclesContainer: {
         position: 'absolute',
         overflow: 'hidden',
+        zIndex: 10,
         // borderWidth: 1,
         // borderColor: 'pink',
     },
     resistancesContainer: {
         position: 'absolute',
         overflow: 'hidden', // Force same behavior on iOS and Android
+        zIndex: 10,
         // backgroundColor: 'coral',
         // borderWidth: 1,
         // borderColor: 'salmon',

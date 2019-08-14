@@ -35,7 +35,7 @@ export default class DiagnosisList extends React.Component {
                     bounces={false}
                     ItemSeparatorComponent={ () => <View style={styles.listSeparator} /> }
                     ListFooterComponent={ () => <View style={styles.listFooter} /> }
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => `diagnosis_${item.id}`}
                     renderItem={({ item, index }) => <DiagnosisListItem
                         diagnosis={item}
                         index={index}
