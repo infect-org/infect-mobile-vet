@@ -2,6 +2,7 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
 import { DangerZone } from 'expo';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
 
 const { Animated } = DangerZone;
 
@@ -19,8 +20,7 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      */
     setXPosition() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        this.xPosition.setValue(position.left + this.props.matrix.bacteriumLabelColumnWidth +
-            this.props.matrix.spaceBetweenGroups - this.props.layoutElementPadding);
+        this.xPosition.setValue(position.left);
     }
 
     /**
@@ -87,7 +87,7 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
                 height: this.height,
                 width: this.width,
                 opacity: this.opacity,
-                backgroundColor: '#A7CCEB',
+                backgroundColor: styleDefinitions.colors.guidelines.ligthBlue,
                 position: 'absolute',
                 left: this.xPosition,
             }]

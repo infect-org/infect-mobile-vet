@@ -61,7 +61,7 @@ export default class MatrixContent extends React.Component {
     /**
      * Padding between substance class lines and matrix
      */
-    layoutElementPadding = 4;
+    layoutElementPadding = 4
 
     contentElement = React.createRef();
 
@@ -482,7 +482,7 @@ export default class MatrixContent extends React.Component {
                     </Animated.View>
                 }
 
-                { this.props.matrix.defaultRadius &&
+                {/* { this.props.matrix.defaultRadius &&
                 <Animated.View
                     style={[
                         {
@@ -493,12 +493,8 @@ export default class MatrixContent extends React.Component {
                             overflow: 'hidden',
                             position: 'absolute',
                             zIndex: 4,
-                            transform: [{
-                                translateY: this.props.animatedTop,
-                            }, {
-                                scale: this.props.animatedZoom,
-                            }],
                         },
+                        this.getResistanceTransformation(),
                     ]}
                 >
                     {this.props.matrix.sortedBacteria.map(bacterium => (
@@ -516,9 +512,9 @@ export default class MatrixContent extends React.Component {
                         />
                     ))}
                 </Animated.View>
-                }
+                } */}
 
-                { this.props.matrix.defaultRadius &&
+                {/* { this.props.matrix.defaultRadius &&
                 <Animated.View
                     style={[
                         {
@@ -529,14 +525,8 @@ export default class MatrixContent extends React.Component {
                             overflow: 'hidden',
                             position: 'absolute',
                             zIndex: 2,
-                            transform: [{
-                                translateX: this.props.animatedLeft,
-                            }, {
-                                translateY: this.antibioticLabelContainerTop,
-                            }, {
-                                scale: this.props.animatedZoom,
-                            }],
                         },
+                        this.getResistanceTransformation(),
                     ]}
                 >
                     {this.props.matrix.sortedAntibiotics.map(antibiotic => (
@@ -551,7 +541,7 @@ export default class MatrixContent extends React.Component {
                         />
                     ))}
                 </Animated.View>
-                }
+                } */}
 
 
                 { /* SUBSTANCE CLASSES (headers and lines) */ }
@@ -618,7 +608,7 @@ export default class MatrixContent extends React.Component {
                      set the stage (container) and calculate its size for PanPinch */ }
                 { this.props.matrix.defaultRadius &&
 
-                    /* Resistance view (scrollable area) */
+                    /* Resistance view (scrollable area / frame) */
                     <Animated.View
                         style={[styles.resistancesContainer, {
                             left: this.leftColumnWidth,
@@ -631,7 +621,7 @@ export default class MatrixContent extends React.Component {
                         }
                     >
 
-                        { /* Resistances (scrolling view) */ }
+                        { /* Resistances (scrolling view / content) */ }
                         { /* Must be above labels (for a lower z-index) */ }
                         <Animated.View
                             style={[
@@ -645,6 +635,32 @@ export default class MatrixContent extends React.Component {
                             onLayout={ev =>
                                 this.props.handleContentLayout(ev.nativeEvent.layout)}
                         >
+
+                            {this.props.matrix.sortedAntibiotics.map(antibiotic => (
+                                <AntibioticColumnHighlightedBackground
+                                    key={antibiotic.antibiotic.id}
+                                    antibiotic={antibiotic}
+                                    matrix={this.props.matrix}
+                                    guidelines={this.props.guidelines}
+                                    layoutElementPadding={this.layoutElementPadding}
+
+                                    guidelineController={this.props.guidelineController}
+                                />
+                            ))}
+
+                            {this.props.matrix.sortedBacteria.map(bacterium => (
+                                <BacteriumRowHighlightedBackground
+                                    key={bacterium.bacterium.id}
+                                    bacterium={bacterium}
+                                    matrix={this.props.matrix}
+                                    guidelines={this.props.guidelines}
+                                    topRowHeight={this.topRowHeight}
+                                    layoutElementPadding={this.layoutElementPadding}
+                                    animatedBacterium={this.animatedBacteria.get(bacterium.bacterium)}
+
+                                    guidelineController={this.props.guidelineController}
+                                />
+                            ))}
 
                             <View
                                 style={styles.container}
@@ -784,7 +800,7 @@ export default class MatrixContent extends React.Component {
                             styles.bacteriumLabels,
                             {
                                 width: this.bacteriaLabelsContainerWidth,
-                                right: this.layoutElementPadding,
+                                right: 0,
                                 height: this.animatedVisibleBacteriaHeight,
                                 // + this.props.matrix.defaultRadius, (may be needed for android)
                                 // Beware: THE FUCKING ORDER MATTERS!

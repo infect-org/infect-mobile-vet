@@ -95,6 +95,10 @@ export default class BacteriumLabel extends React.Component {
      * is highlighted (background color). Returns the background color of the current bacterium.
      */
     @computed get activeBacteriumBackground() {
+        if (this.isInSelectedGuideline) {
+            return styleDefinitions.colors.guidelines.ligthBlue;
+        }
+
         return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
 
@@ -118,6 +122,7 @@ export default class BacteriumLabel extends React.Component {
                     {
                         width: this.labelWidth,
                         opacity: this.props.animatedBacterium.opacity,
+                        backgroundColor: this.activeBacteriumBackground,
                         transform: [{
                             scale: this.cappedLabelZoomAdjustment,
                         }, {
@@ -132,7 +137,7 @@ export default class BacteriumLabel extends React.Component {
                     style={[
                         styles.labelText,
                         {
-                            backgroundColor: this.activeBacteriumBackground,
+                            // backgroundColor: this.activeBacteriumBackground,
                             color: this.isInSelectedGuideline ?
                                 styleDefinitions.colors.guidelines.darkBlue :
                                 styleDefinitions.colors.black,

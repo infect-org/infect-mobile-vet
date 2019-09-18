@@ -2,15 +2,9 @@ import React from 'react';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
 import { DangerZone } from 'expo';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
 
 const { Animated } = DangerZone;
-
-const {
-    multiply,
-    sub,
-    add,
-    divide,
-} = Animated;
 
 @observer
 export default class BacteriumRowHighlightedBackground extends React.Component {
@@ -22,33 +16,11 @@ export default class BacteriumRowHighlightedBackground extends React.Component {
     alreadyRendered = false
 
     /**
-     * Get the top position of the current highlighted background
-     * @returns {Animated}
-     */
-    @computed get top() {
-        return add(
-            sub(this.props.animatedBacterium.top, this.props.layoutElementPadding),
-            this.props.topRowHeight,
-        );
-    }
-
-    /**
-     * Get the yPosition of the current highlighted background
-     * @returns {Animated}
-     */
-    getYPosition() {
-        const position = this.props.matrix.yPositions.get(this.props.bacterium);
-        return Animated.add(
-            position.top - this.props.layoutElementPadding,
-            this.props.topRowHeight,
-        );
-    }
-
-    /**
      * Sets the yPosition of the current highlighted background
      */
     setYPosition() {
-        this.yPosition.setValue(this.getYPosition());
+        const position = this.props.matrix.yPositions.get(this.props.bacterium);
+        this.yPosition.setValue(position.top - this.props.layoutElementPadding);
     }
 
     /**
@@ -101,9 +73,9 @@ export default class BacteriumRowHighlightedBackground extends React.Component {
                 height: this.height,
                 width: this.width,
                 opacity: 0.3,
-                backgroundColor: '#A7CCEB',
+                backgroundColor: styleDefinitions.colors.guidelines.ligthBlue,
                 position: 'absolute',
-                top: this.top,
+                top: this.yPosition,
             }]
             } />
         );
