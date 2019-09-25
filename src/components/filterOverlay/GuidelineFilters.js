@@ -86,14 +86,18 @@ export default class GuidelineFilters extends React.Component {
 
         return (
             <View style={styles.container}>
-                <FilterOverlayTitle title="Guidelines"/>
+                <FilterOverlayTitle
+                    title="Guidelines"
+                    textColor={styleDefinitions.colors.darkBackgroundGrey}
+                />
 
-                { /* Application */ }
                 <FilterOverlayTitle
                     title={selectedDiagnosis.name}
                     followsTitle={true}
                     level={2}
+                    textColor={styleDefinitions.colors.mediumBackgroundGrey}
                 />
+
                 <FilterOverlaySwitchItem
                     item={this.guidelineFilter}
                     selectedFilters={this.props.selectedFilters}
@@ -101,6 +105,22 @@ export default class GuidelineFilters extends React.Component {
                     borderTop={true}
                     hideCheckbox={false}
                     selectionChangeHandler={this.toggleOnlyShowRelevantData}
+
+                    filterListItemStyles={{
+                        backgroundColor: styleDefinitions.colors.guidelines.backgroundMiddleBlue,
+                        borderColor: styleDefinitions.colors.lightBackgroundGrey,
+                    }}
+                    labelStyles={{
+                        color: styleDefinitions.colors.mediumBackgroundGrey,
+                    }}
+                    checkboxCircleSelectedStyles={{
+                        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
+                    }}
+                    checkboxCircleNotSelectedStyles={{
+                        borderColor: styleDefinitions.colors.guidelines.darkBlue,
+                        borderWidth: 1,
+                    }}
+                    filterOverlaySwitchItemCheckMarkStrokeColor={styleDefinitions.colors.white}
                 />
 
                 <TouchableWithoutFeedback
@@ -112,9 +132,10 @@ export default class GuidelineFilters extends React.Component {
                                 styleDefinitions.buttons.textContainer
                             }
                         >
-                            <Text style={
-                                styleDefinitions.buttons.secondaryText
-                            }>
+                            <Text style={[
+                                styleDefinitions.buttons.secondaryText,
+                                styles.removeFiltersButtonText,
+                            ]}>
                                 Remove Guideline
                             </Text>
                         </View>
@@ -130,10 +151,14 @@ export default class GuidelineFilters extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: styleDefinitions.colors.guidelines.middleBlue,
     },
     removeFiltersButton: {
         margin: 20,
         ...styleDefinitions.buttons.secondaryButton,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
+    },
+    removeFiltersButtonText: {
+        color: styleDefinitions.colors.white,
     },
 });

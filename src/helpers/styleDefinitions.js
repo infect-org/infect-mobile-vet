@@ -43,6 +43,7 @@ export default {
             darkBlue: '#3289CC',
             buttonDarkBlue: '#85BAE3',
             gray: '#6F6F6F',
+            backgroundMiddleBlue: '#BED7ED',
         },
     },
     buttons: {

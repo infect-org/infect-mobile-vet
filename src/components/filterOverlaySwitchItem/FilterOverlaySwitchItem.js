@@ -46,8 +46,9 @@ export default class FilterOverlaySwitchItem extends React.Component {
         log('FilterOverlaySwitchItem: Render');
 
         const borderTopWidth = this.props.borderTop ? StyleSheet.hairlineWidth : 0;
-        const circleSelectedStateStyle = this.selected ? styles.checkboxCircleSelected :
-            styles.checkboxCircleNotSelected;
+        const circleSelectedStateStyle = this.selected ?
+            (this.props.checkboxCircleSelectedStyles || styles.checkboxCircleSelected) :
+            (this.props.checkboxCircleNotSelectedStyles || styles.checkboxCircleNotSelected);
 
         return (
             <TouchableHighlight onPress={this.handleSwitchPress}>
@@ -56,6 +57,9 @@ export default class FilterOverlaySwitchItem extends React.Component {
                         styles.filterListItem, {
                             borderTopWidth,
                         },
+                        this.props.filterListItemStyles ? {
+                            ...this.props.filterListItemStyles,
+                        } : {},
                     ]}>
                     { /* Adjust checkbox vertically */ }
                     { !this.props.hideCheckbox &&
@@ -72,6 +76,8 @@ export default class FilterOverlaySwitchItem extends React.Component {
                                             height={16}
                                             width={16}
                                             strokeColor={
+                                                this.props
+                                                    .filterOverlaySwitchItemCheckMarkStrokeColor ||
                                                 styleDefinitions.colors.mediumBackgroundGrey
                                             }
                                             strokeWidth={2}
@@ -83,7 +89,12 @@ export default class FilterOverlaySwitchItem extends React.Component {
                     }
                     { /* Adjust text vertically */ }
                     <View style={[styles.container]}>
-                        <Text style={styles.label}>
+                        <Text style={[
+                            styles.label,
+                            this.props.labelStyles ? {
+                                ...this.props.labelStyles,
+                            } : {},
+                        ]}>
                             { this.props.name || this.props.item.niceValue }
                         </Text>
                     </View>

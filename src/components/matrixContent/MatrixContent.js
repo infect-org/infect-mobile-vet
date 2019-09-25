@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
+import { computed, reaction, observable, runInAction } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
 import { models } from 'infect-frontend-logic';
 import Resistance from '../resistance/Resistance';
@@ -93,7 +93,22 @@ export default class MatrixContent extends React.Component {
      */
     animatedBacteria = new Map();
 
-
+    /**
+     * Before Expo SDK 33, we a) rendered the substanceClassesContainer and b) calculated its
+     * left position (this. leftColumnWidth) as soon as this.defaultRadius was set.
+     *
+     * With SDK 33, we get a race condition: The substanceClassesContainer is rendered while
+     * this.leftColumnWith is being calculated. The substanceClassesContainer is rendered
+     * with left:0 and is not updated after this.leftColumnWith has been correctly set.
+     *
+     * In order to circumvent this issue, we render the substanceClassesContainer in the next
+     * render cycle after this.leftColumnWith has been set. We quick-fix it with a small timeout.
+     *
+     * The same applies for the container «ResistancesView»
+     *
+     * // TODO: Remove comment when issue has been fixed in Expo SDK.
+     */
+    @observable defaultRadiusWasSetDelayed = false
 
     constructor(...props) {
         super(...props);
@@ -258,9 +273,13 @@ export default class MatrixContent extends React.Component {
                 this.topRowHeight.setValue(this.antibioticLabelRowHeight +
                     this.substanceClassMaxHeight);
 
+                // see comment on setDefaultRadiusWasSetDelayed class parameter
+                setTimeout(() => {
+                    runInAction(() => { this.defaultRadiusWasSetDelayed = true; });
+                }, 0);
+
             },
         );
-
     }
 
 
@@ -545,7 +564,7 @@ export default class MatrixContent extends React.Component {
 
 
                 { /* SUBSTANCE CLASSES (headers and lines) */ }
-                { this.props.matrix.defaultRadius &&
+                { this.defaultRadiusWasSetDelayed === true &&
 
                     <Animated.View
                         style={[styles.substanceClassesContainer, {
@@ -606,7 +625,7 @@ export default class MatrixContent extends React.Component {
                 { /* RESISTANCES */ }
                 { /* Container within which resistances will be moved/zoomed. Needed to
                      set the stage (container) and calculate its size for PanPinch */ }
-                { this.props.matrix.defaultRadius &&
+                { this.defaultRadiusWasSetDelayed === true &&
 
                     /* Resistance view (scrollable area / frame) */
                     <Animated.View
