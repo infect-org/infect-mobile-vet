@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, AsyncStorage } from 'react-native';
 import { observable, action } from 'mobx';
 import { observer } from 'mobx-react';
 
@@ -11,6 +11,7 @@ export default class CorruptDataOverlay extends React.Component {
         this.isVisible = true;
     }
     @action hide() {
+        this.setHiddenInStorage();
         this.isVisible = false;
     }
 
@@ -19,11 +20,17 @@ export default class CorruptDataOverlay extends React.Component {
         this.hide = this.hide.bind(this);
     }
 
-    componentDidMount() {
+    async setHiddenInStorage() {
+        await AsyncStorage.setItem('corruptDataHidden', '1');
+    }
+
+    async componentDidMount() {
         const now = new Date();
         const doNotShowAnymoreDate = new Date(2019, 9, 1, 23, 59, 59, 999);
 
-        if (now <= doNotShowAnymoreDate) {
+        const hiddenByStorage = await AsyncStorage.getItem('corruptDataHidden');
+
+        if (now <= doNotShowAnymoreDate && hiddenByStorage === null) {
             this.show();
         }
     }
