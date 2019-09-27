@@ -5,6 +5,7 @@ import { DangerZone } from 'expo';
 import PanPinch from 'react-native-pan-pinch';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
+import CorruptDataOverlay from '../corruptDataOverlay/CorruptDataOverlay.js';
 
 const { Animated } = DangerZone;
 const { Value } = Animated;
@@ -70,7 +71,8 @@ export default class Matrix extends React.Component {
                         // animatedZoom={new Animated.Value(1)}
                     />
                 </PanPinch>
-
+                
+                    <CorruptDataOverlay />
             </View>
         );
     }
@@ -82,5 +84,14 @@ const styles = StyleSheet.create({
         flex: 1,
         // borderColor: 'yellow',
         // borderWidth: 10,
+    },
+    corruptDataOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 400,
+        backgroundColor: 'red',
+        zIndex: 2000000,
     },
 });
