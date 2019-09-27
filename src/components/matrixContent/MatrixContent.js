@@ -20,6 +20,8 @@ import AnimatedBacterium from '../../models/animatedBacterium/AnimatedBacterium'
 import BacteriumRowHighlightedBackground from '../bacteriumLabel/BacteriumRowHighlightedBackground.js';
 import AntibioticColumnHighlightedBackground from '../antibioticLabel/AntibioticColumnHighlightedBackground.js';
 
+import BacteriumLabelHighlightedBackground from '../bacteriumLabel/BacteriumLabelHighlightedBackground.js';
+
 const { AntibioticMatrixView } = models;
 const { TapGestureHandler, State } = GestureHandler;
 
@@ -501,67 +503,6 @@ export default class MatrixContent extends React.Component {
                     </Animated.View>
                 }
 
-                {/* { this.props.matrix.defaultRadius &&
-                <Animated.View
-                    style={[
-                        {
-                            width: this.props.matrix.bacteriumLabelColumnWidth +
-                                this.props.matrix.spaceBetweenGroups +
-                                this.props.matrix.visibleAntibioticsWidth,
-                            height: '100%',
-                            overflow: 'hidden',
-                            position: 'absolute',
-                            zIndex: 4,
-                        },
-                        this.getResistanceTransformation(),
-                    ]}
-                >
-                    {this.props.matrix.sortedBacteria.map(bacterium => (
-
-                        <BacteriumRowHighlightedBackground
-                            key={bacterium.bacterium.id}
-                            bacterium={bacterium}
-                            matrix={this.props.matrix}
-                            guidelines={this.props.guidelines}
-                            topRowHeight={this.topRowHeight}
-                            layoutElementPadding={this.layoutElementPadding}
-                            animatedBacterium={this.animatedBacteria.get(bacterium.bacterium)}
-
-                            guidelineController={this.props.guidelineController}
-                        />
-                    ))}
-                </Animated.View>
-                } */}
-
-                {/* { this.props.matrix.defaultRadius &&
-                <Animated.View
-                    style={[
-                        {
-                            width: this.props.matrix.bacteriumLabelColumnWidth +
-                                this.props.matrix.spaceBetweenGroups +
-                                this.props.matrix.visibleAntibioticsWidth,
-                            height: '100%',
-                            overflow: 'hidden',
-                            position: 'absolute',
-                            zIndex: 2,
-                        },
-                        this.getResistanceTransformation(),
-                    ]}
-                >
-                    {this.props.matrix.sortedAntibiotics.map(antibiotic => (
-                        <AntibioticColumnHighlightedBackground
-                            key={antibiotic.antibiotic.id}
-                            antibiotic={antibiotic}
-                            matrix={this.props.matrix}
-                            guidelines={this.props.guidelines}
-                            layoutElementPadding={this.layoutElementPadding}
-
-                            guidelineController={this.props.guidelineController}
-                        />
-                    ))}
-                </Animated.View>
-                } */}
-
 
                 { /* SUBSTANCE CLASSES (headers and lines) */ }
                 { this.defaultRadiusWasSetDelayed === true &&
@@ -835,16 +776,30 @@ export default class MatrixContent extends React.Component {
                     >
 
                         { this.props.matrix.sortedBacteria.map(bact => (
-                            <BacteriumLabel
+                            <View
                                 key={bact.bacterium.id}
-                                containerHeight={this.props.containerHeight}
-                                animatedBacterium={this.animatedBacteria.get(bact.bacterium)}
-                                cappedLabelZoom={this.cappedLabelZoom}
-                                animatedZoom={this.props.animatedZoom}
-                                maxZoom={this.labelZoomCaps.max}
-                                bacterium={bact}
-                                matrix={this.props.matrix}
-                                guidelineController={this.props.guidelineController} />
+                            >
+                                <BacteriumLabel
+                                    animatedBacterium={this.animatedBacteria.get(bact.bacterium)}
+                                    cappedLabelZoom={this.cappedLabelZoom}
+                                    animatedZoom={this.props.animatedZoom}
+                                    maxZoom={this.labelZoomCaps.max}
+                                    bacterium={bact}
+                                    matrix={this.props.matrix}
+                                    guidelineController={this.props.guidelineController}
+                                    paddingRight={this.layoutElementPadding} />
+                                
+                                <BacteriumLabelHighlightedBackground
+                                    animatedBacterium={this.animatedBacteria.get(bact.bacterium)}
+                                    cappedLabelZoom={this.cappedLabelZoom}
+                                    animatedZoom={this.props.animatedZoom}
+                                    maxZoom={this.labelZoomCaps.max}
+                                    bacterium={bact}
+                                    matrix={this.props.matrix}
+                                    guidelineController={this.props.guidelineController}
+                                    layoutElementPadding={this.layoutElementPadding}
+                                />
+                            </View>
                         )) }
 
                     </Animated.View>

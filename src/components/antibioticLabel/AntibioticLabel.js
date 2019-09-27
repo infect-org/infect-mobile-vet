@@ -234,32 +234,34 @@ export default class AntibioticLabel extends React.Component {
                             this.labelRotatorStyle,
                         ]}
                     >
-                        {this.isInSelectedGuideline &&
-                            <View style={styles.therapyOrderView}>
-                                <Text style={styles.therapyOrderViewText}>
+
+                        <View style={styles.labelTextContainer}>
+                            {this.isInSelectedGuideline &&
+                                <View style={styles.therapyOrderView}>
+                                    <Text style={styles.therapyOrderViewText}>
+                                        {
+                                            this.props
+                                                .guidelineController
+                                                .getPriorityOrderOfAntibiotic(this.props
+                                                    .antibiotic.antibiotic)
+                                        }
+                                    </Text>
+                                </View>
+                            }
+                            <Text
+                                style={[
+                                    styles.labelText,
                                     {
-                                        this.props
-                                            .guidelineController
-                                            .getPriorityOrderOfAntibiotic(this.props
-                                                .antibiotic.antibiotic)
-                                    }
-                                </Text>
-                            </View>
-                        }
-                        
-                        <Text
-                            style={[
-                                styles.labelText,
-                                {
-                                    backgroundColor: this.activeAntibioticBackground,
-                                    color: this.isInSelectedGuideline ?
-                                        styleDefinitions.colors.guidelines.darkBlue :
-                                        styleDefinitions.colors.black,
-                                },
-                            ]}
-                            onLayout={ this.labelTextLayoutHandler }>
-                            { this.shortName }
-                        </Text>
+                                        backgroundColor: this.activeAntibioticBackground,
+                                        color: this.isInSelectedGuideline ?
+                                            styleDefinitions.colors.guidelines.darkBlue :
+                                            styleDefinitions.colors.black,
+                                    },
+                                ]}
+                                onLayout={ this.labelTextLayoutHandler }>
+                                { this.shortName }
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </Animated.View>
@@ -280,9 +282,11 @@ const styles = StyleSheet.create({
         // borderColor: 'yellow',
     },
     labelRotator: {
-        flexDirection: 'row',
         // borderWidth: 1,
         // borderColor: 'tomato',
+    },
+    labelTextContainer: {
+        flexDirection: 'row',
     },
     labelText: {
         ...styleDefinitions.base,

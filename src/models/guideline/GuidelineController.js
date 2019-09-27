@@ -1,4 +1,5 @@
 import { filterTypes } from 'infect-frontend-logic';
+import { transaction } from 'mobx';
 
 /**
  * Helper/Controller for components which uses guidelines
@@ -17,6 +18,45 @@ export default class GuidelineController {
         this.selectedFilters = selectedFilters;
         this.filterValues = filterValues;
         this.guidelines = guidelines;
+    }
+
+    /**
+     * Removes the selected Guideline:
+     * - Remove all bacteria & antibiotic filters induced by selected guideline
+     * - Deselect the current diagnosis
+     */
+    removeSelectedGuideline() {
+        const diagnosis = this.getSelectedDiagnosis();
+
+        if (diagnosis) {
+            const bacteriumNames = diagnosis.inducingBacteria
+                .map(bacterium => bacterium.name);
+
+            const antibioticNames = diagnosis.therapies
+                .map(therapy => therapy.recommendedAntibiotics)
+                .reduce((accumulator, value) => accumulator.concat(value), [])
+                .map(recommendedAntibiotic => recommendedAntibiotic.antibiotic.name);
+
+            // We need to do it in a transaction, so all the filters get rendered properly
+            transaction(() => {
+                this.filterValues
+                    .getValuesForProperty(filterTypes.bacterium, 'name')
+                    .filter(item => bacteriumNames.includes(item.value))
+                    .forEach(bacteriumFilter => this.props.selectedFilters
+                        .removeFilter(bacteriumFilter));
+            });
+
+            // We need to do it in a transaction, so all the filters get rendered properly
+            transaction(() => {
+                this.filterValues
+                    .getValuesForProperty(filterTypes.antibiotic, 'name')
+                    .filter(item => antibioticNames.includes(item.value))
+                    .forEach(antibioticFilter => this.props.selectedFilters
+                        .removeFilter(antibioticFilter));
+            });
+
+            this.guidelines.selectedGuideline.selectDiagnosis();
+        }
     }
 
     /**
@@ -57,8 +97,9 @@ export default class GuidelineController {
      * @returns {Boolean}
      */
     highlightBacterium(bacterium) {
-        return bacterium.visible && this.isBacteriumInSelectedGuideline(bacterium.bacterium) &&
-            !this.isBacteriumEntityFiltered(bacterium.bacterium);
+        // return bacterium.visible && this.isBacteriumInSelectedGuideline(bacterium.bacterium) &&
+        //     !this.isBacteriumEntityFiltered(bacterium.bacterium);
+        return bacterium.visible && this.isBacteriumInSelectedGuideline(bacterium.bacterium);
     }
 
     /**
@@ -71,8 +112,9 @@ export default class GuidelineController {
      * @returns {Boolean}
      */
     highlightAntibiotic(antibiotic) {
-        return antibiotic.visible && this.isAntibioticInSelectedGuideline(antibiotic.antibiotic) &&
-            !this.isAntibioticEntityFiltered(antibiotic.antibiotic);
+        // return antibiotic.visible && this.isAntibioticInSelectedGuideline(antibiotic.antibiotic) &&
+        //     !this.isAntibioticEntityFiltered(antibiotic.antibiotic);
+        return antibiotic.visible && this.isAntibioticInSelectedGuideline(antibiotic.antibiotic);
     }
 
     /**

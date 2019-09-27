@@ -39,7 +39,7 @@ export default class DiagnosisDetail extends React.Component {
 
         return (
             <View style={styles.container}>
-                <ScrollView>
+                <ScrollView style={styles.scrollViewContainer}>
                     <Text style={styles.diagnosisClass}>
                         {diagnosis.diagnosisClass.name}
                     </Text>
@@ -122,7 +122,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: styleDefinitions.colors.guidelines.middleBlue,
-
+    },
+    scrollViewContainer: {
         paddingLeft: 35,
         paddingRight: 27,
     },

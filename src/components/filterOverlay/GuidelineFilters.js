@@ -120,7 +120,7 @@ export default class GuidelineFilters extends React.Component {
                         borderColor: styleDefinitions.colors.guidelines.darkBlue,
                         borderWidth: 1,
                     }}
-                    filterOverlaySwitchItemCheckMarkStrokeColor={styleDefinitions.colors.white}
+                    filterOverlaySwitchItemCheckMarkStrokeColor={styleDefinitions.colors.guidelines.backgroundMiddleBlue}
                 />
 
                 <TouchableWithoutFeedback

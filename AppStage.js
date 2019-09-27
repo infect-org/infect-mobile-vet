@@ -43,7 +43,7 @@ console.disableYellowBox = true;
  *   loggly.com (for published apps)
  */
 @observer
-export default class App extends React.Component {
+export default class AppStage extends React.Component {
 
     constructor() {
 
@@ -150,7 +150,6 @@ export default class App extends React.Component {
         this.windowSize.update(ev.nativeEvent.layout);
     }
 
-    @observer
     render() {
 
         log('App: Render');

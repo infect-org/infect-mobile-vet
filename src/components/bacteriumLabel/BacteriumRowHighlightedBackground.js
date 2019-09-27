@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
+import { computed, action, observable, reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 
@@ -13,7 +13,11 @@ export default class BacteriumRowHighlightedBackground extends React.Component {
     width = new Animated.Value(0)
     yPosition = new Animated.Value(0)
 
-    alreadyRendered = false
+    componentDidMount() {
+        this.setWidth();
+        this.setHeight();
+        this.setYPosition();
+    }
 
     /**
      * Sets the yPosition of the current highlighted background
@@ -49,35 +53,19 @@ export default class BacteriumRowHighlightedBackground extends React.Component {
         return this.props.guidelineController.highlightBacterium(this.props.bacterium);
     }
 
-    /**
-     * Returns the background's opacity (0 if this.visible is false)
-     * @return {Number}
-     */
-    @computed get opacity() {
-        return this.visible ? 1 : 0;
-    }
-
     render() {
         if (!this.visible) return null;
 
-        if (this.alreadyRendered === false) {
-            this.setWidth();
-            this.setHeight();
-            this.setYPosition();
-
-            this.alreadyRendered = true;
-        }
-
         return (
-            <Animated.View style={[{
-                height: this.height,
-                width: this.width,
-                opacity: 0.3,
-                backgroundColor: styleDefinitions.colors.guidelines.ligthBlue,
-                position: 'absolute',
-                top: this.yPosition,
-            }]
-            } />
+            <Animated.View
+                style={[{
+                    height: this.height,
+                    width: this.width,
+                    opacity: 0.3,
+                    backgroundColor: styleDefinitions.colors.guidelines.ligthBlue,
+                    position: 'absolute',
+                    top: this.yPosition,
+                }]} />
         );
     }
 }

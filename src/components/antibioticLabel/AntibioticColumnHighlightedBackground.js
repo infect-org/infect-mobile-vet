@@ -13,7 +13,11 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
     width = new Animated.Value(0)
     xPosition = new Animated.Value(0)
 
-    alreadyRendered = false
+    componentDidMount() {
+        this.setWidth();
+        this.setHeight();
+        this.setXPosition();
+    }
 
     /**
      * Sets the xPosition of the current highlighted background
@@ -73,14 +77,6 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
 
     render() {
         if (!this.visible) return null;
-
-        if (this.alreadyRendered === false) {
-            this.setWidth();
-            this.setHeight();
-            this.setXPosition();
-
-            this.alreadyRendered = true;
-        }
 
         return (
             <Animated.View style={[{

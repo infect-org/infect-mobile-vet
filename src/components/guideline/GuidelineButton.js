@@ -38,6 +38,22 @@ export default class GuidelineButton extends React.Component {
         this.props.selectedGuideline.selectDiagnosis();
     }
 
+    /**
+     * Truncate the diagnosis name if it's longer then n
+     *
+     * @param {Diagnosis} selectDiagnosis
+     * @returns {String}
+     */
+    getSelectedDiagnosisName(selectDiagnosis) {
+        const { name } = selectDiagnosis;
+
+        if (name.length > 12) {
+            return `${name.substring(0, 12)}...`;
+        }
+
+        return name;
+    }
+
     render() {
         const selectedDiagnosis = this.props.selectedGuideline ?
             this.props.selectedGuideline.selectedDiagnosis : undefined;
@@ -60,7 +76,8 @@ export default class GuidelineButton extends React.Component {
                         </View>
                         <View style={styles.buttonDivider} />
                         <Text style={styles.buttonText}>
-                            {selectedDiagnosis ? selectedDiagnosis.name : 'Guidelines'}
+                            {selectedDiagnosis ? this.getSelectedDiagnosisName(selectedDiagnosis)
+                                : 'Guidelines'}
                         </Text>
                     </View>
                 </TouchableWithoutFeedback>
