@@ -9,7 +9,7 @@
       "ios",
       "android"
     ],
-    "version": "1.8.8",
+    "version": "1.8.9",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
