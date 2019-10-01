@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, StyleSheet, Text, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { observer } from 'mobx-react';
 import Markdown from 'react-native-markdown-renderer';
+import FontAwesome, { parseIconFromClassName } from 'react-native-fontawesome';
 
 import styleDefinitions from '../../helpers/styleDefinitions';
 import GuidelineHeaderRight from './header/GuidelineHeaderRight.js';
 import GuidelineHeaderLeftBack from './header/GuidelineHeaderLeftBack.js';
 import CurrentResistanceButton from './CurrentResistanceButton.js';
+
+import openURL from '../../helpers/openURL.js';
 
 /**
  * Renders the detail view of a diagnosis.
@@ -48,7 +51,7 @@ export default class DiagnosisDetail extends React.Component {
                     </Text>
 
                     {selectedGuideline.markdownDisclaimer &&
-                        <Markdown>
+                        <Markdown style={styleDefinitions.markdownStyles}>
                             {selectedGuideline.markdownDisclaimer}
                         </Markdown>
                     }
@@ -80,13 +83,13 @@ export default class DiagnosisDetail extends React.Component {
                                         <Text style={styles.antibioticName}>
                                             {antibiotic.antibiotic.name}
                                         </Text>
-                                        <Markdown>
+                                        <Markdown style={styleDefinitions.markdownStyles}>
                                             {antibiotic.markdownText}
                                         </Markdown>
                                     </View>)}
 
                                 {therapy.markdownText &&
-                                    <Markdown>
+                                    <Markdown style={styleDefinitions.markdownStyles}>
                                         {therapy.markdownText}
                                     </Markdown>
                                 }
@@ -95,15 +98,36 @@ export default class DiagnosisDetail extends React.Component {
                     </View>
 
                     {diagnosis.markdownText &&
-                        <Markdown>
+                        <Markdown style={styleDefinitions.markdownStyles}>
                             {diagnosis.markdownText}
                         </Markdown>
                     }
 
-                    <View>
-                        <Text>Datenquelle: Tobi</Text>
-                        <Text>Stand: Heute</Text>
+                    {diagnosis.href &&
+                        <TouchableOpacity
+                            style={styles.externalLinkButton}
+                            onPress={() => {
+                                openURL(diagnosis.href);
+                            }}
+                        >
+                            <Text
+                                style={[
+                                    styles.externalLinkButtonText,
+                                    styles.externalLinkButtonTextMargin]}
+                            >
+                                {selectedGuideline.name}
+                            </Text>
+                            <FontAwesome
+                                style={styles.externalLinkButtonText}
+                                icon={parseIconFromClassName('fas fa-external-link-alt')} />
+                        </TouchableOpacity>
+                    }
+
+                    <View style={styles.dataSourceContainer}>
+                        <Text style={styles.dataSourceText}>Datenquelle: Tobi</Text>
+                        <Text style={styles.dataSourceText}>Stand: Heute</Text>
                     </View>
+
                 </ScrollView>
                 <View style={styles.currentResistanceButtonContainer}>
                     <CurrentResistanceButton
@@ -192,5 +216,33 @@ const styles = StyleSheet.create({
     },
     therapyMarkdown: {
 
+    },
+    dataSourceContainer: {
+        marginTop: 46,
+        marginBottom: 20,
+    },
+    dataSourceText: {
+        color: styleDefinitions.colors.guidelines.infoTextGray,
+        fontSize: 13,
+    },
+    externalLinkButton: {
+        flexDirection: 'row',
+        width: 150,
+        padding: 10,
+        marginTop: 22,
+
+        borderWidth: 1,
+        borderColor: styleDefinitions.colors.guidelines.darkBlue,
+        borderRadius: 5,
+
+        justifyContent: 'space-between',
+    },
+    externalLinkButtonText: {
+        color: styleDefinitions.colors.guidelines.darkBlue,
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    externalLinkButtonTextMargin: {
+        marginRight: 5,
     },
 });

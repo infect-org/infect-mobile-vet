@@ -46,8 +46,11 @@ export default class GuidelineHeaderRight extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        right: 18,
-        height: 18,
-        width: 17,
+        right: 7,
+        height: 40,
+        width: 39,
+
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

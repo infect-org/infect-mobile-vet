@@ -6,20 +6,13 @@ import { filterTypes } from 'infect-frontend-logic';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
 
+// «Dummy» filter item for the guideline filter
+import guidelineFilter from '../../models/guideline/guidelineFilter.js';
+
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 
 @observer
 export default class GuidelineFilters extends React.Component {
-
-    /**
-     * «Dummy» filter item for the guideline filter
-     */
-    guidelineFilter = {
-        identifier: 'guideline_filter',
-        property: {
-            entityType: 'guideline_filter',
-        },
-    }
 
     constructor(props) {
         super(props);
@@ -38,7 +31,7 @@ export default class GuidelineFilters extends React.Component {
      *
      */
     toggleOnlyShowRelevantData() {
-        this.props.selectedFilters.toggleFilter(this.guidelineFilter);
+        this.props.selectedFilters.toggleFilter(guidelineFilter);
 
         const bacteriumNames = this.props.selectedGuideline.selectedDiagnosis.inducingBacteria
             .map(bacterium => bacterium.name);
@@ -69,12 +62,11 @@ export default class GuidelineFilters extends React.Component {
 
     /**
      * Remove the selected guideline/diagnosis:
-     * - Remove all filters
-     * - Set selectedDiagnosis to undefined
+     * - Remove all bacteria & antibiotic filters induced by selected guideline
+     * - Deselect the current diagnosis
      */
     removeSelectedDiagnosis() {
-        this.props.selectedFilters.removeAllFilters();
-        this.props.selectedGuideline.selectDiagnosis();
+        this.props.guidelineController.removeSelectedGuideline();
     }
 
     render() {
@@ -99,7 +91,7 @@ export default class GuidelineFilters extends React.Component {
                 />
 
                 <FilterOverlaySwitchItem
-                    item={this.guidelineFilter}
+                    item={guidelineFilter}
                     selectedFilters={this.props.selectedFilters}
                     name="Only show relevant data"
                     borderTop={true}

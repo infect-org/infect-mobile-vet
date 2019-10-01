@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed } from 'mobx';
+import { Font } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from 'infect-frontend-logic';
 import { Analytics } from 'expo-analytics';
@@ -29,6 +30,7 @@ Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').inst
 configure({ enforceActions: 'always' });
 
 console.disableYellowBox = true;
+console.error = () => {};
 
 /**
  * Basic app. Especially handles
@@ -75,8 +77,19 @@ export default class AppStage extends React.Component {
         this.googleAnalytics.addCustomDimension(1, 'MobileApp');
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         log('StatusBar:', StatusBar.curentHeight);
+        await Font.loadAsync({
+            FontAwesome5FreeSolid: require('./src/assets/fonts/fa-solid-900.ttf'),
+            FontAwesome5FreeRegular: require('./src/assets/fonts/fa-regular-400.ttf'),
+            FontAwesome5FreeBrands: require('./src/assets/fonts/fa-brands-400.ttf'),
+            'fa-solid-900': require('./src/assets/fonts/fa-solid-900.ttf'),
+            'fa-regular-400': require('./src/assets/fonts/fa-regular-400.ttf'),
+            'fa-brands-400': require('./src/assets/fonts/fa-brands-400.ttf'),
+            fa_solid_900: require('./src/assets/fonts/fa-solid-900.ttf'),
+            fa_regular_400: require('./src/assets/fonts/fa-regular-400.ttf'),
+            fa_brands_400: require('./src/assets/fonts/fa-brands-400.ttf'),
+        });
     }
 
     /**
@@ -219,9 +232,11 @@ export default class AppStage extends React.Component {
 
                     { /* Errors: At bottom to give it the highest z-index */ }
                     { this.app.errorHandler.errors.length > 0 &&
-                        <ErrorMessages
-                            style={styles.errors}
-                            errors={this.app.errorHandler.errors} />
+                        <View style={styles.errors}>
+                            <ErrorMessages
+                                errors={this.app.errorHandler.errors}
+                            />
+                        </View>
                     }
 
                 </View>

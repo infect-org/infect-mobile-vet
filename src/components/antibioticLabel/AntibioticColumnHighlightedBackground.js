@@ -6,40 +6,37 @@ import styleDefinitions from '../../helpers/styleDefinitions.js';
 
 const { Animated } = DangerZone;
 
+const {
+    multiply,
+    add,
+} = Animated;
+
 @observer
 export default class AntibioticColumnHighlightedBackground extends React.Component {
 
-    height = new Animated.Value(0)
-    width = new Animated.Value(0)
-    xPosition = new Animated.Value(0)
-
-    componentDidMount() {
-        this.setWidth();
-        this.setHeight();
-        this.setXPosition();
-    }
-
     /**
-     * Sets the xPosition of the current highlighted background
+     * Get the xPosition of the current highlighted background
      */
-    setXPosition() {
+    @computed get xPosition() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        this.xPosition.setValue(position.left);
+        return position.left;
     }
 
     /**
-     * Sets the height of the current highlighted background
+     * Get the height of the current highlighted background
      */
-    setHeight() {
-        this.height.setValue(this.props.matrix.visibleBacteriaHeight +
-            this.props.matrix.spaceBetweenGroups);
+    @computed get height() {
+        return add(
+            this.props.matrix.visibleBacteriaHeight,
+            this.props.matrix.spaceBetweenGroups,
+        );
     }
 
     /**
-     * Sets the width of the current highlighted background
+     * Get the width of the current highlighted background
      */
-    setWidth() {
-        this.width.setValue(this.props.matrix.defaultRadius * 2);
+    @computed get width() {
+        return multiply(this.props.matrix.defaultRadius, 2);
     }
 
     /**
@@ -58,7 +55,7 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
 
     /**
      * Returns true if antibiotic is contained in any one therapy that belongs to the currently
-     * selected diagnosis and it's not filtered
+     * selected diagnosis
      * @return {Boolean}    Visiblity of the highlighted background
      */
     @computed get visible() {

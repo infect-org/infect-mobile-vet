@@ -47,7 +47,7 @@ export default class CurrentResistanceButton extends React.Component {
                     </View>
                     <View style={styles.buttonDivider} />
                     <Text style={styles.buttonText}>
-                        Current Resistance
+                        Show Resistances
                     </Text>
                     <GuidelineIconArrowRight
                         height={11.7}
@@ -63,7 +63,7 @@ export default class CurrentResistanceButton extends React.Component {
 const styles = StyleSheet.create({
     button: {
         height: 50,
-        width: 208,
+        width: 198,
         borderRadius: 25,
         backgroundColor: styleDefinitions.colors.white,
         ...styleDefinitions.shadows.primaryButton,

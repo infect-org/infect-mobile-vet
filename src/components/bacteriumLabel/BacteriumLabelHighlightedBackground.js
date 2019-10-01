@@ -116,20 +116,14 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
         return multiply(
             this.props.matrix.defaultRadius,
             2,
-            this.props.animatedZoom,
         );
     }
 
+    /**
+     * Get the top of the current highlighted background
+     */
     @computed get top() {
-        let top = multiply(
-            // Adjust top by the amount animatedZoom exceeds cappedLabelZoom
-            divide(this.props.animatedZoom, this.props.cappedLabelZoom),
-            this.props.animatedBacterium.top,
-        );
-        top = sub(top, this.props.layoutElementPadding);
-        // top = sub(top, divide(this.height, 2));
-
-        return top;
+        return sub(this.props.animatedBacterium.top, this.props.layoutElementPadding);
     }
 
     render() {
@@ -145,8 +139,6 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
                         opacity: this.opacity,
                         backgroundColor: this.activeBacteriumBackground,
                         transform: [{
-                            scale: this.cappedLabelZoomAdjustment,
-                        }, {
                             translateY: this.top,
                         }, {
                             translateX: this.left,

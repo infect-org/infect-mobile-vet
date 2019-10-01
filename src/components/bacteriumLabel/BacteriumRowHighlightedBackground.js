@@ -1,52 +1,49 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { computed, action, observable, reaction } from 'mobx';
+import { computed } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 
 const { Animated } = DangerZone;
 
+const {
+    multiply,
+    sub,
+    add,
+} = Animated;
+
 @observer
 export default class BacteriumRowHighlightedBackground extends React.Component {
 
-    height = new Animated.Value(0)
-    width = new Animated.Value(0)
-    yPosition = new Animated.Value(0)
-
-    componentDidMount() {
-        this.setWidth();
-        this.setHeight();
-        this.setYPosition();
-    }
-
     /**
-     * Sets the yPosition of the current highlighted background
+     * Get the yPosition of the current highlighted background
      */
-    setYPosition() {
+    @computed get yPosition() {
         const position = this.props.matrix.yPositions.get(this.props.bacterium);
-        this.yPosition.setValue(position.top - this.props.layoutElementPadding);
+        return sub(position.top, this.props.layoutElementPadding);
     }
 
     /**
-     * Sets the height of the current highlighted background
+     * Get the height of the current highlighted background
      */
-    setHeight() {
-        this.height.setValue(this.props.matrix.defaultRadius * 2);
+    @computed get height() {
+        return multiply(this.props.matrix.defaultRadius, 2);
     }
 
     /**
-     * Sets the width of the current highlighted background
+     * Get the width of the current highlighted background
      */
-    setWidth() {
-        this.width.setValue(this.props.matrix.bacteriumLabelColumnWidth +
-            this.props.matrix.spaceBetweenGroups +
+    @computed get width() {
+        return add(
+            this.props.matrix.bacteriumLabelColumnWidth,
+            this.props.matrix.spaceBetweenGroups,
             this.props.matrix.visibleAntibioticsWidth);
     }
 
     /**
      * Only display highlighted background if a guideline and diagnosis were selected, if the
      * bacterium is visible (filters match bacterium), if the current bacterium induces the
-     * diagnosis and it's not filtered
+     * diagnosis
      * @return {Boolean}
      */
     @computed get visible() {

@@ -1,6 +1,9 @@
 import { filterTypes } from 'infect-frontend-logic';
 import { transaction } from 'mobx';
 
+// «Dummy» filter item for the guideline filter
+import guidelineFilter from './guidelineFilter.js';
+
 /**
  * Helper/Controller for components which uses guidelines
  *
@@ -42,7 +45,7 @@ export default class GuidelineController {
                 this.filterValues
                     .getValuesForProperty(filterTypes.bacterium, 'name')
                     .filter(item => bacteriumNames.includes(item.value))
-                    .forEach(bacteriumFilter => this.props.selectedFilters
+                    .forEach(bacteriumFilter => this.selectedFilters
                         .removeFilter(bacteriumFilter));
             });
 
@@ -51,9 +54,12 @@ export default class GuidelineController {
                 this.filterValues
                     .getValuesForProperty(filterTypes.antibiotic, 'name')
                     .filter(item => antibioticNames.includes(item.value))
-                    .forEach(antibioticFilter => this.props.selectedFilters
+                    .forEach(antibioticFilter => this.selectedFilters
                         .removeFilter(antibioticFilter));
             });
+
+            // remove «only show relevant data»-guideline-filter
+            this.selectedFilters.removeFilter(guidelineFilter);
 
             this.guidelines.selectedGuideline.selectDiagnosis();
         }

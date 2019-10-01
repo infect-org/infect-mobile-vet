@@ -44,6 +44,7 @@ export default {
             buttonDarkBlue: '#85BAE3',
             gray: '#6F6F6F',
             backgroundMiddleBlue: '#BED7ED',
+            infoTextGray: '#585858',
         },
     },
     buttons: {
@@ -87,5 +88,31 @@ export default {
         // see
         // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
         // for a full list
+        heading1: {
+            fontSize: 18,
+            fontWeight: 'bold',
+        },
+        heading2: {
+            fontSize: 16,
+            fontWeight: 'bold',
+        },
+        heading3: {
+            fontSize: 14,
+        },
+        listItem: {
+            flex: 1,
+            flexWrap: 'wrap',
+        },
+        listUnorderedItemIcon: {
+            marginLeft: 0,
+            marginRight: 10,
+            lineHeight: Platform.OS === 'ios' ? 36 : 30,
+        },
+        codeInline: {
+            borderWidth: 1,
+            borderColor: '#E2ECF5',
+            padding: 10,
+            borderRadius: 4,
+        },
     }),
 };

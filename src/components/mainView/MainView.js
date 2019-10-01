@@ -131,6 +131,7 @@ export default class MainView extends React.Component {
                     <GuidelineButton
                         drawer={this.props.drawer}
                         selectedGuideline={this.props.guidelines.selectedGuideline}
+                        guidelineController={this.guidelineController}
                     />
                 </View>
 
@@ -188,6 +189,7 @@ export default class MainView extends React.Component {
                         componentStates={this.props.componentStates}
                         windowSize={this.props.windowSize}
                         selectedGuideline={this.props.guidelines.selectedGuideline}
+                        guidelineController={this.guidelineController}
                     />
                 }
             </View>
@@ -207,11 +209,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         bottom: 0,
+
+        zIndex: 2,
     },
     guidelineButtonContainer: {
         position: 'absolute',
         right: 78,
         bottom: 18,
+
+        zIndex: 1,
     },
     container: {
         flex: 1,

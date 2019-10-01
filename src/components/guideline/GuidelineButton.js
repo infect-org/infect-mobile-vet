@@ -35,20 +35,21 @@ export default class GuidelineButton extends React.Component {
      * - Matrix will not be filtere / highlighted anymore
      */
     removeSelectedDiagnosis() {
-        this.props.selectedGuideline.selectDiagnosis();
+        this.props.guidelineController.removeSelectedGuideline();
     }
 
     /**
      * Truncate the diagnosis name if it's longer then n
      *
      * @param {Diagnosis} selectDiagnosis
+     * @param {Int} maxLength if string > maxLength, truncate it
      * @returns {String}
      */
-    getSelectedDiagnosisName(selectDiagnosis) {
+    getSelectedDiagnosisName(selectDiagnosis, maxLength) {
         const { name } = selectDiagnosis;
 
-        if (name.length > 12) {
-            return `${name.substring(0, 12)}...`;
+        if (name.length > maxLength) {
+            return `${name.substring(0, maxLength)}...`;
         }
 
         return name;
@@ -76,7 +77,7 @@ export default class GuidelineButton extends React.Component {
                         </View>
                         <View style={styles.buttonDivider} />
                         <Text style={styles.buttonText}>
-                            {selectedDiagnosis ? this.getSelectedDiagnosisName(selectedDiagnosis)
+                            {selectedDiagnosis ? this.getSelectedDiagnosisName(selectedDiagnosis, 12)
                                 : 'Guidelines'}
                         </Text>
                     </View>

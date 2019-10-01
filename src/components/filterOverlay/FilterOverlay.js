@@ -252,6 +252,7 @@ export default class FilterOverlay extends React.Component {
                                             filterValues={this.props.filterValues}
                                             selectedFilters={this.props.selectedFilters}
                                             selectedGuideline={this.props.selectedGuideline}
+                                            guidelineController={this.props.guidelineController}
                                         />
 
                                         <AntibioticFilters
@@ -410,6 +411,7 @@ const styles = StyleSheet.create({
         // Is initially positioned at left: 100% (to make it invisible, but already rendered),
         // therefore use width instead of left/right props
         width: '100%',
+        zIndex: 3,
     },
     filterOverlayBackgroundContainer: {
         position: 'absolute',
