@@ -139,7 +139,7 @@ export default class BacteriumLabel extends React.Component {
                         styles.labelText,
                         {
                             // backgroundColor: this.activeBacteriumBackground,
-                            color: this.isInSelectedGuideline ?
+                            color: (this.isInSelectedGuideline && !this.isSelected) ?
                                 styleDefinitions.colors.guidelines.darkBlue :
                                 styleDefinitions.colors.black,
                         },

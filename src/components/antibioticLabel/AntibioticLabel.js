@@ -253,7 +253,7 @@ export default class AntibioticLabel extends React.Component {
                                     styles.labelText,
                                     {
                                         backgroundColor: this.activeAntibioticBackground,
-                                        color: this.isInSelectedGuideline ?
+                                        color: (this.isInSelectedGuideline && !this.isSelected) ?
                                             styleDefinitions.colors.guidelines.darkBlue :
                                             styleDefinitions.colors.black,
                                     },
