@@ -5,7 +5,6 @@ import { DangerZone } from 'expo';
 import PanPinch from 'react-native-pan-pinch';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
-import CorruptDataOverlay from '../corruptDataOverlay/CorruptDataOverlay.js';
 
 const { Animated } = DangerZone;
 const { Value } = Animated;
@@ -71,8 +70,7 @@ export default class Matrix extends React.Component {
                         // animatedZoom={new Animated.Value(1)}
                     />
                 </PanPinch>
-                
-                    <CorruptDataOverlay />
+
             </View>
         );
     }
