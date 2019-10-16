@@ -36,14 +36,11 @@ export default class DiagnosisList extends React.Component {
     }
 
     @computed get diagnosisList() {
-
-        return this.props.navigation.getParam('guidelines').selectedGuideline.diagnoses
-            .filter((diagnosis) => {
-                const name = diagnosis.name.toUpperCase();
-                const searchTerm = this.searchTerm.toUpperCase();
-
-                return name.indexOf(searchTerm) > -1;
-            });
+        if (!this.searchTerm || this.searchTerm === '') {
+            return this.props.navigation.getParam('guidelines').selectedGuideline.diagnoses;
+        } else {
+            return this.props.navigation.getParam('guidelines').search(this.searchTerm);
+        }
     }
 
     /**

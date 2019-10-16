@@ -97,7 +97,8 @@ export default {
             fontWeight: 'bold',
         },
         heading3: {
-            fontSize: 14,
+            fontSize: 16,
+            fontWeight: 'bold',
         },
         listItem: {
             flex: 1,

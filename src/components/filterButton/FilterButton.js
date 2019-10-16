@@ -25,7 +25,8 @@ export default class FilterButton extends React.Component {
      * If we have selectedFilters show the count indicator
      */
     @computed get selectedFilterCount() {
-        return this.props.selectedFilters.filters.length;
+        const filters = this.props.selectedFilters.originalFilters;
+        return filters.length;
     }
 
     render() {

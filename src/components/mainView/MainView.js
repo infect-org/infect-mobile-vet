@@ -127,13 +127,15 @@ export default class MainView extends React.Component {
                     - open diagnosis list
                     - clear selected diagnosis
                 */}
-                <View style={styles.guidelineButtonContainer} >
-                    <GuidelineButton
-                        drawer={this.props.drawer}
-                        selectedGuideline={this.props.guidelines.selectedGuideline}
-                        guidelineController={this.guidelineController}
-                    />
-                </View>
+                {this.props.guidelines.getAsArray().length > 0 &&
+                    <View style={styles.guidelineButtonContainer} >
+                        <GuidelineButton
+                            drawer={this.props.drawer}
+                            selectedGuideline={this.props.guidelines.selectedGuideline}
+                            guidelineController={this.guidelineController}
+                        />
+                    </View>
+                }
 
                 { /* Just for testing (adds antibiotic to filters */ }
                 { /* <TouchableHighlight onPress={this.addAntibioticFilter}>

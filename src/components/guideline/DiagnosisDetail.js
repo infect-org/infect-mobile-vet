@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { observer } from 'mobx-react';
-import Markdown from 'react-native-markdown-renderer';
-import FontAwesome, { parseIconFromClassName } from 'react-native-fontawesome';
+import Markdown, { hasParents } from 'react-native-markdown-renderer';
+import ExternalLink from './icons/ExternalLink.js';
+import Mail from './icons/Mail.js';
 
 import styleDefinitions from '../../helpers/styleDefinitions';
 import GuidelineHeaderRight from './header/GuidelineHeaderRight.js';
@@ -35,6 +36,47 @@ export default class DiagnosisDetail extends React.Component {
         headerLeft: <GuidelineHeaderLeftBack navigation={navigation}/>,
     });
 
+    markdownRules = {
+        list_item: (node, children, parent, styles) => {
+            if (hasParents(parent, 'bullet_list')) {
+                return (
+                    <View key={node.key} style={styles.listUnorderedItem}>
+                        <Text style={styles.listUnorderedItemIcon}>{'\u2013'}</Text>
+                        <View style={[styles.listItem]}>{children}</View>
+                    </View>
+                );
+            }
+
+            if (hasParents(parent, 'ordered_list')) {
+                return (
+                    <View key={node.key} style={styles.listOrderedItem}>
+                        <Text style={styles.listOrderedItemIcon}>{node.index + 1}{node.markup}</Text>
+                        <View style={[styles.listItem]}>{children}</View>
+                    </View>
+                );
+            }
+
+            return (
+                <View key={node.key} style={[styles.listItem]}>
+                    {children}
+                </View>
+            );
+        },
+    }
+
+    optimizeMarkdownContent(markdownContent) {
+        // 8201 => e28089
+
+        return markdownContent
+            // Abbreviations, e.g. x.y. (p.o. becomes p.(nnbsp)o.)
+            .replace(/(\w\.)(\w\.)/g, '$1&#8239;$2')
+            // Number and unit (5g becomes 5(hairspace)g)
+            .replace(/(\d+)([a-z]{1,2})(\b)/g, '$1&#8239;$2')
+            // Slashes (4g/kg/d becomes 4g(hairspace)/(hairspace)kg(hairspace)/(hairspace)d)
+            // Only applies to slashes not followed or preceded by a space
+            .replace(/(\S)\/(?!\s)/g, '$1&#8201;/&#8201;');
+    }
+
     render() {
         const diagnosis = this.props.navigation.getParam('diagnosis');
         const selectedGuideline = this.props.navigation.getParam('selectedGuideline');
@@ -43,71 +85,82 @@ export default class DiagnosisDetail extends React.Component {
         return (
             <View style={styles.container}>
                 <ScrollView style={styles.scrollViewContainer}>
-                    <Text style={styles.diagnosisClass}>
-                        {diagnosis.diagnosisClass.name}
-                    </Text>
-                    <Text style={styles.guidelineName}>
-                        {selectedGuideline.name}
-                    </Text>
 
-                    {selectedGuideline.markdownDisclaimer &&
-                        <Markdown style={styleDefinitions.markdownStyles}>
-                            {selectedGuideline.markdownDisclaimer}
-                        </Markdown>
-                    }
+                    <View style={styles.header}>
+                        <Text style={styles.diagnosisClass}>
+                            {diagnosis.diagnosisClass.name}
+                        </Text>
+                        <Text style={styles.guidelineName}>
+                            {selectedGuideline.name}
+                        </Text>
 
-                    <View style={styles.therapyList}>
-                        {diagnosis.therapies.map(therapy =>
-                            <View
-                                key={therapy.id}
-                                style={styles.therapyListItem}
-                            >
-                                <View style={styles.therapyHeader}>
-                                    <View style={styles.therapyHeaderOrderView}>
-                                        <Text style={styles.therapyHeaderOrder}>
-                                            {therapy.priority.order}
-                                        </Text>
-                                    </View>
-
-                                    <View style={styles.therapyHeaderNameView}>
-                                        <Text style={styles.therapyHeaderName}>
-                                            {therapy.priority.name}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                {therapy.recommendedAntibiotics.map(antibiotic =>
-                                    <View
-                                        key={antibiotic.antibiotic.id}
-                                    >
-                                        <Text style={styles.antibioticName}>
-                                            {antibiotic.antibiotic.name}
-                                        </Text>
-                                        <Markdown style={styleDefinitions.markdownStyles}>
-                                            {antibiotic.markdownText}
-                                        </Markdown>
-                                    </View>)}
-
-                                {therapy.markdownText &&
-                                    <Markdown style={styleDefinitions.markdownStyles}>
-                                        {therapy.markdownText}
-                                    </Markdown>
-                                }
-
-                            </View>)}
+                        {selectedGuideline.markdownDisclaimer &&
+                            <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
+                                {this.optimizeMarkdownContent(selectedGuideline.markdownDisclaimer)}
+                            </Markdown>
+                        }
                     </View>
 
-                    {diagnosis.markdownText &&
-                        <Markdown style={styleDefinitions.markdownStyles}>
-                            {diagnosis.markdownText}
-                        </Markdown>
-                    }
+                    <View style={styles.content}>
+                        <View style={styles.therapyList}>
+                            {diagnosis.therapies.map(therapy =>
+                                <View
+                                    key={therapy.id}
+                                    style={styles.therapyListItem}
+                                >
+                                    <View style={styles.therapyHeader}>
+                                        <View style={styles.therapyHeaderOrderView}>
+                                            <Text style={styles.therapyHeaderOrder}>
+                                                {therapy.priority.order}
+                                            </Text>
+                                        </View>
 
-                    {diagnosis.href &&
+                                        <View style={styles.therapyHeaderNameView}>
+                                            <Text style={styles.therapyHeaderName}>
+                                                {therapy.priority.name}
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    {/* {therapy.recommendedAntibiotics.map(antibiotic =>
+                                        <View
+                                            key={antibiotic.antibiotic.id}
+                                        >
+                                            <Text style={styles.antibioticName}>
+                                                {antibiotic.antibiotic.name}
+                                            </Text>
+                                            {antibiotic.markdownText &&
+                                            <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
+                                                {this.optimizeMarkdownContent(antibiotic.markdownText)}
+                                            </Markdown>
+                                            }
+                                        </View>)
+                                    } */}
+
+                                    {therapy.markdownText &&
+                                    <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
+                                        {this.optimizeMarkdownContent(therapy.markdownText)}
+                                    </Markdown>
+                                    }
+
+                                </View>)}
+                        </View>
+
+                        {diagnosis.markdownText &&
+                        <View>
+                            <View style={styles.diagnosisMarkdownSeperator} />
+                            <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
+                                {this.optimizeMarkdownContent(diagnosis.markdownText)}
+                            </Markdown>
+                            <View style={styles.diagnosisMarkdownSeperator} />
+                        </View>
+                        }
+
+                        {diagnosis.link &&
                         <TouchableOpacity
                             style={styles.externalLinkButton}
                             onPress={() => {
-                                openURL(diagnosis.href);
+                                openURL(diagnosis.link);
                             }}
                         >
                             <Text
@@ -117,17 +170,52 @@ export default class DiagnosisDetail extends React.Component {
                             >
                                 {selectedGuideline.name}
                             </Text>
-                            <FontAwesome
-                                style={styles.externalLinkButtonText}
-                                icon={parseIconFromClassName('fas fa-external-link-alt')} />
+                            <ExternalLink
+                                height={14}
+                                width={14}
+                            />
                         </TouchableOpacity>
-                    }
+                        }
 
-                    <View style={styles.dataSourceContainer}>
-                        <Text style={styles.dataSourceText}>Datenquelle: Tobi</Text>
-                        <Text style={styles.dataSourceText}>Stand: Heute</Text>
+                        {selectedGuideline.contactEmail &&
+                        <TouchableOpacity
+                            style={styles.externalLinkButton}
+                            onPress={() => {
+                                openURL(`mailto://${selectedGuideline.contactEmail}`);
+                            }}
+                        >
+                            <Text
+                                style={[
+                                    styles.externalLinkButtonText,
+                                    styles.externalLinkButtonTextMargin]}
+                            >
+                                Feedback
+                            </Text>
+                            <Mail
+                                height={14}
+                                width={14}
+                            />
+                        </TouchableOpacity>
+                        }
+
+                        {diagnosis.latestUpdate &&
+                        <View style={styles.dataSourceContainer}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    openURL(diagnosis.latestUpdate.link);
+                                }}
+                            >
+                                <Text style={styles.dataSourceText}>
+                                    Datasource: {diagnosis.latestUpdate.name}
+                                </Text>
+                            </TouchableOpacity>
+                            <Text style={styles.dataSourceText}>
+                                Updated at: {diagnosis.latestUpdate.date.getDate()}.{diagnosis.latestUpdate.date.getMonth()}.{diagnosis.latestUpdate.date.getFullYear()}
+                            </Text>
+                        </View>
+                        }
+
                     </View>
-
                 </ScrollView>
                 <View style={styles.currentResistanceButtonContainer}>
                     <CurrentResistanceButton
@@ -147,9 +235,24 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: styleDefinitions.colors.guidelines.middleBlue,
     },
-    scrollViewContainer: {
+    header: {
+        backgroundColor: styleDefinitions.colors.guidelines.backgroundMiddleBlue,
         paddingLeft: 35,
         paddingRight: 27,
+        paddingTop: 18,
+        paddingBottom: 18,
+    },
+    scrollViewContainer: {},
+    diagnosisMarkdownSeperator: {
+        height: 1,
+        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    content: {
+        paddingLeft: 35,
+        paddingRight: 27,
+        marginBottom: 20,
     },
     currentResistanceButtonContainer: {
         height: 50,
@@ -160,13 +263,13 @@ const styles = StyleSheet.create({
     },
     diagnosisClass: {
         fontSize: 14,
-        marginTop: 18,
+        // marginTop: 18,
     },
     guidelineName: {
         fontSize: 14,
         fontWeight: 'bold',
 
-        marginBottom: 20,
+        // marginBottom: 20,
     },
     antibioticName: {
         fontSize: 16,
@@ -219,7 +322,6 @@ const styles = StyleSheet.create({
     },
     dataSourceContainer: {
         marginTop: 46,
-        marginBottom: 20,
     },
     dataSourceText: {
         color: styleDefinitions.colors.guidelines.infoTextGray,
@@ -227,7 +329,8 @@ const styles = StyleSheet.create({
     },
     externalLinkButton: {
         flexDirection: 'row',
-        width: 150,
+        alignItems: 'center',
+        width: 170,
         padding: 10,
         marginTop: 22,
 
