@@ -33,14 +33,15 @@ export default class DiagnosisList extends React.Component {
         super(props);
 
         this.handleSearchTextChange = this.handleSearchTextChange.bind(this);
+        this.guidelines = this.props.navigation.getParam('guidelines');
     }
 
     @computed get diagnosisList() {
-        if (!this.searchTerm || this.searchTerm === '') {
-            return this.props.navigation.getParam('guidelines').selectedGuideline.diagnoses;
-        } else {
-            return this.props.navigation.getParam('guidelines').search(this.searchTerm);
+        if (this.searchTerm && this.searchTerm !== '') {
+            return this.guidelines.search(this.searchTerm).map(result => result.diagnosis);
         }
+
+        return this.guidelines.selectedGuideline.diagnoses;
     }
 
     /**
@@ -82,7 +83,7 @@ export default class DiagnosisList extends React.Component {
                         index={index}
                         navigation={this.props.navigation}
                         drawer={this.props.navigation.getParam('drawer')}
-                        selectedGuideline={this.props.navigation.getParam('guidelines').selectedGuideline}
+                        selectedGuideline={this.guidelines.selectedGuideline}
                     />
                     }>
                 </FlatList>
