@@ -37,11 +37,15 @@ export default class DiagnosisList extends React.Component {
     }
 
     @computed get diagnosisList() {
+        let diagnoses;
+
         if (this.searchTerm && this.searchTerm !== '') {
-            return this.guidelines.search(this.searchTerm).map(result => result.diagnosis);
+            diagnoses = this.guidelines.search(this.searchTerm).map(result => result.diagnosis);
+        } else {
+            diagnoses = this.guidelines.selectedGuideline.diagnoses;
         }
 
-        return this.guidelines.selectedGuideline.diagnoses;
+        return diagnoses.sort((a, b) => (a.name < b.name ? -1 : 1));
     }
 
     /**
