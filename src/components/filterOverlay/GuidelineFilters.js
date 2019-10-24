@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Text } from 'react-native';
 import { transaction } from 'mobx';
 import { observer } from 'mobx-react';
-import { filterTypes } from 'infect-frontend-logic';
+import { filterTypes } from '@infect/frontend-logic';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
 

@@ -38,7 +38,18 @@ export default class DiagnosisListItem extends React.Component {
                 onPress={this.selectGuideline}
             >
                 <View style={styles.container}>
-                    <Text style={styles.name}>{diagnosis.name}</Text>
+                    <View style={styles.textContainer}>
+                        <Text style={styles.name}>{diagnosis.name}</Text>
+                        {/*
+                            we can't display the element only if foundSynonym is defined
+                            because the FilterList can't handle it...may be a bug
+                        */}
+                        <Text style={[styles.synonym, {
+                            height: this.props.foundSynonym ? 'auto' : 0,
+                            marginTop: this.props.foundSynonym ? 5 : 0,
+                        }]}>{this.props.foundSynonym}</Text>
+                    </View>
+
                     <View style={styles.arrowView}>
                         <GuidelineIconArrowRight
                             width={7.7}
@@ -62,9 +73,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
+    textContainer: {
+        flex: 1,
+    },
     name: {
         color: '#000',
         fontSize: 20,
+    },
+    synonym: {
+        color: '#000',
+        fontSize: 14,
     },
     arrowView: {
         position: 'absolute',

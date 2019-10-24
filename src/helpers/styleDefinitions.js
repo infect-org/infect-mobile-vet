@@ -99,21 +99,52 @@ export default {
         heading3: {
             fontSize: 16,
             fontWeight: 'bold',
-        },
-        listItem: {
-            flex: 1,
-            flexWrap: 'wrap',
+            marginTop: 15,
+            marginBottom: 5,
         },
         listUnorderedItemIcon: {
             marginLeft: 0,
             marginRight: 10,
-            lineHeight: Platform.OS === 'ios' ? 36 : 30,
+            lineHeight: Platform.OS === 'ios' ? 16 : 19,
+            // lineHeight: 16,
+        },
+        listUnorderedItemText: {
+            fontSize: 20,
+            lineHeight: 20,
+        },
+        paragraph: {
+            // marginTop: 10,
+            marginBottom: 5,
+            flexWrap: 'wrap',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
         },
         codeInline: {
             borderWidth: 1,
             borderColor: '#E2ECF5',
             padding: 10,
             borderRadius: 4,
+        },
+    }),
+    markdownDisclaimer: StyleSheet.create({
+        // see
+        // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
+        // for a full list
+        paragraph: {
+            // marginTop: 10,
+            // marginBottom: 5,
+            flexWrap: 'wrap',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
+        },
+        text: {
+            color: '#6F6F6F',
+        },
+        link: {
+            color: '#3289CC',
+            textDecorationLine: 'underline',
         },
     }),
 };

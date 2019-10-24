@@ -30,6 +30,8 @@ export default class DiagnosisDetail extends React.Component {
         headerTitleStyle: {
             fontWeight: 'bold',
             fontSize: 20,
+            textAlign: 'center',
+            flex: 1,
         },
         title: navigation.getParam('diagnosis').name,
         headerRight: <GuidelineHeaderRight drawer={navigation.getParam('drawer')} />,
@@ -95,9 +97,14 @@ export default class DiagnosisDetail extends React.Component {
                         </Text>
 
                         {selectedGuideline.markdownDisclaimer &&
-                            <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
-                                {this.optimizeMarkdownContent(selectedGuideline.markdownDisclaimer)}
-                            </Markdown>
+                            <View style={styles.headerDisclaimer}>
+                                <Markdown
+                                    rules={this.markdownRules}
+                                    style={styleDefinitions.markdownDisclaimer}
+                                >
+                                    {selectedGuideline.markdownDisclaimer}
+                                </Markdown>
+                            </View>
                         }
                     </View>
 
@@ -138,9 +145,11 @@ export default class DiagnosisDetail extends React.Component {
                                     } */}
 
                                     {therapy.markdownText &&
-                                    <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
-                                        {this.optimizeMarkdownContent(therapy.markdownText)}
-                                    </Markdown>
+                                    <View style={styles.therapyMarkdown}>
+                                        <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
+                                            {this.optimizeMarkdownContent(therapy.markdownText)}
+                                        </Markdown>
+                                    </View>
                                     }
 
                                 </View>)}
@@ -149,54 +158,60 @@ export default class DiagnosisDetail extends React.Component {
                         {diagnosis.markdownText &&
                         <View>
                             <View style={styles.diagnosisMarkdownSeperator} />
+                            <Text style={styles.diagnosisMarkdownTitle}>
+                                General Considerations
+                            </Text>
                             <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
                                 {this.optimizeMarkdownContent(diagnosis.markdownText)}
                             </Markdown>
-                            <View style={styles.diagnosisMarkdownSeperator} />
                         </View>
                         }
 
-                        {diagnosis.link &&
-                        <TouchableOpacity
-                            style={styles.externalLinkButton}
-                            onPress={() => {
-                                openURL(diagnosis.link);
-                            }}
-                        >
-                            <Text
-                                style={[
-                                    styles.externalLinkButtonText,
-                                    styles.externalLinkButtonTextMargin]}
-                            >
-                                {selectedGuideline.name}
-                            </Text>
-                            <ExternalLink
-                                height={14}
-                                width={14}
-                            />
-                        </TouchableOpacity>
-                        }
+                        <View style={styles.diagnosisMarkdownSeperator} />
 
-                        {selectedGuideline.contactEmail &&
-                        <TouchableOpacity
-                            style={styles.externalLinkButton}
-                            onPress={() => {
-                                openURL(`mailto://${selectedGuideline.contactEmail}`);
-                            }}
-                        >
-                            <Text
-                                style={[
-                                    styles.externalLinkButtonText,
-                                    styles.externalLinkButtonTextMargin]}
-                            >
-                                Feedback
-                            </Text>
-                            <Mail
-                                height={14}
-                                width={14}
-                            />
-                        </TouchableOpacity>
-                        }
+                        <View style={styles.externalLinksContainer}>
+                            {diagnosis.link &&
+                                <TouchableOpacity
+                                    style={styles.externalLinkButton}
+                                    onPress={() => {
+                                        openURL(diagnosis.link);
+                                    }}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.externalLinkButtonText,
+                                            styles.externalLinkButtonTextMargin]}
+                                    >
+                                        {selectedGuideline.name}
+                                    </Text>
+                                    <ExternalLink
+                                        height={14}
+                                        width={14}
+                                    />
+                                </TouchableOpacity>
+                            }
+
+                            {selectedGuideline.contactEmail &&
+                                <TouchableOpacity
+                                    style={styles.externalLinkButton}
+                                    onPress={() => {
+                                        openURL(`mailto://${selectedGuideline.contactEmail}`);
+                                    }}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.externalLinkButtonText,
+                                            styles.externalLinkButtonTextMargin]}
+                                    >
+                                        Feedback
+                                    </Text>
+                                    <Mail
+                                        height={14}
+                                        width={14}
+                                    />
+                                </TouchableOpacity>
+                            }
+                        </View>
 
                         {diagnosis.latestUpdate &&
                         <View style={styles.dataSourceContainer}>
@@ -249,8 +264,13 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
     },
+    diagnosisMarkdownTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
     content: {
-        paddingLeft: 35,
+        paddingLeft: 20,
         paddingRight: 27,
         marginBottom: 20,
     },
@@ -259,7 +279,7 @@ const styles = StyleSheet.create({
         width: 208,
         position: 'absolute',
         right: 16.7,
-        bottom: 64,
+        bottom: 40,
     },
     diagnosisClass: {
         fontSize: 14,
@@ -270,6 +290,10 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
 
         // marginBottom: 20,
+    },
+    headerDisclaimer: {
+        color: styleDefinitions.colors.guidelines.gray,
+        marginTop: 18,
     },
     antibioticName: {
         fontSize: 16,
@@ -282,12 +306,12 @@ const styles = StyleSheet.create({
         marginTop: 22,
     },
     therapyListItem: {
-        marginBottom: 22,
+        marginBottom: 30,
     },
     therapyHeader: {
         flex: 1,
         flexDirection: 'row',
-        marginBottom: 10,
+        // marginBottom: 10,
     },
     therapyHeaderOrderView: {
         justifyContent: 'center',
@@ -318,7 +342,7 @@ const styles = StyleSheet.create({
 
     },
     therapyMarkdown: {
-
+        paddingLeft: 40,
     },
     dataSourceContainer: {
         marginTop: 46,
@@ -327,6 +351,7 @@ const styles = StyleSheet.create({
         color: styleDefinitions.colors.guidelines.infoTextGray,
         fontSize: 13,
     },
+    externalLinksContainer: {},
     externalLinkButton: {
         flexDirection: 'row',
         alignItems: 'center',

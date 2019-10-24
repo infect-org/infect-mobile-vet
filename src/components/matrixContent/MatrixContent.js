@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction, observable, runInAction } from 'mobx';
 import { DangerZone, GestureHandler } from 'expo';
-import { models } from 'infect-frontend-logic';
+import { models } from '@infect/frontend-logic';
 import Resistance from '../resistance/Resistance';
 import ActiveResistanceDetail from '../resistance/ActiveResistanceDetail';
 import SubstanceClassDivider from '../substanceClassDivider/SubstanceClassDivider';

@@ -40,12 +40,20 @@ export default class DiagnosisList extends React.Component {
         let diagnoses;
 
         if (this.searchTerm && this.searchTerm !== '') {
-            diagnoses = this.guidelines.search(this.searchTerm).map(result => result.diagnosis);
+            diagnoses = this.guidelines.search(this.searchTerm).map((result) => {
+                return {
+                    diagnosis: result.diagnosis,
+                    foundSynonym: result.synonym,
+                };
+            });
         } else {
-            diagnoses = this.guidelines.selectedGuideline.diagnoses;
+            diagnoses = this.guidelines.selectedGuideline.diagnoses.map(result => ({
+                diagnosis: result,
+                foundSynonym: null,
+            }));
         }
 
-        return diagnoses.sort((a, b) => (a.name < b.name ? -1 : 1));
+        return diagnoses.sort((a, b) => (a.diagnosis.name < b.diagnosis.name ? -1 : 1));
     }
 
     /**
@@ -81,9 +89,10 @@ export default class DiagnosisList extends React.Component {
                     bounces={false}
                     ItemSeparatorComponent={ () => <View style={styles.listSeparator} /> }
                     ListFooterComponent={ () => <View style={styles.listFooter} /> }
-                    keyExtractor={item => `diagnosis_${item.id}`}
+                    keyExtractor={item => `diagnosis_${item.diagnosis.id}`}
                     renderItem={({ item, index }) => <DiagnosisListItem
-                        diagnosis={item}
+                        diagnosis={item.diagnosis}
+                        foundSynonym={item.foundSynonym}
                         index={index}
                         navigation={this.props.navigation}
                         drawer={this.props.navigation.getParam('drawer')}

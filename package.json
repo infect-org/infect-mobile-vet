@@ -2,7 +2,7 @@
   "name": "infect-mobile-app",
   "main": "node_modules/expo/AppEntry.js",
   "private": true,
-  "version": "1.8.7",
+  "version": "2.0.0",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -14,7 +14,7 @@
     "@babel/runtime": "^7.4.5",
     "expo": "^33.0.0",
     "expo-analytics": "1.0.11",
-    "infect-frontend-logic": "^2.2.4",
+    "@infect/frontend-logic": "^3.0.0",
     "mobx": "4.10.0",
     "mobx-react": "^6.1.3",
     "punycode": "^2.1.1",

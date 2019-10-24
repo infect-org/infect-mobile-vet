@@ -3,7 +3,7 @@ import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed } from 'mobx';
 import Sentry from 'sentry-expo';
-import InfectApp from 'infect-frontend-logic';
+import InfectApp from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
 import componentStates from './src/models/componentStates/componentStates';

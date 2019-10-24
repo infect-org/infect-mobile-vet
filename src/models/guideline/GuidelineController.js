@@ -1,4 +1,4 @@
-import { filterTypes } from 'infect-frontend-logic';
+import { filterTypes } from '@infect/frontend-logic';
 import { transaction } from 'mobx';
 
 // «Dummy» filter item for the guideline filter
