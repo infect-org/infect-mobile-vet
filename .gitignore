@@ -1,5 +1,8 @@
-app.json
 node_modules/**/*
 .expo/*
 npm-debug.*
 .vscode/
+
+app.json
+src/config.js
+src/helpers/styleDefinitions.js
