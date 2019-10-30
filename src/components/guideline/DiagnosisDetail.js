@@ -197,7 +197,7 @@ export default class DiagnosisDetail extends React.Component {
                                 <TouchableOpacity
                                     style={styles.externalLinkButton}
                                     onPress={() => {
-                                        openURL(`mailto://${selectedGuideline.contactEmail}`);
+                                        openURL(`mailto:${selectedGuideline.contactEmail}`);
                                     }}
                                 >
                                     <Text
