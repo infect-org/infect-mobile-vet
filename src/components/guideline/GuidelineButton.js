@@ -24,10 +24,24 @@ export default class GuidelineButton extends React.Component {
 
     /**
      * Opens the guideline drawer
-     * the diagnosis list will get rendered
+     * the diagnosis list will get rendered.
+     *
+     * If a diagnosis is selected, directly render its detail view
+     *
      */
     openGuidelinesDrawer() {
-        this.props.drawer.open();
+        const selectedDiagnosis = this.props.guidelineController.getSelectedDiagnosis();
+
+        if (selectedDiagnosis) {
+            this.props.drawer.open();
+            this.props.navigation.navigate('DiagnosisDetail', {
+                diagnosis: selectedDiagnosis,
+                drawer: this.props.drawer,
+                selectedGuideline: this.props.selectedGuideline,
+            });
+        } else {
+            this.props.drawer.open();
+        }
     }
 
     /**

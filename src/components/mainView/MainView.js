@@ -133,6 +133,7 @@ export default class MainView extends React.Component {
                             drawer={this.props.drawer}
                             selectedGuideline={this.props.guidelines.selectedGuideline}
                             guidelineController={this.guidelineController}
+                            navigation={this.props.navigation}
                         />
                     </View>
                 }
