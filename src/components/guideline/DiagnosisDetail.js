@@ -86,7 +86,9 @@ export default class DiagnosisDetail extends React.Component {
 
         return (
             <View style={styles.container}>
-                <ScrollView style={styles.scrollViewContainer}>
+                <ScrollView
+                    style={styles.scrollViewContainer}
+                >
 
                     <View style={styles.header}>
                         <Text style={styles.diagnosisClass}>
@@ -272,7 +274,7 @@ const styles = StyleSheet.create({
     content: {
         paddingLeft: 20,
         paddingRight: 27,
-        marginBottom: 20,
+        marginBottom: 110,
     },
     currentResistanceButtonContainer: {
         height: 50,
