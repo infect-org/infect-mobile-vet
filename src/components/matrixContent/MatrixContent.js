@@ -473,7 +473,7 @@ export default class MatrixContent extends React.Component {
                         <View style={styles.logoCenterer}>
                             <MatrixLogo
                                 width={45}
-                                fillColor={styleDefinitions.colors.darkGreen}
+                                fillColor={styleDefinitions.colors.tenantColorDark}
                                 height={38} />
                         </View>
                     </Animated.View>

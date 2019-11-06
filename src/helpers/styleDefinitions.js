@@ -26,6 +26,10 @@ export default {
     },
     colors: {
         ...tenantColors,
+        darkBackgroundGrey: '#363636',
+        mediumBackgroundGrey: '#4b4b4b',
+        lightBackgroundGrey: '#848484',
+        lightForegroundGrey: '#bcbcbc',
         error: '#d82222',
         white: '#ffffff',
         black: '#000000',

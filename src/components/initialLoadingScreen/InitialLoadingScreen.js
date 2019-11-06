@@ -76,7 +76,7 @@ export default class InitialLoadingScreen extends React.Component {
 const styles = StyleSheet.create({
     loadingScreenContainer: {
         flex: 1,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -96,11 +96,11 @@ const styles = StyleSheet.create({
         ...styleDefinitions.fonts.bold,
         fontSize: 14,
         marginBottom: 20,
-        color: styleDefinitions.colors.blackGreen,
+        color: styleDefinitions.colors.tenantColorBlack,
     },
     loadingScreenEntityStatus: {
         ...styleDefinitions.fonts.condensed,
         fontSize: 14,
-        color: styleDefinitions.colors.blackGreen,
+        color: styleDefinitions.colors.tenantColorBlack,
     },
 });
