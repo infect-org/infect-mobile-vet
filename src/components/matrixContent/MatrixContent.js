@@ -12,7 +12,7 @@ import log from '../../helpers/log';
 import BacteriumLabel from '../bacteriumLabel/BacteriumLabel';
 import AntibioticLabel from '../antibioticLabel/AntibioticLabel';
 import componentStates from '../../models/componentStates/componentStates';
-import InfectLogo from '../infectLogo/InfectLogo';
+import MatrixLogo from '../logos/MatrixLogo.js';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import AnimatedAntibiotic from '../../models/animatedAntibiotic/AnimatedAntibiotic';
 import AnimatedBacterium from '../../models/animatedBacterium/AnimatedBacterium';
@@ -471,7 +471,7 @@ export default class MatrixContent extends React.Component {
                         ]}
                     >
                         <View style={styles.logoCenterer}>
-                            <InfectLogo
+                            <MatrixLogo
                                 width={45}
                                 fillColor={styleDefinitions.colors.darkGreen}
                                 height={38} />

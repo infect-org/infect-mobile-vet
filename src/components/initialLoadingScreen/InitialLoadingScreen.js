@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { computed } from 'mobx';
 import { observer } from 'mobx-react';
-import InfectLogoWithAnresis from '../infectLogo/InfectLogoWithAnresis';
+import LoadingScreenLogo from '../logos/LoadingScreenLogo.js';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
@@ -42,7 +42,7 @@ export default class InitialLoadingScreen extends React.Component {
                     { height: this.logoWidth * 20.25 / 64.6 },
                 ]}>
                     <View style={styles.logoInnerContainer}>
-                        <InfectLogoWithAnresis
+                        <LoadingScreenLogo
                             width={this.logoWidth}
                             height={this.logoWidth * 20.25 / 64.6} />
                     </View>

@@ -1,5 +1,7 @@
 import { Platform } from 'react-native';
 
+import tenantColors from './tenantColors.js';
+
 const bold = {
     fontFamily: Platform.OS === 'ios' ? 'Avenir-Heavy' : 'sans-serif-medium',
 };
@@ -23,17 +25,8 @@ export default {
         letterSpacing: -0.4,
     },
     colors: {
-        green: '#cbe264', // c7ed61
-        // For use of fine stuff on white. Corresponds to green, darkened 25% using
-        // https://pinetools.com/darken-color
-        darkGreen: '#afcd26',
-        blackGreen: '#31330b',
+        ...tenantColors,
         error: '#d82222',
-        highlightBackground: '#a9ddf2',
-        darkBackgroundGrey: '#363636',
-        mediumBackgroundGrey: '#4b4b4b',
-        lightBackgroundGrey: '#848484',
-        lightForegroundGrey: '#bcbcbc',
         white: '#ffffff',
         black: '#000000',
     },

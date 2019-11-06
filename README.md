@@ -6,9 +6,9 @@ If you are on the «infect-mobile-app» repository: This repository is a **maste
 ## General
 - `npm i`
 - `npm i -g expo-cli`
-- `cp app.json.dist app.json`
-- `cp src/config.js.dist src/config.js`
-- `cp src/helpers/styleDefinitions.js.dist src/helpers/styleDefinitions.js`
+
+## Initialize the Fork (copy dist files)
+- `./initFork.sh`
 
 ## What to Edit (not optional)
 - package.json
@@ -21,17 +21,18 @@ If you are on the «infect-mobile-app» repository: This repository is a **maste
 - config.js
   - api endpoints if needed
   - appKeys.googleAnalytics
-- styleDefinitions.js
+- src/helpers/tenantColors.js
   - colors you want to change
-- Add your logo to
-  - InitialLoadingScreen.js => InfectLogoWithAnresis Component
-  - MatrixContent.js => InfectLogo Component
+- src/components/logos/LoadingScreenLogo.js
+  - the svg logo for the loading/splash screen
+- src/components/logos/MatrixLogo.js
+  - the svg logo for the matrix view component
 
 ## If you are in a fork repository
 - Add upstream: `git remote add upstream git@github.com:infect-org/infect-mobile-app.git`
 - If you want to merge the master from the upstream repository:
   - `git fetch upstream`
-  - `git merger upstream/master`
+  - `git merge upstream/master`
 - If you want to commit your copied dist files so all developers have the same config.js etc.
   - Remove the corresponding entries in the .gitignore file
   - The files would never be overriden as they do not exist in the master repository
