@@ -41,11 +41,11 @@ export default class ErrorMessages extends React.Component {
                         </View>
                     )) }
                     <View style={styles.buttonContainer}>
-                        <TouchableHighlight
+                        {/* <TouchableHighlight
                             style={styles.reloadButton}
                             onPress={() => { this.reloadApplication(); }}>
                             <Text style={styles.reloadText}>Reload</Text>
-                        </TouchableHighlight>
+                        </TouchableHighlight> */}
                         <TouchableHighlight
                             style={styles.reloadButton}
                             onPress={this.hide}>

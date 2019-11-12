@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { observer } from 'mobx-react';
 import Markdown, { hasParents } from 'react-native-markdown-renderer';
+import { AllHtmlEntities } from 'html-entities';
 import ExternalLink from './icons/ExternalLink.js';
 import Mail from './icons/Mail.js';
 
@@ -39,6 +40,7 @@ export default class DiagnosisDetail extends React.Component {
     });
 
     markdownRules = {
+        text: (node, children, parent, styles) => <Text key={node.key}>{this.optimizeMarkdownContent(node.content)}</Text>,
         list_item: (node, children, parent, styles) => {
             if (hasParents(parent, 'bullet_list')) {
                 return (
@@ -71,12 +73,12 @@ export default class DiagnosisDetail extends React.Component {
 
         return markdownContent
             // Abbreviations, e.g. x.y. (p.o. becomes p.(nnbsp)o.)
-            .replace(/(\w\.)(\w\.)/g, '$1&#8239;$2')
+            .replace(/(\w\.)(\w\.)/g, `$1${AllHtmlEntities.decode('&#8239;')}$2`)
             // Number and unit (5g becomes 5(hairspace)g)
-            .replace(/(\d+)([a-z]{1,2})(\b)/g, '$1&#8239;$2')
+            .replace(/(\d+)([a-z]{1,2})(\b)/g, `$1${AllHtmlEntities.decode('&#8239;')}$2`)
             // Slashes (4g/kg/d becomes 4g(hairspace)/(hairspace)kg(hairspace)/(hairspace)d)
             // Only applies to slashes not followed or preceded by a space
-            .replace(/(\S)\/(?!\s)/g, '$1&#8201;/&#8201;');
+            .replace(/(\S)\/(?!\s)/g, `$1${AllHtmlEntities.decode('&#8239;')}/${AllHtmlEntities.decode('&#8239;')}`);
     }
 
     render() {
@@ -94,9 +96,15 @@ export default class DiagnosisDetail extends React.Component {
                         <Text style={styles.diagnosisClass}>
                             {diagnosis.diagnosisClass.name}
                         </Text>
-                        <Text style={styles.guidelineName}>
-                            {selectedGuideline.name}
-                        </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                openURL(selectedGuideline.link);
+                            }}
+                        >
+                            <Text style={styles.guidelineName}>
+                                {selectedGuideline.name}
+                            </Text>
+                        </TouchableOpacity>
 
                         {selectedGuideline.markdownDisclaimer &&
                             <View style={styles.headerDisclaimer}>
@@ -140,7 +148,7 @@ export default class DiagnosisDetail extends React.Component {
                                             </Text>
                                             {antibiotic.markdownText &&
                                             <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
-                                                {this.optimizeMarkdownContent(antibiotic.markdownText)}
+                                                {antibiotic.markdownText}
                                             </Markdown>
                                             }
                                         </View>)
@@ -149,7 +157,7 @@ export default class DiagnosisDetail extends React.Component {
                                     {therapy.markdownText &&
                                     <View style={styles.therapyMarkdown}>
                                         <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
-                                            {this.optimizeMarkdownContent(therapy.markdownText)}
+                                            {therapy.markdownText}
                                         </Markdown>
                                     </View>
                                     }
@@ -164,7 +172,7 @@ export default class DiagnosisDetail extends React.Component {
                                 General Considerations
                             </Text>
                             <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
-                                {this.optimizeMarkdownContent(diagnosis.markdownText)}
+                                {diagnosis.markdownText}
                             </Markdown>
                         </View>
                         }
@@ -172,7 +180,7 @@ export default class DiagnosisDetail extends React.Component {
                         <View style={styles.diagnosisMarkdownSeperator} />
 
                         <View style={styles.externalLinksContainer}>
-                            {diagnosis.link &&
+                            {/* {diagnosis.link &&
                                 <TouchableOpacity
                                     style={styles.externalLinkButton}
                                     onPress={() => {
@@ -191,7 +199,7 @@ export default class DiagnosisDetail extends React.Component {
                                         width={14}
                                     />
                                 </TouchableOpacity>
-                            }
+                            } */}
 
                             {selectedGuideline.contactEmail &&
                                 <TouchableOpacity
@@ -217,18 +225,18 @@ export default class DiagnosisDetail extends React.Component {
 
                         {diagnosis.latestUpdate &&
                         <View style={styles.dataSourceContainer}>
+                            <Text style={styles.dataSourceText}>
+                                Updated on {diagnosis.latestUpdate.date.getDate()}.{diagnosis.latestUpdate.date.getMonth()}.{diagnosis.latestUpdate.date.getFullYear()} from
+                            </Text>
                             <TouchableOpacity
                                 onPress={() => {
                                     openURL(diagnosis.latestUpdate.link);
                                 }}
                             >
-                                <Text style={styles.dataSourceText}>
-                                    Datasource: {diagnosis.latestUpdate.name}
+                                <Text style={[styles.dataSourceText, styles.dataSourceLink]}>
+                                    {diagnosis.latestUpdate.name}
                                 </Text>
                             </TouchableOpacity>
-                            <Text style={styles.dataSourceText}>
-                                Updated at: {diagnosis.latestUpdate.date.getDate()}.{diagnosis.latestUpdate.date.getMonth()}.{diagnosis.latestUpdate.date.getFullYear()}
-                            </Text>
                         </View>
                         }
 
@@ -352,6 +360,9 @@ const styles = StyleSheet.create({
     dataSourceText: {
         color: styleDefinitions.colors.guidelines.infoTextGray,
         fontSize: 13,
+    },
+    dataSourceLink: {
+        textDecorationLine: 'underline',
     },
     externalLinksContainer: {},
     externalLinkButton: {

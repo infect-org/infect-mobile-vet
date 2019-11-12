@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed } from 'mobx';
+import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
@@ -57,6 +58,16 @@ export default class AppStage extends React.Component {
          */
         Text.defaultProps = Text.defaultProps || {};
         Text.defaultProps.allowFontScaling = false;
+
+        // Add preview parameter on release-channel «testing»
+        if (Constants.manifest.releaseChannel === 'testing') {
+            for (const endpoint of Object.keys(config.endpoints)) {
+                const endPointValue = config.endpoints[endpoint];
+                if (!/https/.test(endPointValue)) {
+                    config.endpoints[endpoint] = `${endPointValue}?showAllData=true`;
+                }
+            }
+        }
 
         // Main app (logic shared with the web)
         this.app = new InfectApp(config);

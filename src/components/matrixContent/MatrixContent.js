@@ -97,14 +97,14 @@ export default class MatrixContent extends React.Component {
 
     /**
      * Before Expo SDK 33, we a) rendered the substanceClassesContainer and b) calculated its
-     * left position (this. leftColumnWidth) as soon as this.defaultRadius was set.
+     * left position (this.leftColumnWidth) as soon as this.defaultRadius was set.
      *
      * With SDK 33, we get a race condition: The substanceClassesContainer is rendered while
-     * this.leftColumnWith is being calculated. The substanceClassesContainer is rendered
-     * with left:0 and is not updated after this.leftColumnWith has been correctly set.
+     * this.leftColumnWidth is being calculated. The substanceClassesContainer is rendered
+     * with left:0 and is not updated after this.leftColumnWidth has been correctly set.
      *
      * In order to circumvent this issue, we render the substanceClassesContainer in the next
-     * render cycle after this.leftColumnWith has been set. We quick-fix it with a small timeout.
+     * render cycle after this.leftColumnWidth has been set. We quick-fix it with a small timeout.
      *
      * The same applies for the container «ResistancesView»
      *
@@ -278,8 +278,7 @@ export default class MatrixContent extends React.Component {
                 // see comment on setDefaultRadiusWasSetDelayed class parameter
                 setTimeout(() => {
                     runInAction(() => { this.defaultRadiusWasSetDelayed = true; });
-                }, 0);
-
+                }, 50);
             },
         );
     }
@@ -310,7 +309,7 @@ export default class MatrixContent extends React.Component {
     } */
 
     @computed get labelOpacity() {
-        const opacity = this.props.matrix.defaultRadius ? 1 : 0;
+        const opacity = this.defaultRadiusWasSetDelayed ? 1 : 0;
         return { opacity };
     }
 
@@ -484,7 +483,7 @@ export default class MatrixContent extends React.Component {
                 { /* LOGO */ }
                 { /* Only draw after layout has been calculated (and defaultRadius is therefore
                      available) to prevent flickering */ }
-                { this.props.matrix.defaultRadius &&
+                { this.defaultRadiusWasSetDelayed === true &&
                     <Animated.View
                         style={[
                             styles.logoContainer,
@@ -712,7 +711,7 @@ export default class MatrixContent extends React.Component {
                                 // We increase the container's height by 2 (to prevent cut text
                                 // on android), therefore we have to move the label down by half
                                 // the container's height
-                                moveLabelDownBy={this.props.matrix.defaultRadius ?
+                                moveLabelDownBy={this.defaultRadiusWasSetDelayed === true ?
                                     this.antibioticLabelRowHeight : 0}
                                 antibiotic={ab}
                                 animatedAntibiotic={this.animatedAntibiotics.get(ab.antibiotic)}
