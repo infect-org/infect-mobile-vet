@@ -230,7 +230,7 @@ export default class DiagnosisDetail extends React.Component {
                             </Text>
                             <TouchableOpacity
                                 onPress={() => {
-                                    openURL(diagnosis.latestUpdate.link);
+                                    openURL(diagnosis.link);
                                 }}
                             >
                                 <Text style={[styles.dataSourceText, styles.dataSourceLink]}>
