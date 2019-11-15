@@ -220,6 +220,15 @@ export default class MatrixContent extends React.Component {
             },
         );
 
+        // Update the rightColumnWidth & bottomRowHeight if windowSize changes
+        reaction(
+            () => this.props.windowSize.dimensionsChangeCount,
+            () => {
+                this.rightColumnWidth = sub(this.props.windowSize.animatedWidth, this.leftColumnWidth);
+                this.bottomRowHeight = sub(this.props.windowSize.animatedHeight, this.topRowHeight);
+            },
+        );
+
     }
 
 
@@ -475,6 +484,9 @@ export default class MatrixContent extends React.Component {
     render() {
 
         log('MatrixContent: Render');
+
+        // We need to re-render if the dimensions change (device orientation)
+        const { dimensionsChangeCount } = this.props.windowSize;
 
         return (
             <View style={ styles.container }>

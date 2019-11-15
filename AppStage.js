@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
+import { StyleSheet, View, StatusBar, Text } from 'react-native';
+import { SafeAreaView } from 'react-navigation';
 import { observer } from 'mobx-react';
-import { configure, reaction, computed } from 'mobx';
+import { configure, reaction, computed, observable, action } from 'mobx';
 import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
 import InfectApp from '@infect/frontend-logic';
@@ -46,6 +47,12 @@ console.error = () => {};
  */
 @observer
 export default class AppStage extends React.Component {
+
+    // For rendering the matrix, we have to know the window dimensions
+    @observable dimensionsAreKnown = false
+    @action handleDimensionChange(weKnowTheDimension) {
+        this.dimensionsAreKnown = weKnowTheDimension;
+    }
 
     constructor() {
 
@@ -160,6 +167,10 @@ export default class AppStage extends React.Component {
     handleSafeAreaLayoutChange(ev) {
         log('handleSafeAreaLayoutChange', ev.nativeEvent.layout);
         this.windowSize.update(ev.nativeEvent.layout);
+
+        if (this.windowSize.height > 0 && this.windowSize.width > 0) {
+            this.handleDimensionChange(true);
+        }
     }
 
     render() {
@@ -169,6 +180,7 @@ export default class AppStage extends React.Component {
         return (
             <SafeAreaView
                 style={styles.mainContainer}
+                forceInset={{ right: 'never' }}
             >
 
                 <StatusBar hidden={true} />
@@ -187,7 +199,7 @@ export default class AppStage extends React.Component {
                         // this.app.antibiotics.status.identifier === 'ready' &&
                         // this.app.bacteria.status.identifier === 'ready' &&
                         // TODO: Switch to bact/ab loaded to speed things up (a little bit)
-                        this.showMatrix &&
+                        this.showMatrix && this.dimensionsAreKnown &&
 
                         <View style={styles.container}>
                             <MainView
