@@ -22,6 +22,12 @@ export default {
         fontSize: 12,
         letterSpacing: -0.4,
     },
+    fontSizes: {
+        guidelines: {
+            bigText: 20,
+            regularText: 14,
+        },
+    },
     colors: {
         green: '#cbe264', // c7ed61
         // For use of fine stuff on white. Corresponds to green, darkened 25% using
@@ -29,6 +35,11 @@ export default {
         darkGreen: '#afcd26',
         blackGreen: '#31330b',
         error: '#d82222',
+        errorText: '#a94442',
+        warningBackground: '#fcf8e3',
+        warningText: '#8a6d3b',
+        notificationBackground: '#d9edf7',
+        notificationText: '#31708f',
         highlightBackground: '#a9ddf2',
         darkBackgroundGrey: '#363636',
         mediumBackgroundGrey: '#4b4b4b',

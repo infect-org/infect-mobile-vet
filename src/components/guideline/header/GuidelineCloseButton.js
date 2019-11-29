@@ -9,7 +9,7 @@ import GuidelineHeaderCloseButtonIcon from '../icons/GuidelineHeaderCloseButtonI
  *
  * @extends {React.Component}
  */
-export default class GuidelineHeaderRight extends React.Component {
+export default class GuidelineCloseButton extends React.Component {
 
     constructor(props) {
         super(props);

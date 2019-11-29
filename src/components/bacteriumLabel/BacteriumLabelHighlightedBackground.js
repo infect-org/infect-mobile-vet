@@ -5,6 +5,8 @@ import { computed, reaction } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 
+import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
+
 const { Animated } = DangerZone;
 
 const {
@@ -13,11 +15,7 @@ const {
     divide,
 } = Animated;
 
-@observer
-export default class BacteriumLabelHighlightedBackground extends React.Component {
-
-    width = new Animated.Value(0);
-    widthSet = false;
+export default @observer class BacteriumLabelHighlightedBackground extends React.Component {
 
     constructor(...props) {
         super(...props);
@@ -29,14 +27,10 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
      */
     setupAnimatedProps() {
 
-        reaction(
-            () => this.labelWidth,
-            width => this.width.setValue(width),
-        );
-
-
-        // Adjust left by the amount animatedZoom exceeds cappedLabelZoom. As we shrink the label
-        // when zoom increases, we have to move in the opposite direction.
+        /**
+         * Adjust left by the amount animatedZoom exceeds cappedLabelZoom. As we shrink the
+         * highlighted background when zoom increases, we have to move in the opposite direction.
+         */
         this.left = multiply(
             sub(
                 divide(this.props.animatedZoom, this.props.cappedLabelZoom),
@@ -46,27 +40,15 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
             0.5,
         );
 
-        // Zoom label out when font would become larger than cappedLabelZoom
+        /**
+         * Zoom highlighted background out when the font of the label
+         * would become larger than cappedLabelZoom
+         */
         this.cappedLabelZoomAdjustment = divide(
             this.props.cappedLabelZoom,
             this.props.animatedZoom,
         );
 
-    }
-
-    labelLayoutHandler = (ev) => {
-        // Make sure we only handle layout once; if not, we might run into an infinite loop.
-        if (this.widthSet) return;
-        const { width } = ev.nativeEvent.layout;
-        this.props.bacterium.setWidth(width);
-        this.widthSet = true;
-    };
-
-    @computed get labelWidth() {
-        // If we don't know the col width yet, use auto so that we can measure the label's real
-        // size
-        return this.props.matrix.defaultRadius ?
-            this.props.matrix.bacteriumLabelColumnWidth * this.props.maxZoom : 'auto';
     }
 
     @computed get isSelected() {
@@ -87,7 +69,10 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
      * Check if bacterium is in selected guideline
      */
     @computed get isInSelectedGuideline() {
-        return this.props.guidelineController.highlightBacterium(this.props.bacterium);
+        return isBacteriumInSelectedGuideline(
+            this.props.bacterium.bacterium,
+            this.props.guidelines.getSelectedDiagnosis(),
+        );
     }
 
     @computed get visible() {
@@ -120,6 +105,17 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
     }
 
     /**
+     * Get the width of the current highlighted background
+     */
+    @computed get width() {
+        return this.props.matrix.defaultRadius ?
+            multiply(
+                this.props.matrix.bacteriumLabelColumnWidth,
+                this.props.maxZoom,
+            ) : 'auto';
+    }
+
+    /**
      * Get the top of the current highlighted background
      */
     @computed get top() {
@@ -134,7 +130,7 @@ export default class BacteriumLabelHighlightedBackground extends React.Component
                 style={[
                     styles.container,
                     {
-                        width: this.labelWidth,
+                        width: this.width,
                         height: this.height,
                         opacity: this.opacity,
                         backgroundColor: this.activeBacteriumBackground,

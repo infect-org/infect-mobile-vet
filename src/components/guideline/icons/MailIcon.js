@@ -1,7 +1,7 @@
 import React from 'react';
 import { Svg } from 'expo';
 
-export default class Mail extends React.Component {
+export default class MailIcon extends React.Component {
 
     render() {
         return (

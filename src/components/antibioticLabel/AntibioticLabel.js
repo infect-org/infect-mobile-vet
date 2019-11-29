@@ -6,6 +6,8 @@ import { computed, observable, action, reaction } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
+import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
+
 const { Animated } = DangerZone;
 
 const {
@@ -188,7 +190,22 @@ export default class AntibioticLabel extends React.Component {
      * - Render priority order (from therapy the antibiotic is in)
      */
     @computed get isInSelectedGuideline() {
-        return this.props.guidelineController.highlightAntibiotic(this.props.antibiotic);
+        return isAntibioticInSelectedGuideline(
+            this.props.antibiotic.antibiotic,
+            this.props.guidelines.getSelectedDiagnosis(),
+        );
+    }
+
+    @computed get priorityOrder() {
+        const diagnosis = this.props.guidelines.getSelectedDiagnosis();
+        if (!diagnosis) return 0;
+
+        const therapyWichHasAskedAntibiotic = diagnosis.therapies
+            .find(therapy => therapy.containsAntibiotic(this.props.antibiotic.antibiotic));
+
+        return therapyWichHasAskedAntibiotic ?
+            therapyWichHasAskedAntibiotic.priority.order :
+            0;
     }
 
     render() {
@@ -239,12 +256,7 @@ export default class AntibioticLabel extends React.Component {
                             {this.isInSelectedGuideline &&
                                 <View style={styles.therapyOrderView}>
                                     <Text style={styles.therapyOrderViewText}>
-                                        {
-                                            this.props
-                                                .guidelineController
-                                                .getPriorityOrderOfAntibiotic(this.props
-                                                    .antibiotic.antibiotic)
-                                        }
+                                        { this.priorityOrder }
                                     </Text>
                                 </View>
                             }

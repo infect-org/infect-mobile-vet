@@ -4,6 +4,8 @@ import { computed } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 
+import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
+
 const { Animated } = DangerZone;
 
 const {
@@ -12,8 +14,7 @@ const {
     add,
 } = Animated;
 
-@observer
-export default class BacteriumRowHighlightedBackground extends React.Component {
+export default @observer class BacteriumRowHighlightedBackground extends React.Component {
 
     /**
      * Get the yPosition of the current highlighted background
@@ -47,7 +48,10 @@ export default class BacteriumRowHighlightedBackground extends React.Component {
      * @return {Boolean}
      */
     @computed get visible() {
-        return this.props.guidelineController.highlightBacterium(this.props.bacterium);
+        return isBacteriumInSelectedGuideline(
+            this.props.bacterium.bacterium,
+            this.props.guidelines.getSelectedDiagnosis(),
+        );
     }
 
     render() {

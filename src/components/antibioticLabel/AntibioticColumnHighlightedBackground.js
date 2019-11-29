@@ -4,6 +4,8 @@ import { computed } from 'mobx';
 import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 
+import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
+
 const { Animated } = DangerZone;
 
 const {
@@ -45,10 +47,9 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      * @return {[Therapy]}
      */
     @computed get selectedTherapiesForAntibiotic() {
-        const diagnosis = this.props.guidelines &&
-            this.props.guidelines.selectedGuideline &&
-            this.props.guidelines.selectedGuideline.selectedDiagnosis;
+        const diagnosis = this.props.guidelines.getSelectedDiagnosis();
         if (!diagnosis) return [];
+
         return diagnosis.therapies
             .filter(therapy => therapy.containsAntibiotic(this.props.antibiotic.antibiotic));
     }
@@ -59,7 +60,10 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      * @return {Boolean}    Visiblity of the highlighted background
      */
     @computed get visible() {
-        return this.props.guidelineController.highlightAntibiotic(this.props.antibiotic);
+        return isAntibioticInSelectedGuideline(
+            this.props.antibiotic.antibiotic,
+            this.props.guidelines.getSelectedDiagnosis(),
+        );
     }
 
     /**

@@ -11,8 +11,6 @@ import log from '../../helpers/log';
 import componentStates from '../../models/componentStates/componentStates';
 import GoogleAnalytics from '../googleAnalytics/GoogleAnalytics.js';
 
-import GuidelineController from '../../models/guideline/GuidelineController.js';
-
 @observer
 export default class MainView extends React.Component {
 
@@ -21,13 +19,6 @@ export default class MainView extends React.Component {
         this.addAntibioticFilter = this.addAntibioticFilter.bind(this);
         this.addBacteriumFilter = this.addBacteriumFilter.bind(this);
         this.addPopulationFilter = this.addPopulationFilter.bind(this);
-
-        // Setup the guideline controller
-        this.guidelineController = new GuidelineController({
-            selectedFilters: this.props.selectedFilters,
-            filterValues: this.props.filterValues,
-            guidelines: this.props.guidelines,
-        });
     }
 
     addAntibioticFilter() {
@@ -76,6 +67,7 @@ export default class MainView extends React.Component {
                     this.props.navigation.navigate('Guideline', {
                         drawer: this.props.drawer,
                         guidelines: this.props.guidelines,
+                        notificationCenter: this.props.notificationCenter,
                     });
                 } else {
                     this.props.navigation.navigate('Main');
@@ -110,7 +102,6 @@ export default class MainView extends React.Component {
                     componentStates={this.props.componentStates}
                     windowSize={this.props.windowSize}
                     guidelines={this.props.guidelines}
-                    guidelineController={this.guidelineController}
                 />
 
                 { /* Filter overlay button; no feedback needed as it opens overlay and
@@ -131,9 +122,10 @@ export default class MainView extends React.Component {
                     <View style={styles.guidelineButtonContainer} >
                         <GuidelineButton
                             drawer={this.props.drawer}
-                            selectedGuideline={this.props.guidelines.selectedGuideline}
-                            guidelineController={this.guidelineController}
+                            guidelines={this.props.guidelines}
                             navigation={this.props.navigation}
+
+                            guidelineController={this.guidelineController}
                         />
                     </View>
                 }
@@ -191,8 +183,8 @@ export default class MainView extends React.Component {
                         selectedFilters={this.props.selectedFilters}
                         componentStates={this.props.componentStates}
                         windowSize={this.props.windowSize}
-                        selectedGuideline={this.props.guidelines.selectedGuideline}
-                        guidelineController={this.guidelineController}
+                        guidelines={this.props.guidelines}
+                        guidelineRelatedFilters={this.props.guidelineRelatedFilters}
                     />
                 }
             </View>

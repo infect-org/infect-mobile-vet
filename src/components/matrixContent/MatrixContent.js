@@ -614,8 +614,6 @@ export default class MatrixContent extends React.Component {
                                     matrix={this.props.matrix}
                                     guidelines={this.props.guidelines}
                                     layoutElementPadding={this.layoutElementPadding}
-
-                                    guidelineController={this.props.guidelineController}
                                 />
                             ))}
 
@@ -628,8 +626,6 @@ export default class MatrixContent extends React.Component {
                                     topRowHeight={this.topRowHeight}
                                     layoutElementPadding={this.layoutElementPadding}
                                     animatedBacterium={this.animatedBacteria.get(bacterium.bacterium)}
-
-                                    guidelineController={this.props.guidelineController}
                                 />
                             ))}
 
@@ -732,7 +728,7 @@ export default class MatrixContent extends React.Component {
                                 maxZoom={this.labelZoomCaps.max}
                                 key={ab.antibiotic.id}
                                 matrix={this.props.matrix}
-                                guidelineController={this.props.guidelineController} />
+                                guidelines={this.props.guidelines} />
                         ))}
 
                     </Animated.View>
@@ -797,7 +793,7 @@ export default class MatrixContent extends React.Component {
                                     maxZoom={this.labelZoomCaps.max}
                                     bacterium={bact}
                                     matrix={this.props.matrix}
-                                    guidelineController={this.props.guidelineController}
+                                    guidelines={this.props.guidelines}
                                     paddingRight={this.layoutElementPadding} />
                                 
                                 <BacteriumLabelHighlightedBackground
@@ -807,7 +803,7 @@ export default class MatrixContent extends React.Component {
                                     maxZoom={this.labelZoomCaps.max}
                                     bacterium={bact}
                                     matrix={this.props.matrix}
-                                    guidelineController={this.props.guidelineController}
+                                    guidelines={this.props.guidelines}
                                     layoutElementPadding={this.layoutElementPadding}
                                 />
                             </View>

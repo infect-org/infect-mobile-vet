@@ -3,13 +3,13 @@ import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-nati
 import { observer } from 'mobx-react';
 import Markdown, { hasParents } from 'react-native-markdown-renderer';
 import { AllHtmlEntities } from 'html-entities';
-import ExternalLink from './icons/ExternalLink.js';
-import Mail from './icons/Mail.js';
+// import ExternalLinkIcon from './icons/ExternalLinkIcon.js';
+import MailIcon from './icons/MailIcon.js';
 
-import styleDefinitions from '../../helpers/styleDefinitions';
-import GuidelineHeaderRight from './header/GuidelineHeaderRight.js';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
+import GuidelineCloseButton from './header/GuidelineCloseButton.js';
 import GuidelineHeaderLeftBack from './header/GuidelineHeaderLeftBack.js';
-import CurrentResistanceButton from './CurrentResistanceButton.js';
+import ShowResistancesForSelectedDiagnosisButton from './ShowResistancesForSelectedDiagnosisButton.js';
 
 import openURL from '../../helpers/openURL.js';
 
@@ -20,8 +20,7 @@ import openURL from '../../helpers/openURL.js';
  *
  * @extends {React.Component}
  */
-@observer
-export default class DiagnosisDetail extends React.Component {
+export default @observer class DiagnosisDetail extends React.Component {
 
     static navigationOptions = ({ navigation }) => ({
         headerStyle: {
@@ -35,7 +34,7 @@ export default class DiagnosisDetail extends React.Component {
             flex: 1,
         },
         title: navigation.getParam('diagnosis').name,
-        headerRight: <GuidelineHeaderRight drawer={navigation.getParam('drawer')} />,
+        headerRight: <GuidelineCloseButton drawer={navigation.getParam('drawer')} />,
         headerLeft: <GuidelineHeaderLeftBack navigation={navigation}/>,
     });
 
@@ -85,6 +84,7 @@ export default class DiagnosisDetail extends React.Component {
         const diagnosis = this.props.navigation.getParam('diagnosis');
         const selectedGuideline = this.props.navigation.getParam('selectedGuideline');
         const drawer = this.props.navigation.getParam('drawer');
+        const notificationCenter = this.props.navigation.getParam('notificationCenter');
 
         return (
             <View style={styles.container}>
@@ -98,7 +98,7 @@ export default class DiagnosisDetail extends React.Component {
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
-                                openURL(selectedGuideline.link);
+                                openURL(selectedGuideline.link, notificationCenter);
                             }}
                         >
                             <Text style={styles.guidelineName}>
@@ -184,7 +184,7 @@ export default class DiagnosisDetail extends React.Component {
                                 <TouchableOpacity
                                     style={styles.externalLinkButton}
                                     onPress={() => {
-                                        openURL(diagnosis.link);
+                                        openURL(diagnosis.link, notificationCenter);
                                     }}
                                 >
                                     <Text
@@ -194,7 +194,7 @@ export default class DiagnosisDetail extends React.Component {
                                     >
                                         {selectedGuideline.name}
                                     </Text>
-                                    <ExternalLink
+                                    <ExternalLinkIcon
                                         height={14}
                                         width={14}
                                     />
@@ -205,7 +205,7 @@ export default class DiagnosisDetail extends React.Component {
                                 <TouchableOpacity
                                     style={styles.externalLinkButton}
                                     onPress={() => {
-                                        openURL(`mailto:${selectedGuideline.contactEmail}`);
+                                        openURL(`mailto:${selectedGuideline.contactEmail}`, notificationCenter);
                                     }}
                                 >
                                     <Text
@@ -215,7 +215,7 @@ export default class DiagnosisDetail extends React.Component {
                                     >
                                         Feedback
                                     </Text>
-                                    <Mail
+                                    <MailIcon
                                         height={14}
                                         width={14}
                                     />
@@ -230,7 +230,7 @@ export default class DiagnosisDetail extends React.Component {
                             </Text>
                             <TouchableOpacity
                                 onPress={() => {
-                                    openURL(diagnosis.link);
+                                    openURL(diagnosis.link, notificationCenter);
                                 }}
                             >
                                 <Text style={[styles.dataSourceText, styles.dataSourceLink]}>
@@ -243,7 +243,7 @@ export default class DiagnosisDetail extends React.Component {
                     </View>
                 </ScrollView>
                 <View style={styles.currentResistanceButtonContainer}>
-                    <CurrentResistanceButton
+                    <ShowResistancesForSelectedDiagnosisButton
                         selectedGuideline={selectedGuideline}
                         diagnosis={diagnosis}
                         drawer={drawer}
@@ -347,9 +347,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: styleDefinitions.colors.guidelines.darkBlue,
-    },
-    antibioticMarkdown: {
-
     },
     therapyMarkdown: {
         paddingLeft: 40,

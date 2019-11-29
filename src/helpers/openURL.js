@@ -1,15 +1,22 @@
-import React from 'react';
 import { Linking } from 'react-native';
 
 /**
  * opens a url on the device like call, website, etc.
 */
-export default (url) => {
+export default (url, notificationCenter) => {
     Linking.canOpenURL(url).then((supported) => {
         if (!supported) {
-            console.log(`Can't handle url: ${url}, the URL format is not supported!`);
+            notificationCenter.handle({
+                message: `Can't handle url: ${url}, the URL format is not supported!`,
+                severity: 'warning',
+            });
         } else {
             return Linking.openURL(url);
         }
-    }).catch(err => console.error(`Can't open url: ${url}`, err));
+    }).catch((err) => {
+        notificationCenter.handle({
+            message: `Can't open url ${url}: ${err.message}`,
+            severity: 'warning',
+        });
+    });
 };

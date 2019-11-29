@@ -4,18 +4,19 @@ import { observable, computed, action } from 'mobx';
 import { observer } from 'mobx-react';
 
 import styleDefinitions from '../../helpers/styleDefinitions';
-import GuidelineHeaderRight from './header/GuidelineHeaderRight.js';
+import GuidelineCloseButton from './header/GuidelineCloseButton.js';
 import GuidelineHeaderLeftTitle from './header/GuidelineHeaderLeftTitle.js';
 import DiagnosisListItem from './DiagnosisListItem.js';
 
 /**
- * Renders a diagnosis/guideline list.
- * The user could select one and go to the detail view.
+ * Renders a diagnosis list.
+ * The user could select one and go to the detail view to see recommended
+ * therapies for the selected diagnosis.
+ * The user then could highlight the relevent antibitics and bateria in the matrix.
  *
  * @extends {React.Component}
  */
-@observer
-export default class DiagnosisList extends React.Component {
+export default @observer class DiagnosisList extends React.Component {
 
     // Current search term in search filter text input
     @observable searchTerm = '';
@@ -26,7 +27,7 @@ export default class DiagnosisList extends React.Component {
         },
         title: null,
         headerLeft: <GuidelineHeaderLeftTitle title="Guidelines" />,
-        headerRight: <GuidelineHeaderRight drawer={navigation.getParam('drawer')} />,
+        headerRight: <GuidelineCloseButton drawer={navigation.getParam('drawer')} />,
     });
 
     constructor(props) {
@@ -37,23 +38,16 @@ export default class DiagnosisList extends React.Component {
     }
 
     @computed get diagnosisList() {
-        let diagnoses;
+        const results = this.searchTerm ?
+            this.guidelines.search(this.searchTerm) :
+            this.guidelines.selectedGuideline.diagnoses.map(diagnosis => ({ diagnosis }));
 
-        if (this.searchTerm && this.searchTerm !== '') {
-            diagnoses = this.guidelines.search(this.searchTerm).map((result) => {
-                return {
-                    diagnosis: result.diagnosis,
-                    foundSynonym: result.synonym,
-                };
-            });
-        } else {
-            diagnoses = this.guidelines.selectedGuideline.diagnoses.map(result => ({
-                diagnosis: result,
-                foundSynonym: null,
-            }));
-        }
-
-        return diagnoses.sort((a, b) => (a.diagnosis.name < b.diagnosis.name ? -1 : 1));
+        return results
+            .map(result => ({
+                diagnosis: result.diagnosis,
+                matchedSynonym: result.synonym,
+            }))
+            .sort((a, b) => (a.diagnosis.name < b.diagnosis.name ? -1 : 1));
     }
 
     /**
@@ -92,11 +86,12 @@ export default class DiagnosisList extends React.Component {
                     keyExtractor={item => `diagnosis_${item.diagnosis.id}`}
                     renderItem={({ item, index }) => <DiagnosisListItem
                         diagnosis={item.diagnosis}
-                        foundSynonym={item.foundSynonym}
+                        matchedSynonym={item.matchedSynonym}
                         index={index}
                         navigation={this.props.navigation}
                         drawer={this.props.navigation.getParam('drawer')}
                         selectedGuideline={this.guidelines.selectedGuideline}
+                        notificationCenter={this.props.navigation.getParam('notificationCenter')}
                     />
                     }>
                 </FlatList>

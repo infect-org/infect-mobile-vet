@@ -8,18 +8,18 @@ import Sentry from 'sentry-expo';
 import InfectApp from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
-import componentStates from './src/models/componentStates/componentStates';
-import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel';
-import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel';
-import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSize';
+import componentStates from './src/models/componentStates/componentStates.js';
+import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel.js';
+import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
+import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSize.js';
 
-import config from './src/config';
-import styleDefinitions from './src/helpers/styleDefinitions';
-import ErrorMessages from './src/components/errorMessages/ErrorMessages';
-import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen';
-import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay';
-import MainView from './src/components/mainView/MainView';
-import log from './src/helpers/log';
+import config from './src/config.js';
+import styleDefinitions from './src/helpers/styleDefinitions.js';
+import ErrorMessages from './src/components/errorMessages/ErrorMessages.js';
+import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen.js';
+import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay.js';
+import MainView from './src/components/mainView/MainView.js';
+import log from './src/helpers/log.js';
 
 
 // Remove this once Sentry is correctly setup.
@@ -31,7 +31,7 @@ Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').inst
 configure({ enforceActions: 'always' });
 
 console.disableYellowBox = true;
-console.error = () => {};
+// console.error = () => {};
 
 /**
  * Basic app. Especially handles
@@ -154,7 +154,7 @@ export default class AppStage extends React.Component {
         try {
             await this.app.initialize();
         } catch (err) {
-            this.app.errorHandler.handle(err);
+            this.app.notificationCenter.handle(err);
             log('Error initializing app', err);
         }
         log('App: Initialized');
@@ -213,6 +213,8 @@ export default class AppStage extends React.Component {
                                 googleAnalytics={this.googleAnalytics}
                                 navigation={this.props.navigation}
                                 guidelines={this.app.guidelines}
+                                guidelineRelatedFilters={this.app.guidelineRelatedFilters}
+                                notificationCenter={this.app.notificationCenter}
                             />
                         </View>
                     }
@@ -242,10 +244,10 @@ export default class AppStage extends React.Component {
                     </View>
 
                     { /* Errors: At bottom to give it the highest z-index */ }
-                    { this.app.errorHandler.errors.length > 0 &&
+                    { this.app.notificationCenter.notifications.length > 0 &&
                         <View style={styles.errors}>
                             <ErrorMessages
-                                errors={this.app.errorHandler.errors}
+                                errors={this.app.notificationCenter.notifications}
                             />
                         </View>
                     }

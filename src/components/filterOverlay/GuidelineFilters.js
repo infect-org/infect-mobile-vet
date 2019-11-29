@@ -1,13 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Text } from 'react-native';
-import { transaction } from 'mobx';
 import { observer } from 'mobx-react';
-import { filterTypes } from '@infect/frontend-logic';
-import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
-import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
-
-// «Dummy» filter item for the guideline filter
-import guidelineFilter from '../../models/guideline/guidelineFilter.js';
+import { computed } from 'mobx';
+import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle.js';
 
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 
@@ -17,64 +12,22 @@ export default class GuidelineFilters extends React.Component {
     constructor(props) {
         super(props);
 
-        this.toggleOnlyShowRelevantData = this.toggleOnlyShowRelevantData.bind(this);
-        this.removeSelectedDiagnosis = this.removeSelectedDiagnosis.bind(this);
+        this.addDiagnosisFilters = this.addDiagnosisFilters.bind(this);
     }
 
-    /**
-     * Only show relevant bacteria and antibiotic which are part of the selected
-     * guideline/diagnosis.
-     *
-     * - Get all relevant bacteria
-     * - Get all relevant antibiotic
-     * - Toggle (add or remove) those as filter to the selectedFilter list
-     *
-     */
-    toggleOnlyShowRelevantData() {
-        this.props.selectedFilters.toggleFilter(guidelineFilter);
-
-        const bacteriumNames = this.props.selectedGuideline.selectedDiagnosis.inducingBacteria
-            .map(bacterium => bacterium.name);
-
-        const antibioticNames = this.props.selectedGuideline.selectedDiagnosis.therapies
-            .map(therapy => therapy.recommendedAntibiotics)
-            .reduce((accumulator, value) => accumulator.concat(value), [])
-            .map(recommendedAntibiotic => recommendedAntibiotic.antibiotic.name);
-
-        // We need to do it in a transaction, so all the filters get rendered properly
-        transaction(() => {
-            this.props.filterValues
-                .getValuesForProperty(filterTypes.bacterium, 'name')
-                .filter(item => bacteriumNames.includes(item.value))
-                .forEach(bacteriumFilter => this.props.selectedFilters
-                    .toggleFilter(bacteriumFilter));
-        });
-
-        // We need to do it in a transaction, so all the filters get rendered properly
-        transaction(() => {
-            this.props.filterValues
-                .getValuesForProperty(filterTypes.antibiotic, 'name')
-                .filter(item => antibioticNames.includes(item.value))
-                .forEach(antibioticFilter => this.props.selectedFilters
-                    .toggleFilter(antibioticFilter));
-        });
+    addDiagnosisFilters() {
+        this.props.guidelineRelatedFilters.selectFiltersRelatedToSelectedDiagnosis();
     }
 
-    /**
-     * Remove the selected guideline/diagnosis:
-     * - Remove all bacteria & antibiotic filters induced by selected guideline
-     * - Deselect the current diagnosis
-     */
-    removeSelectedDiagnosis() {
-        this.props.guidelineController.removeSelectedGuideline();
+    @computed get areAllDiagnosisRelatedFiltersSelected() {
+        return this.props.guidelineRelatedFilters.areAllDiagnosisRelatedFiltersSelected();
     }
 
     render() {
 
-        if (!this.props.selectedGuideline ||
-            !this.props.selectedGuideline.selectedDiagnosis) return null;
+        if (!this.props.guidelines.getSelectedDiagnosis()) return null;
 
-        const { selectedDiagnosis } = this.props.selectedGuideline;
+        const selectedDiagnosis = this.props.guidelines.getSelectedDiagnosis();
 
         return (
             <View style={styles.container}>
@@ -90,35 +43,18 @@ export default class GuidelineFilters extends React.Component {
                     textColor={styleDefinitions.colors.mediumBackgroundGrey}
                 />
 
-                <FilterOverlaySwitchItem
-                    item={guidelineFilter}
-                    selectedFilters={this.props.selectedFilters}
-                    name="Only show relevant data"
-                    borderTop={true}
-                    hideCheckbox={false}
-                    selectionChangeHandler={this.toggleOnlyShowRelevantData}
-
-                    filterListItemStyles={{
-                        backgroundColor: styleDefinitions.colors.guidelines.backgroundMiddleBlue,
-                        borderColor: styleDefinitions.colors.lightBackgroundGrey,
-                    }}
-                    labelStyles={{
-                        color: styleDefinitions.colors.mediumBackgroundGrey,
-                    }}
-                    checkboxCircleSelectedStyles={{
-                        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
-                    }}
-                    checkboxCircleNotSelectedStyles={{
-                        borderColor: styleDefinitions.colors.guidelines.darkBlue,
-                        borderWidth: 1,
-                    }}
-                    filterOverlaySwitchItemCheckMarkStrokeColor={styleDefinitions.colors.guidelines.backgroundMiddleBlue}
-                />
-
                 <TouchableWithoutFeedback
-                    onPress={this.removeSelectedDiagnosis}
+                    onPress={this.addDiagnosisFilters}
+                    disabled={this.areAllDiagnosisRelatedFiltersSelected}
                 >
-                    <View style={styles.removeFiltersButton}>
+                    <View style={[
+                        styles.addFiltersButton,
+                        {
+                            backgroundColor: this.areAllDiagnosisRelatedFiltersSelected ?
+                                styleDefinitions.colors.guidelines.ligthBlue :
+                                styleDefinitions.colors.guidelines.darkBlue,
+                        }
+                    ]}>
                         <View
                             style={
                                 styleDefinitions.buttons.textContainer
@@ -126,9 +62,13 @@ export default class GuidelineFilters extends React.Component {
                         >
                             <Text style={[
                                 styleDefinitions.buttons.secondaryText,
-                                styles.removeFiltersButtonText,
+                                {
+                                    color: this.areAllDiagnosisRelatedFiltersSelected ?
+                                        styleDefinitions.colors.guidelines.middleBlue :
+                                        styleDefinitions.colors.white,
+                                },
                             ]}>
-                                Remove Guideline
+                                Filter Matrix by Diagnosis
                             </Text>
                         </View>
                     </View>
@@ -145,12 +85,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: styleDefinitions.colors.guidelines.middleBlue,
     },
-    removeFiltersButton: {
+    addFiltersButton: {
         margin: 20,
         ...styleDefinitions.buttons.secondaryButton,
-        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
-    },
-    removeFiltersButtonText: {
-        color: styleDefinitions.colors.white,
     },
 });

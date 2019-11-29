@@ -8,7 +8,7 @@ import DiagnosisDetail from './src/components/guideline/DiagnosisDetail.js';
  * Create the main navigation stack, we only have the AppStage (with the matric)
  * for now
  */
-const MainStack = createStackNavigator({
+const mainStack = createStackNavigator({
     Start: {
         screen: AppStage,
         navigationOptions: () => ({
@@ -22,7 +22,7 @@ const MainStack = createStackNavigator({
  * - DiagnosisList
  * - DiagnosisDetail
  */
-const GuidelineStack = createStackNavigator({
+const guidelineStack = createStackNavigator({
     GuidelineList: {
         screen: DiagnosisList,
     },
@@ -34,13 +34,13 @@ const GuidelineStack = createStackNavigator({
 /**
  * Create the root stack with the mainStack and guidelineStack in it
  */
-const RootStack = createStackNavigator(
+const rootStack = createStackNavigator(
     {
         Main: {
-            screen: MainStack,
+            screen: mainStack,
         },
         Guideline: {
-            screen: GuidelineStack,
+            screen: guidelineStack,
         },
     },
     {
@@ -49,6 +49,6 @@ const RootStack = createStackNavigator(
     },
 );
 
-const App = createAppContainer(RootStack);
+const App = createAppContainer(rootStack);
 
 export default App;

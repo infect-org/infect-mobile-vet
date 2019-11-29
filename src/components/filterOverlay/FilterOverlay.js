@@ -249,10 +249,8 @@ export default class FilterOverlay extends React.Component {
                                         }
 
                                         <GuidelineFilters
-                                            filterValues={this.props.filterValues}
-                                            selectedFilters={this.props.selectedFilters}
-                                            selectedGuideline={this.props.selectedGuideline}
-                                            guidelineController={this.props.guidelineController}
+                                            guidelines={this.props.guidelines}
+                                            guidelineRelatedFilters={this.props.guidelineRelatedFilters}
                                         />
 
                                         <AntibioticFilters
