@@ -4,13 +4,27 @@ import { observable, action } from 'mobx';
 import { observer } from 'mobx-react';
 import styleDefinitions from '../../helpers/styleDefinitions';
 
+const { colors } = styleDefinitions;
+
 @observer
-export default class ErrorMessages extends React.Component {
+export default class NotificationMessages extends React.Component {
+
+    colorMapping = {
+        warning: {
+            background: colors.warningBackground,
+            text: colors.warningText,
+        },
+        notification: {
+            background: colors.notificationBackground,
+            text: colors.notificationText,
+        },
+        error: {
+            background: colors.error,
+            text: colors.white,
+        },
+    }
 
     @observable isVisible = true
-    @action hide() {
-        this.isVisible = false;
-    }
 
     constructor(props) {
         super(props);
@@ -18,78 +32,50 @@ export default class ErrorMessages extends React.Component {
         this.hide = this.hide.bind(this);
     }
 
-    getBackgroundColor(notification) {
-        let color;
-
-        switch (notification.severity) {
-            case 'warning':
-                color = styleDefinitions.colors.warningBackground;
-                break;
-            case 'notification':
-                color = styleDefinitions.colors.notificationBackground;
-                break;
-            default:
-                color = styleDefinitions.colors.error;
-                break;
-        }
-
-        return color;
+    @action hide() {
+        this.isVisible = false;
     }
 
-    getTextColor(notification) {
-        let color;
-
-        switch (notification.severity) {
-            case 'warning':
-                color = styleDefinitions.colors.warningText;
-                break;
-            case 'notification':
-                color = styleDefinitions.colors.notificationText;
-                break;
-            default:
-                color = styleDefinitions.colors.white;
-                break;
-        }
-
-        return color;
+    getNotificationColors(notification) {
+        return this.colorMapping[notification.severity] || this.colorMapping.error;
     }
 
     render() {
         if (!this.isVisible) return null;
 
         return (
-            <ScrollView style={ styles.errorContainer }>
+            <ScrollView style={styles.notificationContainer}>
                 <View>
-                    { this.props.errors.map((err, index) => (
+                    {this.props.notifications.map((notification, index) => (
                         <View
-                            key={ index }
+                            key={index}
                             style={[styles.messageContainer, {
-                                backgroundColor: this.getBackgroundColor(err),
+                                backgroundColor: this.getNotificationColors(notification).background,
                             }]}
                         >
                             <Text style={[
-                                styles.errorTitle,
+                                styles.notificationTitle,
                                 {
-                                    color: this.getTextColor(err),
+                                    color: this.getNotificationColors(notification).text,
                                 },
-                            ]}>{err.severity}</Text>
+                            ]}>{notification.severity}</Text>
                             <Text
                                 style={[
-                                    styles.errorText,
+                                    styles.notificationText,
                                     {
-                                        color: this.getTextColor(err),
+                                        color: this.getNotificationColors(notification).text,
                                     },
                                 ]}>
-                                { err.message }
+                                {notification.message}
                             </Text>
-                            <View style={styles.seperator} />
+                            <View style={styles.separator} />
                         </View>
-                    )) }
+                    ))}
                     <View style={styles.buttonContainer}>
                         <TouchableHighlight
-                            style={styles.reloadButton}
+                            style={styles.closeButton}
                             onPress={this.hide}>
-                            <Text style={styles.reloadText}>Close</Text>
+                            <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableHighlight>
                     </View>
                 </View>
@@ -100,23 +86,23 @@ export default class ErrorMessages extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    errorContainer: {
+    notificationContainer: {
         backgroundColor: styleDefinitions.colors.white,
     },
     messageContainer: {
         padding: 20,
     },
-    seperator: {
+    separator: {
         height: 1,
         backgroundColor: '#FFF',
         marginBottom: 10,
         opacity: 0.6,
     },
-    errorText: {
+    notificationText: {
         marginBottom: 10,
         fontSize: 16,
     },
-    errorTitle: {
+    notificationTitle: {
         fontWeight: 'bold',
         paddingBottom: 10,
         fontSize: 20,
@@ -124,7 +110,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
     },
-    reloadButton: {
+    closeButton: {
         marginTop: 20,
         marginLeft: 20,
         marginBottom: 20,
@@ -136,7 +122,7 @@ const styles = StyleSheet.create({
         padding: 10,
         marginRight: 10,
     },
-    reloadText: {
+    closeButtonText: {
         color: styleDefinitions.colors.black,
         fontSize: 20,
     },

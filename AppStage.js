@@ -15,7 +15,7 @@ import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSi
 
 import config from './src/config.js';
 import styleDefinitions from './src/helpers/styleDefinitions.js';
-import ErrorMessages from './src/components/errorMessages/ErrorMessages.js';
+import NotificationMessages from './src/components/errorMessages/NotificationMessages.js';
 import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen.js';
 import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay.js';
 import MainView from './src/components/mainView/MainView.js';
@@ -68,10 +68,9 @@ export default class AppStage extends React.Component {
 
         // Add preview parameter on release-channel «testing»
         if (Constants.manifest.releaseChannel === 'testing') {
-            for (const endpoint of Object.keys(config.endpoints)) {
-                const endPointValue = config.endpoints[endpoint];
+            for (const [endpointName, endPointValue] of Object.entries(config.endpoints)) {
                 if (!/https/.test(endPointValue)) {
-                    config.endpoints[endpoint] = `${endPointValue}?showAllData=true`;
+                    config.endpoints[endpointName] = `${endPointValue}?showAllData=true`;
                 }
             }
         }
@@ -245,9 +244,9 @@ export default class AppStage extends React.Component {
 
                     { /* Errors: At bottom to give it the highest z-index */ }
                     { this.app.notificationCenter.notifications.length > 0 &&
-                        <View style={styles.errors}>
-                            <ErrorMessages
-                                errors={this.app.notificationCenter.notifications}
+                        <View style={styles.notifications}>
+                            <NotificationMessages
+                                notifications={this.app.notificationCenter.notifications}
                             />
                         </View>
                     }
@@ -267,7 +266,7 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
     },
-    errors: {
+    notifications: {
         position: 'absolute',
         top: 0,
         left: 0,
