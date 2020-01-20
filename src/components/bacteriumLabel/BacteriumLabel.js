@@ -6,6 +6,8 @@ import { DangerZone } from 'expo';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
+import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
+
 const { Animated } = DangerZone;
 
 const {
@@ -78,12 +80,6 @@ export default class BacteriumLabel extends React.Component {
             this.props.matrix.bacteriumLabelColumnWidth * this.props.maxZoom : 'auto';
     }
 
-    @computed get shortName() {
-        const { bacterium } = this.props.bacterium;
-        // TODO: Remove substr, as soon as all short names are in DB
-        return bacterium.shortName || bacterium.name.substr(0, 8);
-    }
-
     @computed get isSelected() {
         return this.props.matrix.activeResistance &&
             this.props.matrix.activeResistance.resistance.bacterium ===
@@ -91,11 +87,14 @@ export default class BacteriumLabel extends React.Component {
     }
 
     /**
-     * If resistance of bacterium is displayed as ResistanceDetail (large circle), bacterium
-     * is highlighted (background color). Returns the background color of the current bacterium.
+     * If the bacterium is in the selected guideline/diagnosis:
+     * - Change color of label
      */
-    @computed get activeBacteriumBackground() {
-        return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
+    @computed get isInSelectedGuideline() {
+        return isBacteriumInSelectedGuideline(
+            this.props.bacterium.bacterium,
+            this.props.guidelines.getSelectedDiagnosis(),
+        );
     }
 
     render() {
@@ -110,6 +109,7 @@ export default class BacteriumLabel extends React.Component {
                     {
                         width: this.labelWidth,
                         opacity: this.props.animatedBacterium.opacity,
+                        paddingRight: this.props.paddingRight || 0,
                         transform: [{
                             scale: this.cappedLabelZoomAdjustment,
                         }, {
@@ -123,10 +123,14 @@ export default class BacteriumLabel extends React.Component {
                 <Text
                     style={[
                         styles.labelText,
-                        { backgroundColor: this.activeBacteriumBackground },
+                        {
+                            color: (this.isInSelectedGuideline && !this.isSelected) ?
+                                styleDefinitions.colors.guidelines.darkBlue :
+                                styleDefinitions.colors.black,
+                        },
                     ]}
                     onLayout={this.labelLayoutHandler}>
-                    { this.shortName }
+                    { this.props.bacterium.bacterium.shortName }
                 </Text>
             </Animated.View>
         );

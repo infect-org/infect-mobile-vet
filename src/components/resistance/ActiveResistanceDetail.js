@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         top: 0,
+        zIndex: 11,
         // backgroundColor: 'salmon',
     },
     resistanceDetailContainer: {

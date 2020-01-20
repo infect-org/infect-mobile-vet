@@ -14,9 +14,8 @@ export default class SubstanceClassHeaderItem extends React.Component {
     width = new Animated.Value(0);
     opacity = new Animated.Value(0);
 
-    constructor(...props) {
-        super(...props);
-
+    // Moved from constructor so the headers get rendered properly
+    componentDidMount() {
         const xPosition = this.props.matrix.xPositions.get(this.props.substanceClass);
         this.updateAnimatedValues(xPosition);
 
@@ -51,9 +50,8 @@ export default class SubstanceClassHeaderItem extends React.Component {
         // substanceClass has no xPosition if it's not visible (because of filters). Make sure we
         // don't access child properties of xPosition if substanceClass is invisible.
 
-        const backgroundColor = this.getBackgroundColorString(
-            this.props.substanceClass.substanceClass.color,
-        );
+        const backgroundColor = this.getBackgroundColorString(this.props.substanceClass
+            .substanceClass.color);
 
         /* log(
             'SubstanceClassHeaderItem: xPosition is',

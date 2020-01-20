@@ -45,18 +45,13 @@ export default class FilterOverlaySwitchItem extends React.Component {
 
         log('FilterOverlaySwitchItem: Render');
 
-        const borderTopWidth = this.props.borderTop ? StyleSheet.hairlineWidth : 0;
-        const circleSelectedStateStyle = this.selected ? styles.checkboxCircleSelected :
-            styles.checkboxCircleNotSelected;
+        const circleSelectedStateStyle = this.selected ? styles.checkboxCircleSelected 
+            : styles.checkboxCircleNotSelected;
 
         return (
             <TouchableHighlight onPress={this.handleSwitchPress}>
                 <View
-                    style={[
-                        styles.filterListItem, {
-                            borderTopWidth,
-                        },
-                    ]}>
+                    style={styles.filterListItem}>
                     { /* Adjust checkbox vertically */ }
                     { !this.props.hideCheckbox &&
                         <View style={styles.checkboxCircleContainer}>
