@@ -84,4 +84,13 @@ const styles = StyleSheet.create({
         // borderColor: 'yellow',
         // borderWidth: 10,
     },
+    corruptDataOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 400,
+        backgroundColor: 'red',
+        zIndex: 2000000,
+    },
 });
