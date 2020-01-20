@@ -49,7 +49,11 @@ export default class GuidelineHeaderLeftBack extends React.Component {
 const styles = StyleSheet.create({
     headerLeft: {
         flexDirection: 'row',
+
         paddingLeft: 20,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingRight: 5,
     },
     headerLeftText: {
         color: '#FFF',

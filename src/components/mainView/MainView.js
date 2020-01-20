@@ -67,6 +67,7 @@ export default class MainView extends React.Component {
                     this.props.navigation.navigate('Guideline', {
                         drawer: this.props.drawer,
                         guidelines: this.props.guidelines,
+                        notificationCenter: this.props.notificationCenter,
                     });
                 } else {
                     this.props.navigation.navigate('Main');
@@ -100,6 +101,7 @@ export default class MainView extends React.Component {
                     selectedFilters={this.props.selectedFilters}
                     componentStates={this.props.componentStates}
                     windowSize={this.props.windowSize}
+                    guidelines={this.props.guidelines}
                 />
 
                 { /* Filter overlay button; no feedback needed as it opens overlay and
@@ -108,6 +110,7 @@ export default class MainView extends React.Component {
                     <FilterButton
                         matrix={this.props.matrix}
                         filterOverlayModel={this.props.filterOverlayModel}
+                        selectedFilters={this.props.selectedFilters}
                     />
                 </View>
 
@@ -115,12 +118,17 @@ export default class MainView extends React.Component {
                     - open diagnosis list
                     - clear selected diagnosis
                 */}
-                <View style={styles.guidelineButtonContainer} >
-                    <GuidelineButton
-                        drawer={this.props.drawer}
-                        selectedGuideline={this.props.guidelines.selectedGuideline}
-                    />
-                </View>
+                {this.props.guidelines.getAsArray().length > 0 &&
+                    <View style={styles.guidelineButtonContainer} >
+                        <GuidelineButton
+                            drawer={this.props.drawer}
+                            guidelines={this.props.guidelines}
+                            navigation={this.props.navigation}
+
+                            guidelineController={this.guidelineController}
+                        />
+                    </View>
+                }
 
                 { /* Just for testing (adds antibiotic to filters */ }
                 { /* <TouchableHighlight onPress={this.addAntibioticFilter}>
@@ -175,6 +183,8 @@ export default class MainView extends React.Component {
                         selectedFilters={this.props.selectedFilters}
                         componentStates={this.props.componentStates}
                         windowSize={this.props.windowSize}
+                        guidelines={this.props.guidelines}
+                        guidelineRelatedFilters={this.props.guidelineRelatedFilters}
                     />
                 }
             </View>
@@ -194,11 +204,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         bottom: 0,
+
+        zIndex: 2,
     },
     guidelineButtonContainer: {
         position: 'absolute',
         right: 78,
         bottom: 18,
+
+        zIndex: 1,
     },
     container: {
         flex: 1,

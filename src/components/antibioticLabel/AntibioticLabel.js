@@ -6,6 +6,8 @@ import { computed, observable, action, reaction } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
 
+import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
+
 const { Animated } = DangerZone;
 
 const {
@@ -182,6 +184,29 @@ export default class AntibioticLabel extends React.Component {
         return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
     }
 
+    /**
+     * If the antibotic is in the selected guideline/diagnosis:
+     * - Change color of label
+     * - Render priority order (from therapy the antibiotic is in)
+     */
+    @computed get isInSelectedGuideline() {
+        return isAntibioticInSelectedGuideline(
+            this.props.antibiotic.antibiotic,
+            this.props.guidelines.getSelectedDiagnosis(),
+        );
+    }
+
+    @computed get priorityOrder() {
+        const diagnosis = this.props.guidelines.getSelectedDiagnosis();
+        if (!diagnosis) return 0;
+
+        const therapyWichHasAskedAntibiotic = diagnosis.therapies
+            .find(therapy => therapy.containsAntibiotic(this.props.antibiotic.antibiotic));
+
+        return therapyWichHasAskedAntibiotic ?
+            therapyWichHasAskedAntibiotic.priority.order :
+            0;
+    }
 
     render() {
 
@@ -226,14 +251,29 @@ export default class AntibioticLabel extends React.Component {
                             this.labelRotatorStyle,
                         ]}
                     >
-                        <Text
-                            style={[
-                                styles.labelText,
-                                { backgroundColor: this.activeAntibioticBackground },
-                            ]}
-                            onLayout={ this.labelTextLayoutHandler }>
-                            { this.shortName }
-                        </Text>
+
+                        <View style={styles.labelTextContainer}>
+                            {this.isInSelectedGuideline &&
+                                <View style={styles.therapyOrderView}>
+                                    <Text style={styles.therapyOrderViewText}>
+                                        { this.priorityOrder }
+                                    </Text>
+                                </View>
+                            }
+                            <Text
+                                style={[
+                                    styles.labelText,
+                                    {
+                                        backgroundColor: this.activeAntibioticBackground,
+                                        color: (this.isInSelectedGuideline && !this.isSelected) ?
+                                            styleDefinitions.colors.guidelines.darkBlue :
+                                            styleDefinitions.colors.black,
+                                    },
+                                ]}
+                                onLayout={ this.labelTextLayoutHandler }>
+                                { this.shortName }
+                            </Text>
+                        </View>
                     </View>
                 </View>
             </Animated.View>
@@ -257,11 +297,30 @@ const styles = StyleSheet.create({
         // borderWidth: 1,
         // borderColor: 'tomato',
     },
+    labelTextContainer: {
+        flexDirection: 'row',
+    },
     labelText: {
         ...styleDefinitions.base,
         ...styleDefinitions.label,
         textAlign: 'left',
         // borderWidth: 1,
         // borderColor: 'green',
+    },
+    therapyOrderView: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 14,
+        height: 14,
+
+        backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
+        borderRadius: 12,
+
+        marginRight: 3,
+    },
+    therapyOrderViewText: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#FFF',
     },
 });

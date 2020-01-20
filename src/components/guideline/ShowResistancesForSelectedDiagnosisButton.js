@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Text } from 'react-native';
 
-import styleDefinitions from '../../helpers/styleDefinitions';
+import styleDefinitions from '../../helpers/styleDefinitions.js';
 
 import GuidelineCurrentResistanceButtonIcon from './icons/GuidelineCurrentResistanceButtonIcon.js';
-import GuidelineIconArrowRight from './icons/GuidelineIconArrowRight.js';
+import GuidelineArrowRightIcon from './icons/GuidelineArrowRightIcon.js';
 
 /**
  * Shows a currentResistance button on the diagnosis detail view.
@@ -14,19 +14,19 @@ import GuidelineIconArrowRight from './icons/GuidelineIconArrowRight.js';
  *
  * @extends {React.Component}
  */
-export default class CurrentResistanceButton extends React.Component {
+export default class ShowResistancesForSelectedDiagnosisButton extends React.Component {
 
     constructor(...props) {
         super(...props);
-        this.handleCurrentResistanceButtonPress =
-            this.handleCurrentResistanceButtonPress.bind(this);
+        this.showResistancesForCurrentDiagnosis =
+            this.showResistancesForCurrentDiagnosis.bind(this);
     }
 
     /**
      * Select the current diagnosis and go back to the matrix view.
      * There the user see, which resistances are recommended
      */
-    handleCurrentResistanceButtonPress() {
+    showResistancesForCurrentDiagnosis() {
         this.props.selectedGuideline.selectDiagnosis(this.props.diagnosis);
 
         this.props.drawer.close();
@@ -37,7 +37,7 @@ export default class CurrentResistanceButton extends React.Component {
         return (
 
             <TouchableWithoutFeedback
-                onPress={this.handleCurrentResistanceButtonPress}
+                onPress={this.showResistancesForCurrentDiagnosis}
             >
                 <View style={styles.button}>
                     <View style={styles.buttonIcon}>
@@ -47,9 +47,9 @@ export default class CurrentResistanceButton extends React.Component {
                     </View>
                     <View style={styles.buttonDivider} />
                     <Text style={styles.buttonText}>
-                        Current Resistance
+                        Show Resistances
                     </Text>
-                    <GuidelineIconArrowRight
+                    <GuidelineArrowRightIcon
                         height={11.7}
                         width={5.8}
                         stroke={styleDefinitions.colors.guidelines.darkBlue} />
@@ -63,7 +63,7 @@ export default class CurrentResistanceButton extends React.Component {
 const styles = StyleSheet.create({
     button: {
         height: 50,
-        width: 208,
+        width: 198,
         borderRadius: 25,
         backgroundColor: styleDefinitions.colors.white,
         ...styleDefinitions.shadows.primaryButton,

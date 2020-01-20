@@ -1,7 +1,7 @@
 import React from 'react';
 import { Svg } from 'expo';
 
-export default class GuidelineIconArrowRight extends React.Component {
+export default class GuidelineArrowRightIcon extends React.Component {
 
     render() {
         return (

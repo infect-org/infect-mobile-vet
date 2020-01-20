@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Text } from 'react-native';
 import { observer } from 'mobx-react';
+import { computed } from 'mobx';
 
 import styleDefinitions from '../../helpers/styleDefinitions';
 
@@ -13,8 +14,7 @@ import GuidelineButtonTrashIcon from './icons/GuidelineButtonTrashIcon.js';
  *
  * @extends {React.Component}
  */
-@observer
-export default class GuidelineButton extends React.Component {
+export default @observer class GuidelineButton extends React.Component {
 
     constructor(...props) {
         super(...props);
@@ -24,10 +24,22 @@ export default class GuidelineButton extends React.Component {
 
     /**
      * Opens the guideline drawer
-     * the diagnosis list will get rendered
+     * the diagnosis list will get rendered.
+     *
+     * If a diagnosis is selected, directly render its detail view
+     *
      */
     openGuidelinesDrawer() {
+        const selectedDiagnosis = this.props.guidelines.getSelectedDiagnosis();
         this.props.drawer.open();
+
+        if (selectedDiagnosis) {
+            this.props.navigation.navigate('DiagnosisDetail', {
+                diagnosis: selectedDiagnosis,
+                drawer: this.props.drawer,
+                selectedGuideline: this.props.guidelines.selectedGuideline,
+            });
+        }
     }
 
     /**
@@ -35,12 +47,26 @@ export default class GuidelineButton extends React.Component {
      * - Matrix will not be filtere / highlighted anymore
      */
     removeSelectedDiagnosis() {
-        this.props.selectedGuideline.selectDiagnosis();
+        this.props.guidelines.selectedGuideline.selectDiagnosis();
+    }
+
+    /**
+     * Truncate the diagnosis name if it's longer then n
+     *
+     * @returns {String}
+     */
+    @computed get selectedDiagnosisName() {
+        const { name } = this.props.guidelines.getSelectedDiagnosis();
+
+        if (name.length > 12) {
+            return `${name.substring(0, 12)}...`;
+        }
+
+        return name;
     }
 
     render() {
-        const selectedDiagnosis = this.props.selectedGuideline ?
-            this.props.selectedGuideline.selectedDiagnosis : undefined;
+        const selectedDiagnosis = this.props.guidelines.getSelectedDiagnosis();
 
         return (
 
@@ -60,7 +86,8 @@ export default class GuidelineButton extends React.Component {
                         </View>
                         <View style={styles.buttonDivider} />
                         <Text style={styles.buttonText}>
-                            {selectedDiagnosis ? selectedDiagnosis.name : 'Guidelines'}
+                            {selectedDiagnosis ? this.selectedDiagnosisName
+                                : 'Guidelines'}
                         </Text>
                     </View>
                 </TouchableWithoutFeedback>

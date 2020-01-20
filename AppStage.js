@@ -1,23 +1,25 @@
 import React from 'react';
-import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
+import { StyleSheet, View, StatusBar, Text } from 'react-native';
+import { SafeAreaView } from 'react-navigation';
 import { observer } from 'mobx-react';
-import { configure, reaction, computed } from 'mobx';
+import { configure, reaction, computed, observable, action } from 'mobx';
+import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
-import InfectApp from 'infect-frontend-logic';
+import InfectApp from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
-import componentStates from './src/models/componentStates/componentStates';
-import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel';
-import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel';
-import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSize';
+import componentStates from './src/models/componentStates/componentStates.js';
+import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel.js';
+import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
+import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSize.js';
 
-import config from './src/config';
-import styleDefinitions from './src/helpers/styleDefinitions';
-import ErrorMessages from './src/components/errorMessages/ErrorMessages';
-import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen';
-import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay';
-import MainView from './src/components/mainView/MainView';
-import log from './src/helpers/log';
+import config from './src/config.js';
+import styleDefinitions from './src/helpers/styleDefinitions.js';
+import NotificationMessages from './src/components/errorMessages/NotificationMessages.js';
+import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialLoadingScreen.js';
+import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay.js';
+import MainView from './src/components/mainView/MainView.js';
+import log from './src/helpers/log.js';
 
 
 // Remove this once Sentry is correctly setup.
@@ -29,6 +31,7 @@ Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').inst
 configure({ enforceActions: 'always' });
 
 console.disableYellowBox = true;
+// console.error = () => {};
 
 /**
  * Basic app. Especially handles
@@ -43,7 +46,13 @@ console.disableYellowBox = true;
  *   loggly.com (for published apps)
  */
 @observer
-export default class App extends React.Component {
+export default class AppStage extends React.Component {
+
+    // For rendering the matrix, we have to know the window dimensions
+    @observable dimensionsAreKnown = false
+    @action handleDimensionChange(weKnowTheDimension) {
+        this.dimensionsAreKnown = weKnowTheDimension;
+    }
 
     constructor() {
 
@@ -56,6 +65,15 @@ export default class App extends React.Component {
          */
         Text.defaultProps = Text.defaultProps || {};
         Text.defaultProps.allowFontScaling = false;
+
+        // Add preview parameter on release-channel «testing»
+        if (Constants.manifest.releaseChannel === 'testing') {
+            for (const [endpointName, endPointValue] of Object.entries(config.endpoints)) {
+                if (!/https/.test(endPointValue)) {
+                    config.endpoints[endpointName] = `${endPointValue}?showAllData=true`;
+                }
+            }
+        }
 
         // Main app (logic shared with the web)
         this.app = new InfectApp(config);
@@ -75,7 +93,7 @@ export default class App extends React.Component {
         this.googleAnalytics.addCustomDimension(1, 'MobileApp');
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         log('StatusBar:', StatusBar.curentHeight);
     }
 
@@ -135,7 +153,7 @@ export default class App extends React.Component {
         try {
             await this.app.initialize();
         } catch (err) {
-            this.app.errorHandler.handle(err);
+            this.app.notificationCenter.handle(err);
             log('Error initializing app', err);
         }
         log('App: Initialized');
@@ -148,16 +166,20 @@ export default class App extends React.Component {
     handleSafeAreaLayoutChange(ev) {
         log('handleSafeAreaLayoutChange', ev.nativeEvent.layout);
         this.windowSize.update(ev.nativeEvent.layout);
+
+        if (this.windowSize.height > 0 && this.windowSize.width > 0) {
+            this.handleDimensionChange(true);
+        }
     }
 
-    @observer
     render() {
 
         log('App: Render');
 
         return (
-            <View
+            <SafeAreaView
                 style={styles.mainContainer}
+                forceInset={{ right: 'never' }}
             >
 
                 <StatusBar hidden={true} />
@@ -176,7 +198,7 @@ export default class App extends React.Component {
                         // this.app.antibiotics.status.identifier === 'ready' &&
                         // this.app.bacteria.status.identifier === 'ready' &&
                         // TODO: Switch to bact/ab loaded to speed things up (a little bit)
-                        this.showMatrix &&
+                        this.showMatrix && this.dimensionsAreKnown &&
 
                         <View style={styles.container}>
                             <MainView
@@ -190,6 +212,8 @@ export default class App extends React.Component {
                                 googleAnalytics={this.googleAnalytics}
                                 navigation={this.props.navigation}
                                 guidelines={this.app.guidelines}
+                                guidelineRelatedFilters={this.app.guidelineRelatedFilters}
+                                notificationCenter={this.app.notificationCenter}
                             />
                         </View>
                     }
@@ -219,14 +243,16 @@ export default class App extends React.Component {
                     </View>
 
                     { /* Errors: At bottom to give it the highest z-index */ }
-                    { this.app.errorHandler.errors.length > 0 &&
-                        <ErrorMessages
-                            style={styles.errors}
-                            errors={this.app.errorHandler.errors} />
+                    { this.app.notificationCenter.notifications.length > 0 &&
+                        <View style={styles.notifications}>
+                            <NotificationMessages
+                                notifications={this.app.notificationCenter.notifications}
+                            />
+                        </View>
                     }
 
                 </View>
-            </View>
+            </SafeAreaView>
         );
     }
 }
@@ -240,7 +266,7 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
     },
-    errors: {
+    notifications: {
         position: 'absolute',
         top: 0,
         left: 0,

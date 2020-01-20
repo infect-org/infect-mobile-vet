@@ -64,6 +64,7 @@ export default class Matrix extends React.Component {
                         componentStates={this.props.componentStates}
                         handleContentLayout={this.handleContentLayout.bind(this)}
                         handleContainerLayout={this.handleContainerLayout.bind(this)}
+                        guidelines={this.props.guidelines}
                         // Only needed when we remove PanPinch from DOM
                         // animatedLeft={new Animated.Value(0)}
                         // animatedTop={new Animated.Value(0)}
