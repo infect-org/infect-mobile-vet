@@ -3,9 +3,8 @@ import { StyleSheet, View, StatusBar, Text } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed, observable, action } from 'mobx';
-import { Constants } from 'expo';
 import Sentry from 'sentry-expo';
-import InfectApp from '@infect/frontend-logic';
+import InfectApp, { storeStatus } from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
 import componentStates from './src/models/componentStates/componentStates.js';
@@ -20,6 +19,8 @@ import InitialLoadingScreen from './src/components/initialLoadingScreen/InitialL
 import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay.js';
 import MainView from './src/components/mainView/MainView.js';
 import log from './src/helpers/log.js';
+
+import getURL from './src/config/getURL.js';
 
 
 // Remove this once Sentry is correctly setup.
@@ -66,17 +67,8 @@ export default class AppStage extends React.Component {
         Text.defaultProps = Text.defaultProps || {};
         Text.defaultProps.allowFontScaling = false;
 
-        // Add preview parameter on release-channel «testing»
-        if (Constants.manifest.releaseChannel === 'testing') {
-            for (const [endpointName, endPointValue] of Object.entries(config.endpoints)) {
-                if (!/https/.test(endPointValue)) {
-                    config.endpoints[endpointName] = `${endPointValue}?showAllData=true`;
-                }
-            }
-        }
-
         // Main app (logic shared with the web)
-        this.app = new InfectApp(config);
+        this.app = new InfectApp({ getURL });
         this.setupApp();
 
         // View models for mobile app
@@ -113,11 +105,11 @@ export default class AppStage extends React.Component {
                         'to fetcher status',
                         status,
                     );
-                    if (status === 'loading') {
+                    if (status === storeStatus.loading) {
                         this.componentStates.update(modelType, componentStates.loading);
                     }
                     // status is a fetcher state, not a componentState state!
-                    if (status === 'ready') {
+                    if (status === storeStatus.ready) {
                         // Resistance: Go to rendering state, will change to ready when rendering is
                         // done. For antibiotics and bacteria, go straight to ready (we don't watch
                         // their rendering state).
