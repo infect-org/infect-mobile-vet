@@ -96,11 +96,11 @@ const styles = StyleSheet.create({
         ...styleDefinitions.fonts.bold,
         fontSize: 14,
         marginBottom: 20,
-        color: styleDefinitions.colors.tenantColorBlack,
+        color: styleDefinitions.colors.black,
     },
     loadingScreenEntityStatus: {
         ...styleDefinitions.fonts.condensed,
         fontSize: 14,
-        color: styleDefinitions.colors.tenantColorBlack,
+        color: styleDefinitions.colors.black,
     },
 });

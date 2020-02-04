@@ -2,6 +2,4 @@
 export default {
     tenantColor: '#cbe264',
     tenantColorDark: '#afcd26',
-    tenantColorBlack: '#31330b',
-    highlightBackground: '#a9ddf2',
 }

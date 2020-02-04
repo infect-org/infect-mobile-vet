@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 import tenantColors from './tenantColors.js';
 
@@ -24,15 +24,36 @@ export default {
         fontSize: 12,
         letterSpacing: -0.4,
     },
+    fontSizes: {
+        guidelines: {
+            bigText: 20,
+            regularText: 14,
+        },
+    },
     colors: {
         ...tenantColors,
+        error: '#d82222',
+        errorText: '#a94442',
+        warningBackground: '#fcf8e3',
+        warningText: '#8a6d3b',
+        notificationBackground: '#d9edf7',
+        notificationText: '#31708f',
         darkBackgroundGrey: '#363636',
         mediumBackgroundGrey: '#4b4b4b',
         lightBackgroundGrey: '#848484',
         lightForegroundGrey: '#bcbcbc',
-        error: '#d82222',
         white: '#ffffff',
         black: '#000000',
+        red: '#DD1F1F',
+        guidelines: {
+            ligthBlue: '#A7CCEB',
+            middleBlue: '#E2ECF5',
+            darkBlue: '#3289CC',
+            buttonDarkBlue: '#85BAE3',
+            gray: '#6F6F6F',
+            backgroundMiddleBlue: '#BED7ED',
+            infoTextGray: '#585858',
+        },
     },
     buttons: {
         primaryButton: {
@@ -71,4 +92,67 @@ export default {
             },
         },
     },
+    markdownStyles: StyleSheet.create({
+        // see
+        // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
+        // for a full list
+        heading1: {
+            fontSize: 18,
+            fontWeight: 'bold',
+        },
+        heading2: {
+            fontSize: 16,
+            fontWeight: 'bold',
+        },
+        heading3: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            marginTop: 15,
+            marginBottom: 5,
+        },
+        listUnorderedItemIcon: {
+            marginLeft: 0,
+            marginRight: 10,
+            lineHeight: Platform.OS === 'ios' ? 16 : 19,
+            // lineHeight: 16,
+        },
+        listUnorderedItemText: {
+            fontSize: 20,
+            lineHeight: 20,
+        },
+        paragraph: {
+            // marginTop: 10,
+            marginBottom: 5,
+            flexWrap: 'wrap',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
+        },
+        codeInline: {
+            borderWidth: 1,
+            borderColor: '#E2ECF5',
+            padding: 10,
+            borderRadius: 4,
+        },
+    }),
+    markdownDisclaimer: StyleSheet.create({
+        // see
+        // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
+        // for a full list
+        paragraph: {
+            // marginTop: 10,
+            // marginBottom: 5,
+            flexWrap: 'wrap',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
+        },
+        text: {
+            color: '#6F6F6F',
+        },
+        link: {
+            color: '#3289CC',
+            textDecorationLine: 'underline',
+        },
+    }),
 };
