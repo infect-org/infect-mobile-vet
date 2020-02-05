@@ -10,8 +10,6 @@ import urlConfig from './urlConfig.js';
  */
 export default function getURL(scope, endpoint) {
 
-    const apiURL = `api.${urlConfig.baseURL}`;
-
     const scopeData = urlConfig.endpoints[scope];
     if (!scopeData) {
         throw new Error(`getURL: Scope ${scope} is not known. Provide any of ${Object.keys(urlConfig.endpoints).join(', ')}.`);
@@ -30,5 +28,5 @@ export default function getURL(scope, endpoint) {
         filter += '?showAllData=true';
     }
 
-    return `https://${apiURL}/${scopeData.prefix}/${scopeData.paths[endpoint]}${filter}`;
+    return `https://${urlConfig.baseURL}/${scopeData.prefix}/${scopeData.paths[endpoint]}${filter}`;
 }
