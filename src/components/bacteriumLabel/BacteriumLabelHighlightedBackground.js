@@ -62,7 +62,7 @@ export default @observer class BacteriumLabelHighlightedBackground extends React
             return styleDefinitions.colors.guidelines.ligthBlue;
         }
 
-        return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
+        return this.isSelected ? styleDefinitions.colors.tenantColor : 'transparent';
     }
 
     /**

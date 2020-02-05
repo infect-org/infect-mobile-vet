@@ -1,5 +1,7 @@
+import baseURL from './baseURL.js';
+
 export default Object.freeze({
-    baseURL: 'beta.infect.info',
+    ...baseURL,
     endpoints: {
         tenant: {
             prefix: 'tenant/v1',

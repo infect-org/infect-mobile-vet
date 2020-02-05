@@ -1,5 +1,11 @@
-app.json
 node_modules/**/*
 .expo/*
 npm-debug.*
 .vscode/
+
+app.json
+src/config.js
+src/helpers/tenantColors.js
+src/components/logos/LoadingScreenLogo.js
+src/components/logos/MatrixLogo.js
+src/config/baseURL.js

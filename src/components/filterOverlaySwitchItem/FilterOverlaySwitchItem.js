@@ -126,10 +126,10 @@ const styles = StyleSheet.create({
         // borderWidth: 1,
     },
     checkboxCircleSelected: {
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
     },
     checkboxCircleNotSelected: {
-        borderColor: styleDefinitions.colors.green,
+        borderColor: styleDefinitions.colors.tenantColor,
         borderWidth: 1,
     },
     label: {
