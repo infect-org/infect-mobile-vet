@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
         height: 50,
         width: 50,
         borderRadius: 25,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
         ...styleDefinitions.shadows.primaryButton,
     },
     selectedFilterCountView: {

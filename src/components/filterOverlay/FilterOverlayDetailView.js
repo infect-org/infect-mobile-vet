@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     backButton: {
-        color: styleDefinitions.colors.green,
+        color: styleDefinitions.colors.tenantColor,
         ...styleDefinitions.fonts.bold,
         fontSize: 20,
         padding: 12,

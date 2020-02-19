@@ -181,7 +181,11 @@ export default class AntibioticLabel extends React.Component {
     }
 
     @computed get activeAntibioticBackground() {
-        return this.isSelected ? styleDefinitions.colors.highlightBackground : 'transparent';
+        if (this.isSelected && this.isInSelectedGuideline) {
+            return styleDefinitions.colors.guidelines.ligthBlue;
+        }
+
+        return this.isSelected ? styleDefinitions.colors.tenantColor : 'transparent';
     }
 
     /**

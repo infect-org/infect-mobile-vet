@@ -288,7 +288,7 @@ export default class FilterOverlay extends React.Component {
                                         <View style={styles.infoButtonContainer}>
                                             <Button
                                                 onPress={this.openDisclaimer}
-                                                color={styleDefinitions.colors.green}
+                                                color={styleDefinitions.colors.tenantColor}
                                                 title="More information"
                                                 style={styles.infoButton}
                                             />
@@ -385,14 +385,14 @@ const styles = StyleSheet.create({
     removeFiltersButton: {
         margin: padding,
         ...styleDefinitions.buttons.secondaryButton,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
     },
     applyFiltersButton: {
         position: 'absolute',
         left: padding,
         right: padding,
         top: 0,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
         ...styleDefinitions.buttons.primaryButton,
         ...styleDefinitions.shadows.primaryButton,
     },
