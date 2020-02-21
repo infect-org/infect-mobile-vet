@@ -9,7 +9,7 @@ export default class SubstanceClassHeaders extends React.Component {
 
     /**
      * Array filter function. Checks if substanceClass is a leaf node (has no children). Is needed
-     * as we only want to display one level of substanc e classes (the most detailed one, i.e. the
+     * as we only want to display one level of substance classes (the most detailed one, i.e. the
      * leaves).
      * @param  {SubstanceClass}  substanceClass
      * @param  {Array}  substanceClasses

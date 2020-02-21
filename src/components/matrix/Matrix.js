@@ -64,6 +64,7 @@ export default class Matrix extends React.Component {
                         componentStates={this.props.componentStates}
                         handleContentLayout={this.handleContentLayout.bind(this)}
                         handleContainerLayout={this.handleContainerLayout.bind(this)}
+                        guidelines={this.props.guidelines}
                         // Only needed when we remove PanPinch from DOM
                         // animatedLeft={new Animated.Value(0)}
                         // animatedTop={new Animated.Value(0)}
@@ -82,5 +83,14 @@ const styles = StyleSheet.create({
         flex: 1,
         // borderColor: 'yellow',
         // borderWidth: 10,
+    },
+    corruptDataOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 400,
+        backgroundColor: 'red',
+        zIndex: 2000000,
     },
 });

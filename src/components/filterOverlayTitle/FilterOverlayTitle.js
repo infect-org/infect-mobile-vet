@@ -22,6 +22,9 @@ export default class FilterOverlayTitle extends React.Component {
                     {
                         marginTop: adjustedMarginTop,
                     },
+                    this.props.textColor ? {
+                        color: this.props.textColor,
+                    } : {},
                 ]}>
                 { this.props.title }
             </Text>

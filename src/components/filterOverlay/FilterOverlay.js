@@ -27,6 +27,8 @@ import HorizontalPanels from '../horizontalPanels/HorizontalPanels.js';
 import FilterOverlayDetailView from './FilterOverlayDetailView.js';
 import FilterOverlaySearchResults from '../filterOverlaySearchResults/FilterOverlaySearchResults.js';
 
+import GuidelineFilters from './GuidelineFilters.js';
+
 const { Animated, Easing } = DangerZone;
 const padding = 20;
 const maxScreenDimension = Math.max(
@@ -246,6 +248,10 @@ export default class FilterOverlay extends React.Component {
                                             </TouchableWithoutFeedback>
                                         }
 
+                                        <GuidelineFilters
+                                            guidelines={this.props.guidelines}
+                                            guidelineRelatedFilters={this.props.guidelineRelatedFilters}
+                                        />
 
                                         <AntibioticFilters
                                             filterValues={this.props.filterValues}
@@ -282,7 +288,7 @@ export default class FilterOverlay extends React.Component {
                                         <View style={styles.infoButtonContainer}>
                                             <Button
                                                 onPress={this.openDisclaimer}
-                                                color={styleDefinitions.colors.green}
+                                                color={styleDefinitions.colors.tenantColor}
                                                 title="More information"
                                                 style={styles.infoButton}
                                             />
@@ -379,14 +385,14 @@ const styles = StyleSheet.create({
     removeFiltersButton: {
         margin: padding,
         ...styleDefinitions.buttons.secondaryButton,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
     },
     applyFiltersButton: {
         position: 'absolute',
         left: padding,
         right: padding,
         top: 0,
-        backgroundColor: styleDefinitions.colors.green,
+        backgroundColor: styleDefinitions.colors.tenantColor,
         ...styleDefinitions.buttons.primaryButton,
         ...styleDefinitions.shadows.primaryButton,
     },
@@ -403,6 +409,7 @@ const styles = StyleSheet.create({
         // Is initially positioned at left: 100% (to make it invisible, but already rendered),
         // therefore use width instead of left/right props
         width: '100%',
+        zIndex: 3,
     },
     filterOverlayBackgroundContainer: {
         position: 'absolute',

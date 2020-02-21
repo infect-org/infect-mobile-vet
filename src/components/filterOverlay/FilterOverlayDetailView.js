@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableHighlight, ScrollView } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import { filterTypes } from 'infect-frontend-logic';
+import { filterTypes } from '@infect/frontend-logic';
 import DetailViewFilters from './DetailViewFilters.js';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 import log from '../../helpers/log.js';
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     backButton: {
-        color: styleDefinitions.colors.green,
+        color: styleDefinitions.colors.tenantColor,
         ...styleDefinitions.fonts.bold,
         fontSize: 20,
         padding: 12,

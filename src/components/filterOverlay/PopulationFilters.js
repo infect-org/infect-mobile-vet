@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { computed } from 'mobx';
 import { observer } from 'mobx-react';
-import { filterTypes } from 'infect-frontend-logic';
+import { filterTypes } from '@infect/frontend-logic';
 import FilterOverlayTitle from '../filterOverlayTitle/FilterOverlayTitle';
 // import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
 import FilterList from './FilterList';
