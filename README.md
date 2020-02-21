@@ -29,6 +29,10 @@ If you are on the «infect-mobile-app» repository: This repository is a **maste
   - the svg logo for the loading/splash screen
 - src/components/logos/MatrixLogo.js
   - the svg logo for the matrix view component
+- assets/icon.png
+  - your app's icon
+- assets/splash.png
+  - your app's splash screen
 
 ## If you are in a fork repository
 - Add upstream: `git remote add upstream git@github.com:infect-org/infect-mobile-app.git`
