@@ -18,6 +18,7 @@ If you are on the «infect-mobile-app» repository: This repository is a **maste
   - android.package
   - android.versionCode
   - version
+  - sdkVersion: the version may change, check with app.json.dist
   - use this file for version management (do not edit the package.json)
 - src/config.js
   - appKeys.googleAnalytics
