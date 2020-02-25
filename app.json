@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "INFECT VET by anresis",
+    "description": "INFECT Vet for mobile phones",
+    "slug": "infect-app-vet",
+    "privacy": "public",
+    "sdkVersion": "33.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "2.1.3",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#EA81BB"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "info.infect.vet.app"
+    },
+    "android": {
+      "package": "info.infect.vet.app",
+      "versionCode": 1,
+      "permissions": []
+    },
+    "githubUrl": "https://github.com/infect-org/infect-mobile-vet",
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "joinbox",
+            "project": "infect-app-vet",
+            "authToken": "75956ef0d9054e8eb29ac2d8cceb5c70e6318f04996f4ebaa20ee6cdc3cad78b"
+          }
+        }
+      ]
+    }
+  }
+}

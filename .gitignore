@@ -4,11 +4,11 @@ npm-debug.*
 .vscode/
 
 # Remove if you want at your fork
-app.json
-src/config.js
-src/helpers/tenantColors.js
-src/components/logos/LoadingScreenLogo.js
-src/components/logos/MatrixLogo.js
-src/config/baseURL.js
-assets/icon.png
-assets/splash.png
+# app.json
+# src/config.js
+# src/helpers/tenantColors.js
+# src/components/logos/LoadingScreenLogo.js
+# src/components/logos/MatrixLogo.js
+# src/config/baseURL.js
+# assets/icon.png
+# assets/splash.png
