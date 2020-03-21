@@ -54,14 +54,18 @@ export default class PopulationFilters extends React.Component {
                 />
 
                 { /* Age Group */ }
-                <FilterOverlayTitle
-                    title="Age Group"
-                    level={2}
-                />
-                <FilterList
-                    items={this.ageGroupFilters}
-                    selectedFilters={this.props.selectedFilters}
-                />
+                {this.ageGroupFilters.length > 1 &&
+                    <View>
+                        <FilterOverlayTitle
+                            title="Age Group"
+                            level={2}
+                        />
+                        <FilterList
+                            items={this.ageGroupFilters}
+                            selectedFilters={this.props.selectedFilters}
+                        />
+                    </View>
+                }
 
                 { /* In/out patients */ }
                 <FilterOverlayTitle
