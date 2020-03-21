@@ -22,6 +22,14 @@ export default class FilterList extends React.Component {
      * @param  {Object} item        Item to toggle
      */
     itemSelectionChangeHandler(item) {
+        if (this.props.singleSelectionMode) {
+            for (const filterItem of this.filterValues) {
+                if (filterItem !== item && this.props.selectedFilters.isSelected(filterItem)) {
+                    this.props.selectedFilters.toggleFilter(filterItem);
+                }
+            }
+        }
+
         this.props.selectedFilters.toggleFilter(item);
     }
 
