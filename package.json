@@ -2,7 +2,7 @@
   "name": "infect-mobile-app",
   "main": "node_modules/expo/AppEntry.js",
   "private": true,
-  "version": "2.2.0",
+  "version": "2.3.0",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -12,7 +12,7 @@
   "//": "Dependencies: Make sure you use the same packages and versions as in frontend-logic!",
   "dependencies": {
     "@babel/runtime": "^7.4.5",
-    "@infect/frontend-logic": "^5.0.0",
+    "@infect/frontend-logic": "^5.1.0",
     "expo": "^33.0.0",
     "expo-analytics": "1.0.11",
     "html-entities": "^1.2.1",
