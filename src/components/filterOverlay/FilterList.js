@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
+import { computed, action } from 'mobx';
 import FilterOverlaySwitchItem from '../filterOverlaySwitchItem/FilterOverlaySwitchItem';
 
 /**
@@ -21,7 +21,7 @@ export default class FilterList extends React.Component {
      * Change handler for FilterOverlaySwitchItem, toggles item in selectedFilters
      * @param  {Object} item        Item to toggle
      */
-    itemSelectionChangeHandler(item) {
+    @action itemSelectionChangeHandler(item) {
         if (this.props.singleSelectionMode) {
             for (const filterItem of this.filterValues) {
                 if (filterItem !== item && this.props.selectedFilters.isSelected(filterItem)) {
