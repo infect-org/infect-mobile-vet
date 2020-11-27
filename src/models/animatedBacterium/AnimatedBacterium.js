@@ -1,8 +1,7 @@
 import { reaction, computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated from 'react-native-reanimated';
 import log from '../../helpers/log';
 
-const { Animated } = DangerZone;
 
 /**
  * Instead of updating the Animated.Values on 1000 resistances, we store the AnimatedValues for all

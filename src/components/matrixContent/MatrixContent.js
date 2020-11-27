@@ -2,7 +2,13 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction, observable, runInAction } from 'mobx';
-import { DangerZone, GestureHandler } from 'expo';
+import Animated, { max,
+    min,
+    add,
+    multiply,
+    sub,
+} from 'react-native-reanimated';
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 import { models } from '@infect/frontend-logic';
 import Resistance from '../resistance/Resistance';
 import ActiveResistanceDetail from '../resistance/ActiveResistanceDetail';
@@ -23,17 +29,6 @@ import AntibioticColumnHighlightedBackground from '../antibioticLabel/Antibiotic
 import BacteriumLabelHighlightedBackground from '../bacteriumLabel/BacteriumLabelHighlightedBackground.js';
 
 const { AntibioticMatrixView } = models;
-const { TapGestureHandler, State } = GestureHandler;
-
-const { Animated } = DangerZone;
-
-const {
-    max,
-    min,
-    add,
-    multiply,
-    sub,
-} = Animated;
 
 @observer
 export default class MatrixContent extends React.Component {

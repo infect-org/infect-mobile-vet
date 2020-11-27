@@ -1,13 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { observer } from 'mobx-react';
-import { DangerZone } from 'expo';
+import { Value } from 'react-native-reanimated';
 import PanPinch from 'react-native-pan-pinch';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
-
-const { Animated } = DangerZone;
-const { Value } = Animated;
 
 
 /**

@@ -2,11 +2,10 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 import log from '../../helpers/log.js';
 
-const { Animated } = DangerZone;
 
 /**
  * Renders a resistance cirlce with text.

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { observer } from 'mobx-react';
 import { reaction, computed, observable, action } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { Easing } from 'react-native-reanimated';
 import log from '../../helpers/log.js';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 import componentStates from '../../models/componentStates/componentStates.js';
@@ -30,7 +30,6 @@ import AnimalFilters from './AnimalFilters.js';
 
 import GuidelineFilters from './GuidelineFilters.js';
 
-const { Animated, Easing } = DangerZone;
 const padding = 20;
 const maxScreenDimension = Math.max(
     Dimensions.get('window').width,

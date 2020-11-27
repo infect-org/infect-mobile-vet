@@ -1,5 +1,5 @@
 import React from 'react';
-import { Svg } from 'expo';
+import * as Svg from 'react-native-svg';
 
 export default class GuidelineArrowRightIcon extends React.Component {
 

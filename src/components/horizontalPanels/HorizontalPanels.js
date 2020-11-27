@@ -2,10 +2,9 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { action, observable, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { Easing } from 'react-native-reanimated';
 import log from '../../helpers/log';
 
-const { Animated, Easing } = DangerZone;
 
 /**
  * Contains panels that are moved horizontally to change to detail views (like settings on iOS);

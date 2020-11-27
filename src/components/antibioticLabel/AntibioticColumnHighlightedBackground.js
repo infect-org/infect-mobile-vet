@@ -1,17 +1,10 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { multiply, add } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
-
 import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
-
-const {
-    multiply,
-    add,
-} = Animated;
 
 @observer
 export default class AntibioticColumnHighlightedBackground extends React.Component {

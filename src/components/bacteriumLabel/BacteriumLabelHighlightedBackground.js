@@ -1,19 +1,11 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import { computed } from 'mobx';
+import Animated, { multiply, sub, divide } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions';
-
 import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
-
-const {
-    multiply,
-    sub,
-    divide,
-} = Animated;
 
 export default @observer class BacteriumLabelHighlightedBackground extends React.Component {
 

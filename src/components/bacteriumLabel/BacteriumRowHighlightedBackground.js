@@ -1,18 +1,10 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { multiply, add, sub } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
-
 import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
-
-const {
-    multiply,
-    sub,
-    add,
-} = Animated;
 
 export default @observer class BacteriumRowHighlightedBackground extends React.Component {
 
