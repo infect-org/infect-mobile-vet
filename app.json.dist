@@ -4,12 +4,12 @@
     "description": "INFECT for mobile phones",
     "slug": "infect-app",
     "privacy": "public",
-    "sdkVersion": "31.0.0",
+    "sdkVersion": "33.0.0",
     "platforms": [
       "ios",
       "android"
     ],
-    "version": "1.8.11",
+    "version": "2.1.3",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
@@ -23,7 +23,7 @@
     },
     "android": {
       "package": "info.infect.app",
-      "versionCode": 4,
+      "versionCode": 5,
       "permissions": []
     },
     "githubUrl": "https://github.com/infect-org/infect-mobile-app",

@@ -97,6 +97,19 @@ export default class BacteriumLabel extends React.Component {
         );
     }
 
+    /**
+     * Return the color for the label dependet on the app state
+     */
+    @computed get labelColor() {
+        if (this.isInSelectedGuideline && !this.isSelected) {
+            return styleDefinitions.colors.guidelines.darkBlue;
+        } else if (!this.props.bacterium.hasResistanceData) {
+            return styleDefinitions.colors.lightForegroundGrey;
+        } else {
+            return styleDefinitions.colors.black;
+        }
+    }
+
     render() {
 
         log('BacteriumLabel: Render bacterium label');
@@ -124,9 +137,7 @@ export default class BacteriumLabel extends React.Component {
                     style={[
                         styles.labelText,
                         {
-                            color: (this.isInSelectedGuideline && !this.isSelected) ?
-                                styleDefinitions.colors.guidelines.darkBlue :
-                                styleDefinitions.colors.black,
+                            color: this.labelColor,
                         },
                     ]}
                     onLayout={this.labelLayoutHandler}>

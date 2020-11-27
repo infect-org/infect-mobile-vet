@@ -26,6 +26,7 @@ import HorizontalPanel from '../horizontalPanels/HorizontalPanel.js';
 import HorizontalPanels from '../horizontalPanels/HorizontalPanels.js';
 import FilterOverlayDetailView from './FilterOverlayDetailView.js';
 import FilterOverlaySearchResults from '../filterOverlaySearchResults/FilterOverlaySearchResults.js';
+import AnimalFilters from './AnimalFilters.js';
 
 import GuidelineFilters from './GuidelineFilters.js';
 
@@ -251,6 +252,11 @@ export default class FilterOverlay extends React.Component {
                                         <GuidelineFilters
                                             guidelines={this.props.guidelines}
                                             guidelineRelatedFilters={this.props.guidelineRelatedFilters}
+                                        />
+
+                                        <AnimalFilters
+                                            filterValues={this.props.filterValues}
+                                            selectedFilters={this.props.selectedFilters}
                                         />
 
                                         <AntibioticFilters
