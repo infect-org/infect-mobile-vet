@@ -6,6 +6,9 @@ import styleDefinitions from '../../helpers/styleDefinitions.js';
 import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
 
 
+/**
+ * Blue highlight for antibiotics that may be used to treat a certain diagnosis.
+ */
 @observer
 export default class AntibioticColumnHighlightedBackground extends React.Component {
 

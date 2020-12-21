@@ -10,7 +10,7 @@ import log from '../../helpers/log';
 export default class AnimatedBacterium {
 
     previousValues = new Map();
-    opacity = new Animated.Value(0);
+    opacity = new Animated.Value(1);
     top = new Animated.Value(0);
 
     constructor(bacteriumViewModel, matrixViewModel) {
@@ -28,7 +28,7 @@ export default class AnimatedBacterium {
     }
 
     @computed get computedOpacity() {
-        return this.yPosition ? 1 : 0;
+        return this.bacteriumViewModel.visible ? 1 : 0;
     }
 
     @computed get computedTop() {

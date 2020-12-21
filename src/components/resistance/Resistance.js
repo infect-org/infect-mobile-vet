@@ -134,7 +134,6 @@ export default class Resistance extends React.Component {
                         width: this.circleMinWidth,
                         height: this.containerHeight,
                     },
-                    // { borderWidth: 2, borderColor: 'skyblue' },
                     { opacity: this.opacity },
                 ]}
             >
@@ -145,11 +144,10 @@ export default class Resistance extends React.Component {
 
                 { /* Circle with background */}
                 <Animated.View
-                    // { ...this.panResponder.panHandlers }
                     style={[
                         styles.resistanceCircle,
                         {
-                            backgroundColor: this.props.resistance.backgroundColor,
+                            backgroundColor: this.props.resistance.backgroundColor.toHexString(),
                             borderRadius: this.radius,
                             width: this.diameter,
                             height: this.diameter,
@@ -165,7 +163,7 @@ export default class Resistance extends React.Component {
                         styles.resistanceText,
                         /* Use this.circleMinWidth as width so that text doesn't break */
                         {
-                            color: this.props.resistance.fontColor,
+                            color: this.props.resistance.fontColor.toHexString(),
                             width: this.circleMinWidth,
                             top: this.radius,
                         },
@@ -186,6 +184,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     resistance: {
+        // borderWidth: 1,
+        // borderColor: 'skyblue',
         position: 'absolute',
         overflow: 'hidden', // Force same behavior on all platforms
     },

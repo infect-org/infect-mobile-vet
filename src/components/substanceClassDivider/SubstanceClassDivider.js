@@ -9,13 +9,13 @@ import log from '../../helpers/log';
 @observer
 export default class SubstanceClassDivider extends React.Component {
 
+    opacity = new Animated.Value(1);
 
     constructor(...props) {
         super(...props);
 
         const xPosition = this.props.matrix.xPositions.get(this.props.substanceClass);
         this.xPosition = new Animated.Value(xPosition ? xPosition.left : 0);
-        this.opacity = new Animated.Value(xPosition ? 1 : 0);
         this.animatedMatrixHeight = new Animated.Value(this.matrixHeight);
 
         reaction(
@@ -27,11 +27,9 @@ export default class SubstanceClassDivider extends React.Component {
                     'to',
                     xPosition,
                 );
+                this.opacity.setValue(newXPosition ? 1 : 0);
                 if (newXPosition) {
                     this.xPosition.setValue(newXPosition.left);
-                    this.opacity.setValue(1);
-                } else {
-                    this.opacity.setValue(0);
                 }
             },
         );
@@ -58,12 +56,11 @@ export default class SubstanceClassDivider extends React.Component {
             <Animated.View
                 style={ [
                     styles.substanceClassDivider,
-                    this.dividerStyle,
                     {
-                        left: this.xPosition,
                         opacity: this.opacity,
+                        left: this.xPosition,
                         height: this.animatedMatrixHeight,
-                        backgroundColor: this.props.substanceClass.lineColor,
+                        backgroundColor: this.props.substanceClass.lineColor.toHexString(),
                     },
                 ] }
             />

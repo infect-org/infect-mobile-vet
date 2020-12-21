@@ -6,6 +6,9 @@ import styleDefinitions from '../../helpers/styleDefinitions.js';
 import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
 
 
+/**
+ * Blue highlight for bacteria that may cause a certain diagnosis
+ */
 export default @observer class BacteriumRowHighlightedBackground extends React.Component {
 
     /**

@@ -35,7 +35,7 @@ export default class ResistanceDetail extends React.Component {
                     style={[
                         styles.resistanceDetailCircle,
                         {
-                            backgroundColor: resistance.backgroundColor,
+                            backgroundColor: resistance.backgroundColor.toHexString(),
                         },
                     ]}
                 />

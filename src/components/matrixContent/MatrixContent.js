@@ -2,7 +2,8 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction, observable, runInAction } from 'mobx';
-import Animated, { max,
+import Animated, {
+    max,
     min,
     add,
     multiply,
@@ -308,14 +309,6 @@ export default class MatrixContent extends React.Component {
 
     }
 
-    /* @computed get halfSpace() {
-        return this.props.matrix.spaceBetweenGroups / 2;
-    } */
-
-    @computed get labelOpacity() {
-        const opacity = this.defaultRadiusWasSetDelayed ? 1 : 0;
-        return { opacity };
-    }
 
     /**
      * Android has no overflow: visible. Height of bacteria label container must correspond to the
@@ -406,12 +399,14 @@ export default class MatrixContent extends React.Component {
         // transform when zooming in
         // Add half a space to give it a small border so that resistances disappear behind labels
         // before they touch them (when panning)
-        return this.props.matrix.defaultRadius ?
+        const width = this.props.matrix.defaultRadius ?
             this.labelZoomCaps.max * this.props.matrix.bacteriumLabelColumnWidth +
             this.layoutElementPadding : 0;
+        return width;
     }
 
     handleResistanceTapStateChange(ev) {
+        console.log(ev);
         log('MatrixContent: Tap; handle state change for event', ev.nativeEvent);
         const start = new Date().getTime();
         if (ev.nativeEvent.state === State.ACTIVE) {
@@ -480,7 +475,9 @@ export default class MatrixContent extends React.Component {
 
         log('MatrixContent: Render');
 
-        // We need to re-render if the dimensions change (device orientation)
+        // We need to re-render if the dimensions change (device orientation). Value is not used
+        // elsewhere but having it in the render method is enought to cause a re-render. Leave
+        // it here!
         const { dimensionsChangeCount } = this.props.windowSize;
 
         return (
@@ -628,7 +625,7 @@ export default class MatrixContent extends React.Component {
                                 style={styles.container}
                                 pointerEvents="none"
                             >
-                                { this.props.matrix.resistances.map(res => (
+                                {this.props.matrix.resistances.map(res => (
                                     <Resistance
                                         animatedAntibiotic={
                                             this.animatedAntibiotics.get(res.resistance.antibiotic)
@@ -657,23 +654,9 @@ export default class MatrixContent extends React.Component {
 
                         </Animated.View>
 
-
-                        { /* Active Resistance:
-                             Highest z-index of all resistances, therefore at the bottom. Use a
-                             separate component to prevent re-render of MatrixContent when it
-                             becomes available */ }
-                        <ActiveResistanceDetail
-                            matrix={this.props.matrix}
-                            width={this.animatedVisibleAntibioticsWidth}
-                            height={this.animatedVisibleBacteriaHeight}
-                            resistanceTransformation={this.getResistanceTransformation()}
-                        />
-
-
                     </Animated.View>
 
                 }
-
 
 
                 { /* ANTIBIOTICS */ }
@@ -685,7 +668,6 @@ export default class MatrixContent extends React.Component {
                             left: this.bacteriumLabelColumnWidth,
                             width: this.animatedVisibleAntibioticsWidth,
                         },
-                        this.labelOpacity,
                     ]}
                 >
 
@@ -753,7 +735,6 @@ export default class MatrixContent extends React.Component {
                             height: this.bottomRowHeight,
                             paddingTop: this.layoutElementPadding,
                         },
-                        this.labelOpacity,
                     ]}>
 
 
@@ -789,8 +770,9 @@ export default class MatrixContent extends React.Component {
                                     bacterium={bact}
                                     matrix={this.props.matrix}
                                     guidelines={this.props.guidelines}
-                                    paddingRight={this.layoutElementPadding} />
-                                
+                                    paddingRight={this.layoutElementPadding}
+                                />
+
                                 <BacteriumLabelHighlightedBackground
                                     animatedBacterium={this.animatedBacteria.get(bact.bacterium)}
                                     cappedLabelZoom={this.cappedLabelZoom}
@@ -807,6 +789,28 @@ export default class MatrixContent extends React.Component {
                     </Animated.View>
 
                 </Animated.View>
+
+
+                { /* Active resistance container; use a separate container at bottom (with highest
+                     z-index as active resistance should be atop of everything */ }
+                <Animated.View
+                    pointerEvents="none"
+                    style={[styles.resistancesContainer, {
+                        left: this.leftColumnWidth,
+                        top: this.topRowHeight,
+                        zIndex: 50,
+                        width: this.rightColumnWidth,
+                        height: this.bottomRowHeight,
+                    }]}
+                >
+                    <ActiveResistanceDetail
+                        matrix={this.props.matrix}
+                        width={this.animatedVisibleAntibioticsWidth}
+                        height={this.animatedVisibleBacteriaHeight}
+                        resistanceTransformation={this.getResistanceTransformation()}
+                    />
+                </Animated.View>
+
 
             </View>
         );
