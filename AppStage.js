@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, StatusBar, Text } from 'react-native';
+import { StyleSheet, View, StatusBar, Text, LogBox } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed, observable, action } from 'mobx';
@@ -31,8 +31,7 @@ Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').inst
 // Make sure MobX throws if we're not using actions
 configure({ enforceActions: 'always' });
 
-console.disableYellowBox = true;
-// console.error = () => {};
+LogBox.ignoreAllLogs();
 
 /**
  * Basic app. Especially handles
