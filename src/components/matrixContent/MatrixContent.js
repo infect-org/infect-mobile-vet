@@ -406,7 +406,6 @@ export default class MatrixContent extends React.Component {
     }
 
     handleResistanceTapStateChange(ev) {
-        console.log(ev);
         log('MatrixContent: Tap; handle state change for event', ev.nativeEvent);
         const start = new Date().getTime();
         if (ev.nativeEvent.state === State.ACTIVE) {
