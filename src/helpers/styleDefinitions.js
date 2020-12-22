@@ -98,15 +98,15 @@ export default {
         // for a full list
         heading1: {
             fontSize: 18,
-            fontWeight: 'bold',
+            ...bold,
         },
         heading2: {
             fontSize: 16,
-            fontWeight: 'bold',
+            ...bold,
         },
         heading3: {
             fontSize: 16,
-            fontWeight: 'bold',
+            ...bold,
             marginTop: 15,
             marginBottom: 5,
         },
