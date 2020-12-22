@@ -94,7 +94,7 @@ export default {
     },
     markdownStyles: StyleSheet.create({
         // see
-        // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
+        // https://www.npmjs.com/package/react-native-markdown-display#styles
         // for a full list
         heading1: {
             fontSize: 18,
@@ -137,7 +137,7 @@ export default {
     }),
     markdownDisclaimer: StyleSheet.create({
         // see
-        // https://github.com/mientjan/react-native-markdown-renderer/blob/master/src/lib/styles.js
+        // https://www.npmjs.com/package/react-native-markdown-display#styles
         // for a full list
         paragraph: {
             // marginTop: 10,
