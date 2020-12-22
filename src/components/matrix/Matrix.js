@@ -78,6 +78,7 @@ export default class Matrix extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        // backgroundColor: 'lightsalmon',
         // borderColor: 'yellow',
         // borderWidth: 10,
     },
