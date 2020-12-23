@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 
-import GuidelinIconArrowLeft from '../icons/GuidelineIconArrowLeft.js';
+import GuidelinIconArrowLeft from './icons/GuidelineIconArrowLeft.js';
 
 /**
  * The Left-Back button for guideline view headers
@@ -22,8 +22,9 @@ export default class GuidelineHeaderLeftBack extends React.Component {
      * the Main view, but to the overview.
      */
     goBack() {
-        this.props.navigation.navigate('Guideline', {
-            screen: 'GuidelineList',
+        console.log('go back', this.props.stack, this.props.screen);
+        this.props.navigation.navigate(this.props.stack, {
+            screen: this.props.screen,
         });
     }
 

@@ -63,10 +63,6 @@ export default class InitialLoadingScreen extends React.Component {
                     Resistances:{'\u00A0'}
                     {this.getStateText(this.props.componentStates.components.get('resistances'))}
                 </Text>
-                <Text style={styles.loadingScreenEntityStatus}>
-                    Filters:{'\u00A0'}
-                    {this.getStateText(this.props.componentStates.components.get('filters'))}
-                </Text>
             </View>
         );
     }

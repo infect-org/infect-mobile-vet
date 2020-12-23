@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableHighlight, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed } from 'mobx';
-import { filterTypes } from '@infect/frontend-logic';
 import DetailViewFilters from './DetailViewFilters.js';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 import log from '../../helpers/log.js';
@@ -23,34 +21,21 @@ export default class FilterOverlayDetailView extends React.Component {
      * Display filter overlay main screen (instead of detail)
      */
     goBack() {
-        this.props.changeDetailPanelContent(false);
-    }
-
-    @computed get title() {
-        switch (this.props.selectedDetail.filters) {
-            case filterTypes.antibiotic: return 'Substances';
-            case filterTypes.substanceClass: return 'Substance Classes';
-            case filterTypes.bacterium: return 'Bacteria';
-            default: return 'Unknown';
-        }
+        this.props.navigation.navigate('MatrixFilters', {
+            screen: 'FilterOverview',
+        });
     }
 
     render() {
         log('FilterOverlayDetailView: Render');
         return (
             <View style={ styles.container }>
-                <TouchableHighlight onPress={this.goBack}>
-                    <Text style={styles.backButton}>‹ Back</Text>
-                </TouchableHighlight>
                 <ScrollView>
-                    { this.props.selectedDetail.filters &&
-                        <DetailViewFilters
-                            selectedFilters={this.props.selectedFilters}
-                            filterValues={this.props.filterValues}
-                            title={this.title}
-                            property={this.props.selectedDetail.filters}
-                        />
-                    }
+                    <DetailViewFilters
+                        selectedFilters={this.props.selectedFilters}
+                        filterValues={this.props.filterValues}
+                        property={this.props.route.params.filterType}
+                    />
                     { /* Make sure bottom-most entries are not covered by «Apply» button */ }
                     <View style={{ width: '100%', height: this.props.bottomButtonHeight }} />
                 </ScrollView>

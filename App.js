@@ -8,12 +8,18 @@ import getURL from './src/config/getURL.js';
 import AppStage from './AppStage.js';
 import DiagnosisList from './src/components/guideline/DiagnosisList.js';
 import DiagnosisDetail from './src/components/guideline/DiagnosisDetail.js';
-import GuidelineCloseButton from './src/components/guideline/header/GuidelineCloseButton.js';
-import GuidelineHeaderLeftBack from './src/components/guideline/header/GuidelineHeaderLeftBack.js';
+import OverlayCloseButton from './src/components/overlay/OverlayCloseButton.js';
+import OverlayHeaderLeftBack from './src/components/overlay/OverlayHeaderLeftBack.js';
+import overlayDefaultStyle from './src/components/overlay/overlayDefaultStyle.js';
+import filterOverlayDefaultStyle from './src/components/filterOverlay/filterOverlayDefaultStyle.js';
 import guidelineHeaderDefaultStyle from './src/components/guideline/header/guidelineHeaderDefaultStyle.js';
+import FilterOverlay from './src/components/filterOverlay/FilterOverlay.js';
+import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
+import FilterOverlayDetailView from './src/components/filterOverlay/FilterOverlayDetailView.js';
 
 const RootStack = createStackNavigator();
 const GuidelineStack = createStackNavigator();
+const MatrixFilterStack = createStackNavigator();
 
 
 
@@ -30,6 +36,10 @@ app.initialize()
     });
 
 
+const componentStates = new ComponentStatesModel();
+componentStates.setup();
+
+
 
 function GuidelineStackScreen() {
     return (
@@ -37,8 +47,9 @@ function GuidelineStackScreen() {
             <GuidelineStack.Screen
                 name="GuidelineList"
                 options={({ navigation }) => ({
+                    ...overlayDefaultStyle,
                     ...guidelineHeaderDefaultStyle,
-                    headerRight: () => <GuidelineCloseButton navigation={navigation} />,
+                    headerRight: () => <OverlayCloseButton navigation={navigation} />,
                     headerTitle: 'SSI Guidelines',
                     headerLeft: () => {},
                 })}
@@ -51,10 +62,15 @@ function GuidelineStackScreen() {
             <GuidelineStack.Screen
                 name="DiagnosisDetail"
                 options={({ route, navigation }) => ({
+                    ...overlayDefaultStyle,
                     ...guidelineHeaderDefaultStyle,
                     headerTitle: route.params.selectedDiagnosisName,
-                    headerRight: props => (<GuidelineCloseButton navigation={navigation} />),
-                    headerLeft: props => <GuidelineHeaderLeftBack navigation={navigation} />,
+                    headerRight: props => <OverlayCloseButton navigation={navigation} />,
+                    headerLeft: props => (<OverlayHeaderLeftBack
+                        navigation={navigation}
+                        stack="Guideline"
+                        screen="GuidelineList"
+                    />),
                 })}
             >
                 {props => <DiagnosisDetail
@@ -70,6 +86,57 @@ function GuidelineStackScreen() {
 
 
 
+function MatrixFilterStackScreen() {
+    return (
+        <MatrixFilterStack.Navigator>
+            <MatrixFilterStack.Screen
+                name="FilterOverview"
+                options={({ navigation }) => ({
+                    ...overlayDefaultStyle,
+                    ...filterOverlayDefaultStyle,
+                    headerRight: () => <OverlayCloseButton navigation={navigation} />,
+                    headerTitle: 'Filters',
+                    headerLeft: () => {},
+                })}
+            >
+                {props => <FilterOverlay
+                    app={app}
+                    navigation={props.navigation}
+                    // componentStates={componentStates}
+                    selectedFilters={app.selectedFilters}
+                    filterValues={app.filterValues}
+                    guidelines={app.guidelines}
+                    guidelineRelatedFilters={app.guidelineRelatedFilters}
+                />}
+            </MatrixFilterStack.Screen>
+            <MatrixFilterStack.Screen
+                name="FilterDetail"
+                options={({ navigation, route }) => ({
+                    ...overlayDefaultStyle,
+                    ...filterOverlayDefaultStyle,
+                    headerTitle: route.params.content,
+                    headerRight: props => <OverlayCloseButton navigation={navigation} />,
+                    headerLeft: props => (<OverlayHeaderLeftBack
+                        navigation={navigation}
+                        stack="MatrixFilters"
+                        screen="FilterOverview"
+                    />),
+
+                })}
+            >
+                {props => <FilterOverlayDetailView
+                    filterValues={app.filterValues}
+                    navigation={props.navigation}
+                    selectedFilters={app.selectedFilters}
+                    route={props.route}
+                />}
+            </MatrixFilterStack.Screen>
+        </MatrixFilterStack.Navigator>
+    );
+}
+
+
+
 export default function App() {
     return (
         <NavigationContainer>
@@ -79,12 +146,21 @@ export default function App() {
                 screenOptions={{ gestureEnabled: false }}
             >
                 <RootStack.Screen name="Main">
-                    {params => <AppStage app={app} navigation={params.navigation}/>}
+                    {props => <AppStage
+                        app={app}
+                        navigation={props.navigation}
+                        componentStates={componentStates}/>
+                    }
                 </RootStack.Screen>
                 <RootStack.Screen
                     name="Guideline"
                     component={GuidelineStackScreen}
                 />
+                <RootStack.Screen
+                    name="MatrixFilters"
+                    component={MatrixFilterStackScreen}
+                />
+
             </RootStack.Navigator>
         </NavigationContainer>
     );

@@ -8,8 +8,6 @@ import { storeStatus } from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
 import componentStates from './src/models/componentStates/componentStates.js';
-import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel.js';
-import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
 import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSize.js';
 
 import config from './src/config.js';
@@ -67,9 +65,6 @@ export default class AppStage extends React.Component {
 
 
         // View models for mobile app
-        this.filterOverlayModel = new FilterOverlayModel();
-        this.componentStates = new ComponentStatesModel();
-        this.componentStates.setup();
         this.setupModelStateWatchers();
         this.windowSize = new AnimatedWindowSize();
 
@@ -97,7 +92,7 @@ export default class AppStage extends React.Component {
                         status,
                     );
                     if (status === storeStatus.loading) {
-                        this.componentStates.update(modelType, componentStates.loading);
+                        this.props.componentStates.update(modelType, componentStates.loading);
                     }
                     // status is a fetcher state, not a componentState state!
                     if (status === storeStatus.ready) {
@@ -108,11 +103,11 @@ export default class AppStage extends React.Component {
                             modelType === 'resistances' &&
                             // After initial loading screen was displayed, go from loading to ready
                             // again (rendering won't be observed!)
-                            !this.componentStates.allHighestStatesAreReady
+                            !this.props.componentStates.allHighestStatesAreReady
                         ) {
-                            this.componentStates.update(modelType, componentStates.rendering);
+                            this.props.componentStates.update(modelType, componentStates.rendering);
                         } else {
-                            this.componentStates.update(modelType, componentStates.ready);
+                            this.props.componentStates.update(modelType, componentStates.ready);
                         }
                     }
                 },
@@ -125,7 +120,7 @@ export default class AppStage extends React.Component {
      * and resistances status switches back to loading)
      */
     @computed get showMatrix() {
-        return this.componentStates.highestComponentStates.get('resistances') >=
+        return this.props.componentStates.highestComponentStates.get('resistances') >=
             componentStates.rendering;
     }
 
@@ -148,7 +143,17 @@ export default class AppStage extends React.Component {
 
         return (
             <SafeAreaView
-                style={styles.mainContainer}
+                style={[
+                    styles.mainContainer,
+                    {
+                        // Use tenant color as background while screen is loading, afterwards
+                        // white (behind matrix). This does not make it fullscreen, but it looks
+                        // closer to it than a black background.
+                        backgroundColor: this.props.componentStates.allHighestStatesAreReady ?
+                            styleDefinitions.colors.white :
+                            styleDefinitions.colors.tenantColor,
+                    },
+                ]}
                 forceInset={{ right: 'never' }}
             >
 
@@ -172,10 +177,9 @@ export default class AppStage extends React.Component {
 
                         <View style={styles.container}>
                             <MainView
-                                filterOverlayModel={this.filterOverlayModel}
                                 filterValues={this.props.app.filterValues}
                                 selectedFilters={this.props.app.selectedFilters}
-                                componentStates={this.componentStates}
+                                componentStates={this.props.componentStates}
                                 matrix={this.props.app.views.matrix}
                                 drawer={this.props.app.views.drawer}
                                 windowSize={this.windowSize}
@@ -199,7 +203,7 @@ export default class AppStage extends React.Component {
                     >
                         <InitialLoadingScreen
                             version={appConfig.expo.version}
-                            componentStates={this.componentStates}
+                            componentStates={this.props.componentStates}
                         />
                     </View>
 
@@ -209,7 +213,7 @@ export default class AppStage extends React.Component {
                         pointerEvents="none"
                     >
                         <LoadingOverlay
-                            componentStates={this.componentStates}
+                            componentStates={this.props.componentStates}
                         />
                     </View>
 
@@ -248,7 +252,6 @@ const styles = StyleSheet.create({
     },
     mainContainer: {
         flex: 1,
-        backgroundColor: styleDefinitions.colors.black,
         overflow: 'hidden',
     },
 });

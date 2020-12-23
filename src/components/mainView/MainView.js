@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import Matrix from '../matrix/Matrix';
-import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
 import GuidelineButton from '../guideline/GuidelineButton.js';
 import log from '../../helpers/log';
@@ -79,7 +78,7 @@ export default class MainView extends React.Component {
                 <View style={styles.filterButtonContainer} >
                     <FilterButton
                         matrix={this.props.matrix}
-                        filterOverlayModel={this.props.filterOverlayModel}
+                        navigation={this.props.navigation}
                         selectedFilters={this.props.selectedFilters}
                     />
                 </View>
@@ -137,24 +136,6 @@ export default class MainView extends React.Component {
                 </TouchableHighlight>
                 */ }
 
-
-
-
-                { /* Filter overlay */ }
-                { /* Only render when everything's ready to prevent multiple (expensive)
-                     re-renderings whenever a filter is added */ }
-                { (this.props.componentStates.highestComponentStates.get('resistances') >=
-                    componentStates.rendering) &&
-                    <FilterOverlay
-                        filterOverlayModel={this.props.filterOverlayModel}
-                        filterValues={this.props.filterValues}
-                        selectedFilters={this.props.selectedFilters}
-                        componentStates={this.props.componentStates}
-                        windowSize={this.props.windowSize}
-                        guidelines={this.props.guidelines}
-                        guidelineRelatedFilters={this.props.guidelineRelatedFilters}
-                    />
-                }
             </View>
         );
     }
@@ -179,7 +160,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 78,
         bottom: 18,
-
         zIndex: 1,
     },
     container: {

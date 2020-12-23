@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 
-import GuidelineHeaderCloseButtonIcon from '../icons/GuidelineHeaderCloseButtonIcon.js';
+import GuidelineHeaderCloseButtonIcon from './icons/GuidelineHeaderCloseButtonIcon.js';
 
 /**
  * Shows a close button for guideline view headers on the right
- * - close the drawer (goto the matrix view) 
+ * - close the drawer (goto the matrix view)
  *
  * @extends {React.Component}
  */
