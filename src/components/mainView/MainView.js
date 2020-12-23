@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { reaction } from 'mobx';
-import { NavigationEvents } from 'react-navigation';
 import Matrix from '../matrix/Matrix';
 import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
@@ -54,40 +52,12 @@ export default class MainView extends React.Component {
 
     }
 
-    /**
-     * Add reaction for guidelines:
-     * If the guideline drawer model isOpen, show the diagnosislist
-     * else show the matrix/main screen
-     */
-    componentDidMount() {
-        reaction(
-            () => this.props.drawer.isOpen,
-            (isOpen) => {
-                if (isOpen === true) {
-                    this.props.navigation.navigate('Guideline', {
-                        drawer: this.props.drawer,
-                        guidelines: this.props.guidelines,
-                        notificationCenter: this.props.notificationCenter,
-                    });
-                } else {
-                    this.props.navigation.navigate('Main');
-                }
-            },
-        );
-    }
-
     render() {
 
         log('MainView: Render');
 
         return (
             <View style={styles.container}>
-
-                {/* If the user swipes (gesture) from Guideline Drawer,
-                    we have to close our Drawer model, otherwise we couldn't open it anymore */}
-                <NavigationEvents
-                    onDidFocus={() => this.props.drawer.close()}
-                />
 
                 {/* Track screen hits */}
                 <GoogleAnalytics
@@ -124,8 +94,6 @@ export default class MainView extends React.Component {
                             drawer={this.props.drawer}
                             guidelines={this.props.guidelines}
                             navigation={this.props.navigation}
-
-                            guidelineController={this.guidelineController}
                         />
                     </View>
                 }

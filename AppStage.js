@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, StatusBar, Text, LogBox } from 'react-native';
-import { SafeAreaView } from 'react-navigation';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed, observable, action } from 'mobx';
 import Sentry from 'sentry-expo';
-import InfectApp, { storeStatus } from '@infect/frontend-logic';
+import { storeStatus } from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
 import componentStates from './src/models/componentStates/componentStates.js';
@@ -20,12 +20,11 @@ import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay.js';
 import MainView from './src/components/mainView/MainView.js';
 import log from './src/helpers/log.js';
 
-import getURL from './src/config/getURL.js';
 
 
 // Remove this once Sentry is correctly setup.
 // See https://docs.expo.io/versions/latest/guides/using-sentry
-Sentry.enableInExpoDevelopment = true;
+// Sentry.enableInExpoDevelopment = true;
 Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').install();
 
 // Make sure MobX throws if we're not using actions
@@ -54,9 +53,9 @@ export default class AppStage extends React.Component {
         this.dimensionsAreKnown = weKnowTheDimension;
     }
 
-    constructor() {
+    constructor(...props) {
 
-        super();
+        super(...props);
 
         /**
          * Disable Font-Scaling through the Text-Size accessibility settings
@@ -66,9 +65,6 @@ export default class AppStage extends React.Component {
         Text.defaultProps = Text.defaultProps || {};
         Text.defaultProps.allowFontScaling = false;
 
-        // Main app (logic shared with the web)
-        this.app = new InfectApp({ getURL });
-        this.setupApp();
 
         // View models for mobile app
         this.filterOverlayModel = new FilterOverlayModel();
@@ -84,10 +80,6 @@ export default class AppStage extends React.Component {
         this.googleAnalytics.addCustomDimension(1, 'MobileApp');
     }
 
-    async componentDidMount() {
-        log('StatusBar:', StatusBar.curentHeight);
-    }
-
     /**
      * We want to have the current status of models/components at one central place – update
      * componentStates whenever the models (stores from infect-frontend-logic) status changes
@@ -96,7 +88,7 @@ export default class AppStage extends React.Component {
     setupModelStateWatchers() {
         ['resistances', 'bacteria', 'antibiotics'].forEach((modelType) => {
             reaction(
-                () => this.app[modelType].status.identifier,
+                () => this.props.app[modelType].status.identifier,
                 (status) => {
                     log(
                         'App: Update componentState of',
@@ -138,19 +130,6 @@ export default class AppStage extends React.Component {
     }
 
     /**
-     * Use separate setup method as it's async and we need to catch all async errors.
-     */
-    async setupApp() {
-        try {
-            await this.app.initialize();
-        } catch (err) {
-            this.app.notificationCenter.handle(err);
-            log('Error initializing app', err);
-        }
-        log('App: Initialized');
-    }
-
-    /**
      * We need to know the size of the safe area to draw the matrix within this area. Store it
      * centrally in this.windowSize.
      */
@@ -186,25 +165,26 @@ export default class AppStage extends React.Component {
                     {
                         // Don't check resistances loading status here: Will switch back to
                         // 'loading' when population filters are set/removed, App.js will re-render
-                        // this.app.antibiotics.status.identifier === 'ready' &&
-                        // this.app.bacteria.status.identifier === 'ready' &&
+                        // this.props.app.antibiotics.status.identifier === 'ready' &&
+                        // this.props.app.bacteria.status.identifier === 'ready' &&
                         // TODO: Switch to bact/ab loaded to speed things up (a little bit)
                         this.showMatrix && this.dimensionsAreKnown &&
 
                         <View style={styles.container}>
                             <MainView
                                 filterOverlayModel={this.filterOverlayModel}
-                                filterValues={this.app.filterValues}
-                                selectedFilters={this.app.selectedFilters}
+                                filterValues={this.props.app.filterValues}
+                                selectedFilters={this.props.app.selectedFilters}
                                 componentStates={this.componentStates}
-                                matrix={this.app.views.matrix}
-                                drawer={this.app.views.drawer}
+                                matrix={this.props.app.views.matrix}
+                                drawer={this.props.app.views.drawer}
                                 windowSize={this.windowSize}
                                 googleAnalytics={this.googleAnalytics}
                                 navigation={this.props.navigation}
-                                guidelines={this.app.guidelines}
-                                guidelineRelatedFilters={this.app.guidelineRelatedFilters}
-                                notificationCenter={this.app.notificationCenter}
+                                route={this.props.route}
+                                guidelines={this.props.app.guidelines}
+                                guidelineRelatedFilters={this.props.app.guidelineRelatedFilters}
+                                notificationCenter={this.props.app.notificationCenter}
                             />
                         </View>
                     }
@@ -234,10 +214,10 @@ export default class AppStage extends React.Component {
                     </View>
 
                     { /* Errors: At bottom to give it the highest z-index */ }
-                    { this.app.notificationCenter.notifications.length > 0 &&
+                    { this.props.app.notificationCenter.notifications.length > 0 &&
                         <View style={styles.notifications}>
                             <NotificationMessages
-                                notifications={this.app.notificationCenter.notifications}
+                                notifications={this.props.app.notificationCenter.notifications}
                             />
                         </View>
                     }

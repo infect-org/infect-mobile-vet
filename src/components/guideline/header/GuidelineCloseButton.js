@@ -13,7 +13,6 @@ export default class GuidelineCloseButton extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.closeGuidelines = this.closeGuidelines.bind(this);
     }
 
@@ -22,7 +21,7 @@ export default class GuidelineCloseButton extends React.Component {
      * the navigation will go back to the matrix view
      */
     closeGuidelines() {
-        this.props.drawer.close();
+        this.props.navigation.navigate('Main');
     }
 
     render() {
@@ -49,7 +48,6 @@ const styles = StyleSheet.create({
         right: 7,
         height: 40,
         width: 39,
-
         justifyContent: 'center',
         alignItems: 'center',
     },
