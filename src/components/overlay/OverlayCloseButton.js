@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { Platform, View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 
 import GuidelineHeaderCloseButtonIcon from './icons/GuidelineHeaderCloseButtonIcon.js';
 
@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
         right: 7,
         height: 40,
         width: 39,
+        top: Platform.OS === 'ios' ? 0 : 8,
         justifyContent: 'center',
         alignItems: 'center',
     },

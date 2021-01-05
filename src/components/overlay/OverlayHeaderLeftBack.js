@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
+import { Platform, View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 
 import GuidelinIconArrowLeft from './icons/GuidelineIconArrowLeft.js';
 
@@ -22,7 +22,6 @@ export default class GuidelineHeaderLeftBack extends React.Component {
      * the Main view, but to the overview.
      */
     goBack() {
-        console.log('go back', this.props.stack, this.props.screen);
         this.props.navigation.navigate(this.props.stack, {
             screen: this.props.screen,
         });
@@ -51,6 +50,7 @@ export default class GuidelineHeaderLeftBack extends React.Component {
 
 const styles = StyleSheet.create({
     headerLeft: {
+        top: Platform.OS === 'ios' ? 0 : 8,
         flexDirection: 'row',
         paddingLeft: 10,
         paddingRight: 5,

@@ -47,11 +47,6 @@ export default class FilterOverlay extends React.Component {
         this.changeDetailPanelContent = this.changeDetailPanelContent.bind(this);
     }
 
-    /* componentDidMount() {
-        log('FilterOverlay: Mounted');
-        this.props.componentStates.update('filters', componentStates.ready);
-    } */
-
     /**
      * Resets search term to ''. We should try not modify properties from the outside, therefore
      * we pass this method to our children.
