@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
+import { Platform, View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 
-import GuidelinIconArrowLeft from '../icons/GuidelineIconArrowLeft.js';
+import GuidelinIconArrowLeft from './icons/GuidelineIconArrowLeft.js';
 
 /**
  * The Left-Back button for guideline view headers
@@ -13,16 +13,18 @@ export default class GuidelineHeaderLeftBack extends React.Component {
 
     constructor(props) {
         super(props);
-
         this.goBack = this.goBack.bind(this);
     }
 
     /**
-     * Go one step back in navigation
-     *
+     * Go to overview of guidelines. If user opens diagnosis detail directly via «Show Guidelines»
+     * button in matrix (after a diagnosis was selected), this button should not go back to
+     * the Main view, but to the overview.
      */
     goBack() {
-        this.props.navigation.goBack();
+        this.props.navigation.navigate(this.props.stack, {
+            screen: this.props.screen,
+        });
     }
 
     render() {
@@ -48,11 +50,9 @@ export default class GuidelineHeaderLeftBack extends React.Component {
 
 const styles = StyleSheet.create({
     headerLeft: {
+        top: Platform.OS === 'ios' ? 0 : 8,
         flexDirection: 'row',
-
-        paddingLeft: 20,
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingLeft: 10,
         paddingRight: 5,
     },
     headerLeftText: {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { computed } from 'mobx';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { observer } from 'mobx-react';
 import Markdown, { hasParents } from 'react-native-markdown-renderer';
@@ -7,8 +8,6 @@ import { AllHtmlEntities } from 'html-entities';
 import MailIcon from './icons/MailIcon.js';
 
 import styleDefinitions from '../../helpers/styleDefinitions.js';
-import GuidelineCloseButton from './header/GuidelineCloseButton.js';
-import GuidelineHeaderLeftBack from './header/GuidelineHeaderLeftBack.js';
 import ShowResistancesForSelectedDiagnosisButton from './ShowResistancesForSelectedDiagnosisButton.js';
 
 import openURL from '../../helpers/openURL.js';
@@ -21,22 +20,6 @@ import openURL from '../../helpers/openURL.js';
  * @extends {React.Component}
  */
 export default @observer class DiagnosisDetail extends React.Component {
-
-    static navigationOptions = ({ navigation }) => ({
-        headerStyle: {
-            backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
-        },
-        headerTintColor: '#FFF',
-        headerTitleStyle: {
-            fontWeight: 'bold',
-            fontSize: 20,
-            textAlign: 'center',
-            flex: 1,
-        },
-        title: navigation.getParam('diagnosis').name,
-        headerRight: <GuidelineCloseButton drawer={navigation.getParam('drawer')} />,
-        headerLeft: <GuidelineHeaderLeftBack navigation={navigation}/>,
-    });
 
     markdownRules = {
         text: (node, children, parent, styles) => <Text key={node.key}>{this.optimizeMarkdownContent(node.content)}</Text>,
@@ -53,7 +36,9 @@ export default @observer class DiagnosisDetail extends React.Component {
             if (hasParents(parent, 'ordered_list')) {
                 return (
                     <View key={node.key} style={styles.listOrderedItem}>
-                        <Text style={styles.listOrderedItemIcon}>{node.index + 1}{node.markup}</Text>
+                        <Text style={styles.listOrderedItemIcon}>
+                            {node.index + 1}{node.markup}
+                        </Text>
                         <View style={[styles.listItem]}>{children}</View>
                     </View>
                 );
@@ -80,11 +65,17 @@ export default @observer class DiagnosisDetail extends React.Component {
             .replace(/(\S)\/(?!\s)/g, `$1${AllHtmlEntities.decode('&#8239;')}/${AllHtmlEntities.decode('&#8239;')}`);
     }
 
+    @computed get selectedGuideline() {
+        return this.props.guidelines.getById(this.props.route.params.selectedGuidelineID);
+    }
+
+    @computed get selectedDiagnosis() {
+        return this.selectedGuideline.diagnoses
+            .find(({ id }) => id === this.props.route.params.selectedDiagnosisID);
+    }
+
+
     render() {
-        const diagnosis = this.props.navigation.getParam('diagnosis');
-        const selectedGuideline = this.props.navigation.getParam('selectedGuideline');
-        const drawer = this.props.navigation.getParam('drawer');
-        const notificationCenter = this.props.navigation.getParam('notificationCenter');
 
         return (
             <View style={styles.container}>
@@ -94,25 +85,25 @@ export default @observer class DiagnosisDetail extends React.Component {
 
                     <View style={styles.header}>
                         <Text style={styles.diagnosisClass}>
-                            {diagnosis.diagnosisClass.name}
+                            {this.selectedDiagnosis.diagnosisClass.name}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
-                                openURL(selectedGuideline.link, notificationCenter);
+                                openURL(this.selectedGuideline.link, this.props.notificationCenter);
                             }}
                         >
                             <Text style={styles.guidelineName}>
-                                {selectedGuideline.name}
+                                {this.selectedGuideline.name}
                             </Text>
                         </TouchableOpacity>
 
-                        {selectedGuideline.markdownDisclaimer &&
+                        {this.selectedGuideline.markdownDisclaimer &&
                             <View style={styles.headerDisclaimer}>
                                 <Markdown
                                     rules={this.markdownRules}
                                     style={styleDefinitions.markdownDisclaimer}
                                 >
-                                    {selectedGuideline.markdownDisclaimer}
+                                    {this.selectedGuideline.markdownDisclaimer}
                                 </Markdown>
                             </View>
                         }
@@ -120,7 +111,7 @@ export default @observer class DiagnosisDetail extends React.Component {
 
                     <View style={styles.content}>
                         <View style={styles.therapyList}>
-                            {diagnosis.therapies.map(therapy =>
+                            {this.selectedDiagnosis.therapies.map(therapy =>
                                 <View
                                     key={therapy.id}
                                     style={styles.therapyListItem}
@@ -165,14 +156,14 @@ export default @observer class DiagnosisDetail extends React.Component {
                                 </View>)}
                         </View>
 
-                        {diagnosis.markdownText &&
+                        {this.selectedDiagnosis.markdownText &&
                         <View>
                             <View style={styles.diagnosisMarkdownSeperator} />
                             <Text style={styles.diagnosisMarkdownTitle}>
                                 General Considerations
                             </Text>
                             <Markdown rules={this.markdownRules} style={styleDefinitions.markdownStyles}>
-                                {diagnosis.markdownText}
+                                {this.selectedDiagnosis.markdownText}
                             </Markdown>
                         </View>
                         }
@@ -201,11 +192,14 @@ export default @observer class DiagnosisDetail extends React.Component {
                                 </TouchableOpacity>
                             } */}
 
-                            {selectedGuideline.contactEmail &&
+                            {this.selectedGuideline.contactEmail &&
                                 <TouchableOpacity
                                     style={styles.externalLinkButton}
                                     onPress={() => {
-                                        openURL(`mailto:${selectedGuideline.contactEmail}`, notificationCenter);
+                                        openURL(
+                                            `mailto:${this.selectedGuideline.contactEmail}`,
+                                            this.props.notificationCenter,
+                                        );
                                     }}
                                 >
                                     <Text
@@ -223,18 +217,21 @@ export default @observer class DiagnosisDetail extends React.Component {
                             }
                         </View>
 
-                        {diagnosis.latestUpdate &&
+                        {this.selectedDiagnosis.latestUpdate &&
                         <View style={styles.dataSourceContainer}>
                             <Text style={styles.dataSourceText}>
-                                Updated on {diagnosis.latestUpdate.date.getDate()}.{diagnosis.latestUpdate.date.getMonth()}.{diagnosis.latestUpdate.date.getFullYear()} from
+                                Updated on {this.selectedDiagnosis.latestUpdate.date.getDate()}.{this.selectedDiagnosis.latestUpdate.date.getMonth() + 1}.{this.selectedDiagnosis.latestUpdate.date.getFullYear()} from
                             </Text>
                             <TouchableOpacity
                                 onPress={() => {
-                                    openURL(diagnosis.link, notificationCenter);
+                                    openURL(
+                                        this.selectedDiagnosis.link,
+                                        this.props.notificationCenter,
+                                    );
                                 }}
                             >
                                 <Text style={[styles.dataSourceText, styles.dataSourceLink]}>
-                                    {diagnosis.latestUpdate.name}
+                                    {this.selectedDiagnosis.latestUpdate.name}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -244,9 +241,9 @@ export default @observer class DiagnosisDetail extends React.Component {
                 </ScrollView>
                 <View style={styles.currentResistanceButtonContainer}>
                     <ShowResistancesForSelectedDiagnosisButton
-                        selectedGuideline={selectedGuideline}
-                        diagnosis={diagnosis}
-                        drawer={drawer}
+                        selectedGuideline={this.selectedGuideline}
+                        navigation={this.props.navigation}
+                        diagnosis={this.selectedDiagnosis}
                     />
                 </View>
             </View>

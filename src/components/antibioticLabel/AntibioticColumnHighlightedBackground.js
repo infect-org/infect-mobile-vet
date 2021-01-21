@@ -17,7 +17,7 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      */
     @computed get xPosition() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        return position.left;
+        return position && position.left || 0;
     }
 
     /**

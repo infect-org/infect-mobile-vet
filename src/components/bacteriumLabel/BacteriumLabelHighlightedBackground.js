@@ -82,7 +82,6 @@ export default @observer class BacteriumLabelHighlightedBackground extends React
             if (this.isInSelectedGuideline && this.isSelected) return 0.6;
             else return 0.3;
         }
-
         return 0;
     }
 
@@ -104,7 +103,10 @@ export default @observer class BacteriumLabelHighlightedBackground extends React
             multiply(
                 this.props.matrix.bacteriumLabelColumnWidth,
                 this.props.maxZoom,
-            ) : 'auto';
+            ) :
+            // We may not use 'auto' here as this.left (which is calculated based on width) would
+            // be an Animated with value NaN which cannot be handled by Android
+            0;
     }
 
     /**

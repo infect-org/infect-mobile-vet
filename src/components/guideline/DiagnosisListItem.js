@@ -22,11 +22,14 @@ export default @observer class DiagnosisListItem extends React.Component {
      * Go to the detail view of this diagnosis
      */
     selectGuideline() {
-        this.props.navigation.navigate('DiagnosisDetail', {
-            diagnosis: this.props.diagnosis,
-            drawer: this.props.drawer,
-            selectedGuideline: this.props.selectedGuideline,
-            notificationCenter: this.props.notificationCenter,
+        this.props.navigation.navigate('Guideline', {
+            screen: 'DiagnosisDetail',
+            params: {
+                selectedGuidelineID: this.props.selectedGuideline.id,
+                selectedDiagnosisID: this.props.diagnosis.id,
+                // Needed to display name in header
+                selectedDiagnosisName: this.props.diagnosis.name,
+            },
         });
     }
 
