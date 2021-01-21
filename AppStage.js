@@ -1,15 +1,13 @@
 import React from 'react';
-import { StyleSheet, View, StatusBar, Text } from 'react-native';
-import { SafeAreaView } from 'react-navigation';
+import { StyleSheet, View, StatusBar, Text, LogBox } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { observer } from 'mobx-react';
 import { configure, reaction, computed, observable, action } from 'mobx';
 import Sentry from 'sentry-expo';
-import InfectApp, { storeStatus } from '@infect/frontend-logic';
+import { storeStatus } from '@infect/frontend-logic';
 import { Analytics } from 'expo-analytics';
 import appConfig from './app.json';
 import componentStates from './src/models/componentStates/componentStates.js';
-import FilterOverlayModel from './src/models/filterOverlayModel/FilterOverlayModel.js';
-import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
 import AnimatedWindowSize from './src/models/animatedWindowSize/AnimatedWindowSize.js';
 
 import config from './src/config.js';
@@ -20,19 +18,17 @@ import LoadingOverlay from './src/components/loadingOverlay/LoadingOverlay.js';
 import MainView from './src/components/mainView/MainView.js';
 import log from './src/helpers/log.js';
 
-import getURL from './src/config/getURL.js';
 
 
 // Remove this once Sentry is correctly setup.
 // See https://docs.expo.io/versions/latest/guides/using-sentry
-Sentry.enableInExpoDevelopment = true;
+// Sentry.enableInExpoDevelopment = true;
 Sentry.config('https://a5a5af5d0b8848e9b426b4a094de7707@sentry.io/1258537').install();
 
 // Make sure MobX throws if we're not using actions
 configure({ enforceActions: 'always' });
 
-console.disableYellowBox = true;
-// console.error = () => {};
+LogBox.ignoreAllLogs();
 
 /**
  * Basic app. Especially handles
@@ -55,9 +51,9 @@ export default class AppStage extends React.Component {
         this.dimensionsAreKnown = weKnowTheDimension;
     }
 
-    constructor() {
+    constructor(...props) {
 
-        super();
+        super(...props);
 
         /**
          * Disable Font-Scaling through the Text-Size accessibility settings
@@ -67,14 +63,8 @@ export default class AppStage extends React.Component {
         Text.defaultProps = Text.defaultProps || {};
         Text.defaultProps.allowFontScaling = false;
 
-        // Main app (logic shared with the web)
-        this.app = new InfectApp({ getURL });
-        this.setupApp();
 
         // View models for mobile app
-        this.filterOverlayModel = new FilterOverlayModel();
-        this.componentStates = new ComponentStatesModel();
-        this.componentStates.setup();
         this.setupModelStateWatchers();
         this.windowSize = new AnimatedWindowSize();
 
@@ -85,10 +75,6 @@ export default class AppStage extends React.Component {
         this.googleAnalytics.addCustomDimension(1, 'MobileApp');
     }
 
-    async componentDidMount() {
-        log('StatusBar:', StatusBar.curentHeight);
-    }
-
     /**
      * We want to have the current status of models/components at one central place – update
      * componentStates whenever the models (stores from infect-frontend-logic) status changes
@@ -97,7 +83,7 @@ export default class AppStage extends React.Component {
     setupModelStateWatchers() {
         ['resistances', 'bacteria', 'antibiotics'].forEach((modelType) => {
             reaction(
-                () => this.app[modelType].status.identifier,
+                () => this.props.app[modelType].status.identifier,
                 (status) => {
                     log(
                         'App: Update componentState of',
@@ -106,7 +92,7 @@ export default class AppStage extends React.Component {
                         status,
                     );
                     if (status === storeStatus.loading) {
-                        this.componentStates.update(modelType, componentStates.loading);
+                        this.props.componentStates.update(modelType, componentStates.loading);
                     }
                     // status is a fetcher state, not a componentState state!
                     if (status === storeStatus.ready) {
@@ -117,11 +103,11 @@ export default class AppStage extends React.Component {
                             modelType === 'resistances' &&
                             // After initial loading screen was displayed, go from loading to ready
                             // again (rendering won't be observed!)
-                            !this.componentStates.allHighestStatesAreReady
+                            !this.props.componentStates.allHighestStatesAreReady
                         ) {
-                            this.componentStates.update(modelType, componentStates.rendering);
+                            this.props.componentStates.update(modelType, componentStates.rendering);
                         } else {
-                            this.componentStates.update(modelType, componentStates.ready);
+                            this.props.componentStates.update(modelType, componentStates.ready);
                         }
                     }
                 },
@@ -134,21 +120,8 @@ export default class AppStage extends React.Component {
      * and resistances status switches back to loading)
      */
     @computed get showMatrix() {
-        return this.componentStates.highestComponentStates.get('resistances') >=
+        return this.props.componentStates.highestComponentStates.get('resistances') >=
             componentStates.rendering;
-    }
-
-    /**
-     * Use separate setup method as it's async and we need to catch all async errors.
-     */
-    async setupApp() {
-        try {
-            await this.app.initialize();
-        } catch (err) {
-            this.app.notificationCenter.handle(err);
-            log('Error initializing app', err);
-        }
-        log('App: Initialized');
     }
 
     /**
@@ -170,7 +143,17 @@ export default class AppStage extends React.Component {
 
         return (
             <SafeAreaView
-                style={styles.mainContainer}
+                style={[
+                    styles.mainContainer,
+                    {
+                        // Use tenant color as background while screen is loading, afterwards
+                        // white (behind matrix). This does not make it fullscreen, but it looks
+                        // closer to it than a black background.
+                        backgroundColor: this.props.componentStates.allHighestStatesAreReady ?
+                            styleDefinitions.colors.white :
+                            styleDefinitions.colors.tenantColor,
+                    },
+                ]}
                 forceInset={{ right: 'never' }}
             >
 
@@ -187,25 +170,25 @@ export default class AppStage extends React.Component {
                     {
                         // Don't check resistances loading status here: Will switch back to
                         // 'loading' when population filters are set/removed, App.js will re-render
-                        // this.app.antibiotics.status.identifier === 'ready' &&
-                        // this.app.bacteria.status.identifier === 'ready' &&
+                        // this.props.app.antibiotics.status.identifier === 'ready' &&
+                        // this.props.app.bacteria.status.identifier === 'ready' &&
                         // TODO: Switch to bact/ab loaded to speed things up (a little bit)
                         this.showMatrix && this.dimensionsAreKnown &&
 
                         <View style={styles.container}>
                             <MainView
-                                filterOverlayModel={this.filterOverlayModel}
-                                filterValues={this.app.filterValues}
-                                selectedFilters={this.app.selectedFilters}
-                                componentStates={this.componentStates}
-                                matrix={this.app.views.matrix}
-                                drawer={this.app.views.drawer}
+                                filterValues={this.props.app.filterValues}
+                                selectedFilters={this.props.app.selectedFilters}
+                                componentStates={this.props.componentStates}
+                                matrix={this.props.app.views.matrix}
+                                drawer={this.props.app.views.drawer}
                                 windowSize={this.windowSize}
                                 googleAnalytics={this.googleAnalytics}
                                 navigation={this.props.navigation}
-                                guidelines={this.app.guidelines}
-                                guidelineRelatedFilters={this.app.guidelineRelatedFilters}
-                                notificationCenter={this.app.notificationCenter}
+                                route={this.props.route}
+                                guidelines={this.props.app.guidelines}
+                                guidelineRelatedFilters={this.props.app.guidelineRelatedFilters}
+                                notificationCenter={this.props.app.notificationCenter}
                             />
                         </View>
                     }
@@ -220,7 +203,7 @@ export default class AppStage extends React.Component {
                     >
                         <InitialLoadingScreen
                             version={appConfig.expo.version}
-                            componentStates={this.componentStates}
+                            componentStates={this.props.componentStates}
                         />
                     </View>
 
@@ -230,15 +213,15 @@ export default class AppStage extends React.Component {
                         pointerEvents="none"
                     >
                         <LoadingOverlay
-                            componentStates={this.componentStates}
+                            componentStates={this.props.componentStates}
                         />
                     </View>
 
                     { /* Errors: At bottom to give it the highest z-index */ }
-                    { this.app.notificationCenter.notifications.length > 0 &&
+                    { this.props.app.notificationCenter.notifications.length > 0 &&
                         <View style={styles.notifications}>
                             <NotificationMessages
-                                notifications={this.app.notificationCenter.notifications}
+                                notifications={this.props.app.notificationCenter.notifications}
                             />
                         </View>
                     }
@@ -269,7 +252,6 @@ const styles = StyleSheet.create({
     },
     mainContainer: {
         flex: 1,
-        backgroundColor: styleDefinitions.colors.black,
         overflow: 'hidden',
     },
 });

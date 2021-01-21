@@ -2,19 +2,11 @@ import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { multiply, sub, divide } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
-
 import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
-
-const {
-    multiply,
-    sub,
-    divide,
-} = Animated;
 
 @observer
 export default class BacteriumLabel extends React.Component {

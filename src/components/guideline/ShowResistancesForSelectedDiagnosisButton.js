@@ -28,8 +28,7 @@ export default class ShowResistancesForSelectedDiagnosisButton extends React.Com
      */
     showResistancesForCurrentDiagnosis() {
         this.props.selectedGuideline.selectDiagnosis(this.props.diagnosis);
-
-        this.props.drawer.close();
+        this.props.navigation.navigate('Main');
     }
 
     render() {

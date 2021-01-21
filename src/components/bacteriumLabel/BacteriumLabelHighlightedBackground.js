@@ -1,19 +1,11 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { computed, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import { computed } from 'mobx';
+import Animated, { multiply, sub, divide } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions';
-
 import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
-
-const {
-    multiply,
-    sub,
-    divide,
-} = Animated;
 
 export default @observer class BacteriumLabelHighlightedBackground extends React.Component {
 
@@ -90,7 +82,6 @@ export default @observer class BacteriumLabelHighlightedBackground extends React
             if (this.isInSelectedGuideline && this.isSelected) return 0.6;
             else return 0.3;
         }
-
         return 0;
     }
 
@@ -112,7 +103,10 @@ export default @observer class BacteriumLabelHighlightedBackground extends React
             multiply(
                 this.props.matrix.bacteriumLabelColumnWidth,
                 this.props.maxZoom,
-            ) : 'auto';
+            ) :
+            // We may not use 'auto' here as this.left (which is calculated based on width) would
+            // be an Animated with value NaN which cannot be handled by Android
+            0;
     }
 
     /**

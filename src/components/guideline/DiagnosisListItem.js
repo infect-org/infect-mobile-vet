@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
 
 import GuidelineArrowRightIcon from './icons/GuidelineArrowRightIcon.js';
@@ -22,11 +22,14 @@ export default @observer class DiagnosisListItem extends React.Component {
      * Go to the detail view of this diagnosis
      */
     selectGuideline() {
-        this.props.navigation.navigate('DiagnosisDetail', {
-            diagnosis: this.props.diagnosis,
-            drawer: this.props.drawer,
-            selectedGuideline: this.props.selectedGuideline,
-            notificationCenter: this.props.notificationCenter,
+        this.props.navigation.navigate('Guideline', {
+            screen: 'DiagnosisDetail',
+            params: {
+                selectedGuidelineID: this.props.selectedGuideline.id,
+                selectedDiagnosisID: this.props.diagnosis.id,
+                // Needed to display name in header
+                selectedDiagnosisName: this.props.diagnosis.name,
+            },
         });
     }
 
@@ -34,7 +37,8 @@ export default @observer class DiagnosisListItem extends React.Component {
         const { diagnosis } = this.props;
 
         return (
-            <TouchableWithoutFeedback
+            <TouchableHighlight
+                underlayColor={styleDefinitions.colors.guidelines.darkBlue}
                 onPress={this.selectGuideline}
             >
                 <View style={styles.container}>
@@ -58,7 +62,7 @@ export default @observer class DiagnosisListItem extends React.Component {
                         />
                     </View>
                 </View>
-            </TouchableWithoutFeedback>
+            </TouchableHighlight>
         );
     }
 
@@ -67,11 +71,11 @@ export default @observer class DiagnosisListItem extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-
         paddingLeft: 33,
-
         flexDirection: 'row',
         alignItems: 'center',
+        marginBottom: 22.5,
+        marginTop: 22.5,
     },
     textContainer: {
         flex: 1,

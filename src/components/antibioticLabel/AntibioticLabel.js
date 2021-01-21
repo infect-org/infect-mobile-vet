@@ -1,20 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { observer } from 'mobx-react';
-import { DangerZone } from 'expo';
+import Animated, { multiply, sub, divide } from 'react-native-reanimated';
 import { computed, observable, action, reaction } from 'mobx';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
-
 import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
-
-const {
-    multiply,
-    sub,
-    divide,
-} = Animated;
 
 @observer
 export default class AntibioticLabel extends React.Component {

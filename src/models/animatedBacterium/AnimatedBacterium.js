@@ -1,8 +1,7 @@
 import { reaction, computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated from 'react-native-reanimated';
 import log from '../../helpers/log';
 
-const { Animated } = DangerZone;
 
 /**
  * Instead of updating the Animated.Values on 1000 resistances, we store the AnimatedValues for all
@@ -11,7 +10,7 @@ const { Animated } = DangerZone;
 export default class AnimatedBacterium {
 
     previousValues = new Map();
-    opacity = new Animated.Value(0);
+    opacity = new Animated.Value(1);
     top = new Animated.Value(0);
 
     constructor(bacteriumViewModel, matrixViewModel) {
@@ -29,7 +28,7 @@ export default class AnimatedBacterium {
     }
 
     @computed get computedOpacity() {
-        return this.yPosition ? 1 : 0;
+        return this.bacteriumViewModel.visible ? 1 : 0;
     }
 
     @computed get computedTop() {

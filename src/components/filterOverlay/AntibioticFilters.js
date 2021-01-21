@@ -24,10 +24,6 @@ export default class AntibioticFilters extends React.Component {
         this.toggleSubstanceClassesPicker = this.toggleSubstanceClassesPicker.bind(this);
     }
 
-    componentDidMount() {
-        log('AntibioticFilters: Mounted');
-    }
-
     @computed get applications() {
         const applications = [
             this.props.filterValues.getValuesForProperty(filterTypes.antibiotic, 'po')
