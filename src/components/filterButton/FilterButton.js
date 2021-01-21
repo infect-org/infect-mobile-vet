@@ -15,10 +15,10 @@ export default class FilterButton extends React.Component {
     }
 
     handleFilterButtonPress() {
-        // Hide activeResistance (as it might display details for a resistance that will be hidden)
         log('MainView: Show overlay');
+        // Hide activeResistance (as it might display details for a resistance that will be hidden)
         this.props.matrix.setActiveResistance();
-        this.props.filterOverlayModel.show();
+        this.props.navigation.navigate('MatrixFilters');
     }
 
     /**
@@ -30,10 +30,6 @@ export default class FilterButton extends React.Component {
     }
 
     render() {
-
-        // Remove button when overlay is visible as its elevation (on Android) pushes it *above*
-        // the filterOverlay and it's therefore always visible
-        if (this.props.filterOverlayModel.isVisible) return null;
 
         return (
 

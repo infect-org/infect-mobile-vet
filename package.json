@@ -13,6 +13,9 @@
   "dependencies": {
     "@babel/runtime": "^7.4.5",
     "@infect/frontend-logic": "^5.1.0",
+    "@react-native-community/masked-view": "0.1.10",
+    "@react-navigation/native": "^5.8.10",
+    "@react-navigation/stack": "^5.12.8",
     "expo": "^39.0.0",
     "expo-analytics": "1.0.11",
     "expo-constants": "~9.2.0",
@@ -26,9 +29,9 @@
     "react-native-markdown-display": "^7.0.0-alpha.2",
     "react-native-pan-pinch": "^1.0.1",
     "react-native-reanimated": "~1.13.0",
+    "react-native-safe-area-context": "3.1.4",
     "react-native-screens": "~2.10.1",
     "react-native-svg": "12.1.0",
-    "react-navigation": "^3.11.0",
     "sentry-expo": "~1.13.0"
   },
   "devDependencies": {

@@ -15,7 +15,7 @@ export default class ComponentStatesModel {
      * @type {Map} key: component name (see this.componentNames), value: state (see componentStates)
      */
     @observable highestComponentStates = new Map();
-    @observable componentNames = ['bacteria', 'antibiotics', 'resistances', 'filters'];
+    @observable componentNames = ['bacteria', 'antibiotics', 'resistances'];
 
     /**
      * Returns true if all components were ready once
@@ -45,7 +45,7 @@ export default class ComponentStatesModel {
         if (!Object.values(componentStates).includes(state)) {
             throw new Error(`ComponentStatesModel: Cannot update state of ${component} to ${state}, as this is not a valid component state.`);
         }
-        log('FilterOverlayModel: Update state of', component, 'to', state);
+        log('ComponentStatesModel: Update state of', component, 'to', state);
         this.components.set(component, state);
         const previousHighestState = this.highestComponentStates.get(component);
         if (state > previousHighestState) this.highestComponentStates.set(component, state);

@@ -31,15 +31,25 @@ export default @observer class GuidelineButton extends React.Component {
      */
     openGuidelinesDrawer() {
         const selectedDiagnosis = this.props.guidelines.getSelectedDiagnosis();
-        this.props.drawer.open();
 
         if (selectedDiagnosis) {
-            this.props.navigation.navigate('DiagnosisDetail', {
-                diagnosis: selectedDiagnosis,
-                drawer: this.props.drawer,
-                selectedGuideline: this.props.guidelines.selectedGuideline,
+            this.props.navigation.navigate('Guideline', {
+                screen: 'DiagnosisDetail',
+                // diagnosis: selectedDiagnosis,
+                // drawer: this.props.drawer,
+                params: {
+                    selectedGuidelineID: this.props.guidelines.selectedGuideline.id,
+                    selectedDiagnosisID: selectedDiagnosis.id,
+                    // Needed to display name in header
+                    selectedDiagnosisName: selectedDiagnosis.name,
+                },
+            });
+        } else {
+            this.props.navigation.navigate('Guideline', {
+                screen: 'GuidelineList',
             });
         }
+
     }
 
     /**

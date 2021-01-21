@@ -43,7 +43,7 @@ export default class MatrixContent extends React.Component {
     leftColumnWidth = new Animated.Value(0);
     topRowHeight = new Animated.Value(0);
     rightColumnWidth = sub(this.props.windowSize.animatedWidth, this.leftColumnWidth);
-    bottomRowHeight = sub(this.props.windowSize.animatedHeight, this.topRowHeight)
+    bottomRowHeight = sub(this.props.windowSize.animatedHeight, this.topRowHeight);
 
     animatedVisibleBacteriaHeight = new Animated.Value(0);
     animatedVisibleAntibioticsWidth = new Animated.Value(0);
@@ -203,7 +203,9 @@ export default class MatrixContent extends React.Component {
             () => this.visibleBacteriaHeight,
             (height) => {
                 log('MatrixContent: Update animated visible bacteria height to', height);
-                this.animatedVisibleBacteriaHeight.setValue(height);
+                // Add «padding» at bottom so that matrix content is *not* hidden below UI buttons
+                // (for guidelines and filters)
+                this.animatedVisibleBacteriaHeight.setValue(height + 80);
             },
         );
 

@@ -4,8 +4,6 @@ import { observable, computed, action } from 'mobx';
 import { observer } from 'mobx-react';
 
 import styleDefinitions from '../../helpers/styleDefinitions';
-import GuidelineCloseButton from './header/GuidelineCloseButton.js';
-import GuidelineHeaderLeftTitle from './header/GuidelineHeaderLeftTitle.js';
 import DiagnosisListItem from './DiagnosisListItem.js';
 
 /**
@@ -21,20 +19,10 @@ export default @observer class DiagnosisList extends React.Component {
     // Current search term in search filter text input
     @observable searchTerm = '';
 
-    static navigationOptions = ({ navigation }) => ({
-        headerStyle: {
-            backgroundColor: styleDefinitions.colors.guidelines.darkBlue,
-        },
-        title: null,
-        headerLeft: <GuidelineHeaderLeftTitle title="Guidelines" />,
-        headerRight: <GuidelineCloseButton drawer={navigation.getParam('drawer')} />,
-    });
-
     constructor(props) {
         super(props);
-
         this.handleSearchTextChange = this.handleSearchTextChange.bind(this);
-        this.guidelines = this.props.navigation.getParam('guidelines');
+        this.guidelines = this.props.guidelines;
     }
 
     @computed get diagnosisList() {
@@ -98,12 +86,10 @@ export default @observer class DiagnosisList extends React.Component {
                     ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
                     ListFooterComponent={() => <View style={styles.listFooter} />}
                     keyExtractor={item => `diagnosis_${item.diagnosis.id}`}
-                    renderItem={({ item, index }) => <DiagnosisListItem
+                    renderItem={({ item }) => <DiagnosisListItem
                         diagnosis={item.diagnosis}
                         matchedSynonym={item.matchedSynonym}
-                        index={index}
                         navigation={this.props.navigation}
-                        drawer={this.props.navigation.getParam('drawer')}
                         selectedGuideline={this.guidelines.selectedGuideline}
                         notificationCenter={this.props.navigation.getParam('notificationCenter')}
                     />}
