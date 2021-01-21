@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TextInput } from 'react-native';
+import { View, Text, StyleSheet, SectionList, TextInput } from 'react-native';
 import { observable, computed, action } from 'mobx';
 import { observer } from 'mobx-react';
 
@@ -30,12 +30,27 @@ export default @observer class DiagnosisList extends React.Component {
             this.guidelines.search(this.searchTerm) :
             this.guidelines.selectedGuideline.diagnoses.map(diagnosis => ({ diagnosis }));
 
-        return results
-            .map(result => ({
-                diagnosis: result.diagnosis,
-                matchedSynonym: result.synonym,
-            }))
-            .sort((a, b) => (a.diagnosis.name < b.diagnosis.name ? -1 : 1));
+        // Quick fix for specific therapies: All diagnoses belonging to the diagnosisClass with
+        // name 'Specific Therapies' are supposed to be specific
+        const list = results
+            // Sort diagnoses alphabetically
+            .sort((a, b) => (a.diagnosis.name < b.diagnosis.name ? -1 : 1))
+            // Convert data to a format that can be consumed by SectionList:
+            // [{ title: 'Specific|Empirical', data: [{ diagnosis, matchedSynonym }] }]
+            .reduce((prev, item) => {
+                const index = item.diagnosis.diagnosisClass.name === 'Specific Therapies' ? 1 : 0;
+                prev[index].data.push({
+                    diagnosis: item.diagnosis,
+                    matchedSynonym: item.synonym,
+                });
+                return prev;
+            }, [
+                { title: 'Empirical Therapies', data: [] },
+                { title: 'Specific Therapies', data: [] },
+            ]);
+
+        return list;
+
     }
 
     /**
@@ -65,21 +80,24 @@ export default @observer class DiagnosisList extends React.Component {
                         value={this.searchTerm}
                     />
                 </View>
-                <FlatList
-                    data={this.diagnosisList}
+                <SectionList
+                    sections={this.diagnosisList}
                     style={styles.guidelineList}
-                    bounces={false}
-                    ItemSeparatorComponent={ () => <View style={styles.listSeparator} /> }
-                    ListFooterComponent={ () => <View style={styles.listFooter} /> }
+                    ItemSeparatorComponent={() => <View style={styles.listSeparator} />}
+                    ListFooterComponent={() => <View style={styles.listFooter} />}
                     keyExtractor={item => `diagnosis_${item.diagnosis.id}`}
                     renderItem={({ item }) => <DiagnosisListItem
                         diagnosis={item.diagnosis}
                         matchedSynonym={item.matchedSynonym}
                         navigation={this.props.navigation}
                         selectedGuideline={this.guidelines.selectedGuideline}
-                    />
-                    }>
-                </FlatList>
+                        notificationCenter={this.props.navigation.getParam('notificationCenter')}
+                    />}
+                    renderSectionHeader={({ section: { title } }) => (
+                        <Text style={styles.listTitle}>{title}</Text>
+                    )}
+                >
+                </SectionList>
             </View>
         );
     }
@@ -92,8 +110,8 @@ const styles = StyleSheet.create({
         backgroundColor: styleDefinitions.colors.guidelines.middleBlue,
     },
     searchFieldContainer: {
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: 15,
+        paddingBottom: 15,
         paddingLeft: 20,
         paddingRight: 20,
     },
@@ -107,20 +125,22 @@ const styles = StyleSheet.create({
         color: styleDefinitions.colors.black,
         borderWidth: StyleSheet.hairlineWidth,
     },
-    guidelineList: {
-        marginTop: 22,
-    },
     listSeparator: {
-        marginBottom: 22.5,
-        marginTop: 22.5,
-
         borderColor: styleDefinitions.colors.guidelines.darkBlue,
         borderBottomWidth: 1,
-
         opacity: 0.2,
     },
     listFooter: {
         marginTop: 10,
         marginBottom: 10,
+    },
+    listTitle: {
+        color: styleDefinitions.colors.black,
+        fontSize: styleDefinitions.fontSizes.guidelines.regularText,
+        ...styleDefinitions.fonts.bold,
+        backgroundColor: styleDefinitions.colors.guidelines.backgroundMiddleBlue,
+        paddingLeft: 33,
+        paddingTop: 10,
+        paddingBottom: 10,
     },
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import { computed } from 'mobx';
 import { View, StyleSheet, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { observer } from 'mobx-react';
-import Markdown, { hasParents } from 'react-native-markdown-renderer';
+import Markdown, { hasParents } from 'react-native-markdown-display';
 import { AllHtmlEntities } from 'html-entities';
 // import ExternalLinkIcon from './icons/ExternalLinkIcon.js';
 import MailIcon from './icons/MailIcon.js';
@@ -22,13 +22,17 @@ import openURL from '../../helpers/openURL.js';
 export default @observer class DiagnosisDetail extends React.Component {
 
     markdownRules = {
-        text: (node, children, parent, styles) => <Text key={node.key}>{this.optimizeMarkdownContent(node.content)}</Text>,
+        // Optimize spaces for measurements and abbreviations
+        text: node => (
+            <Text key={node.key}>{this.optimizeMarkdownContent(node.content)}</Text>
+        ),
+        // Use nicer bullet points
         list_item: (node, children, parent, styles) => {
             if (hasParents(parent, 'bullet_list')) {
                 return (
-                    <View key={node.key} style={styles.listUnorderedItem}>
-                        <Text style={styles.listUnorderedItemIcon}>{'\u2013'}</Text>
-                        <View style={[styles.listItem]}>{children}</View>
+                    <View key={node.key} style={styles.list_item}>
+                        <Text style={styles.bullet_list_icon}>{'\u2013'}</Text>
+                        <View style={[styles.bullet_list_content]}>{children}</View>
                     </View>
                 );
             }
@@ -53,8 +57,6 @@ export default @observer class DiagnosisDetail extends React.Component {
     }
 
     optimizeMarkdownContent(markdownContent) {
-        // 8201 => e28089
-
         return markdownContent
             // Abbreviations, e.g. x.y. (p.o. becomes p.(nnbsp)o.)
             .replace(/(\w\.)(\w\.)/g, `$1${AllHtmlEntities.decode('&#8239;')}$2`)
