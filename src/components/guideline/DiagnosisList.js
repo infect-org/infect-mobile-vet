@@ -91,7 +91,6 @@ export default @observer class DiagnosisList extends React.Component {
                         matchedSynonym={item.matchedSynonym}
                         navigation={this.props.navigation}
                         selectedGuideline={this.guidelines.selectedGuideline}
-                        notificationCenter={this.props.navigation.getParam('notificationCenter')}
                     />}
                     renderSectionHeader={({ section: { title } }) => (
                         <Text style={styles.listTitle}>{title}</Text>
