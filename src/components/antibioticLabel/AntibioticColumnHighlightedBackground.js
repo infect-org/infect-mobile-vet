@@ -56,10 +56,12 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      * @return {Boolean}    Visiblity of the highlighted background
      */
     @computed get visible() {
+        // Highlight if antibiotic is part of the selected guideline *and* antiobitic is visible
+        // (matches selected filters)
         return isAntibioticInSelectedGuideline(
             this.props.antibiotic.antibiotic,
             this.props.guidelines.getSelectedDiagnosis(),
-        );
+        ) && this.props.antibiotic.visible;
     }
 
     /**
