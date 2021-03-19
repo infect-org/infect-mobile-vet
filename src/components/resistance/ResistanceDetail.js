@@ -46,9 +46,8 @@ export default class ResistanceDetail extends React.Component {
                         styles.resistanceText,
                     ]}
                 >
-                    {
-                        this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue.value)
-                    }%
+                    {resistance.displayValue}
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'qualitative' && '%'}
                 </Text>
                 <Text
                     style={[
@@ -56,12 +55,17 @@ export default class ResistanceDetail extends React.Component {
                         styles.infoText,
                     ]}
                 >
-                    CI {this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue
-                        .confidenceInterval[0])}
-                    –
-                    {this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue
-                        .confidenceInterval[1])}
-                    %
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'qualitative' &&
+                        <React.Fragment>
+                            CI {this.convertToHumanReadableSusceptibility(resistance
+                                .mostPreciseValue.confidenceInterval[0])}
+                            –
+                            {this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue
+                                .confidenceInterval[1])}
+                            %
+                        </React.Fragment>
+                    }
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'mic' && 'MIC90'}
                 </Text>
                 <Text
                     style={[

@@ -110,14 +110,6 @@ export default class Resistance extends React.Component {
 
     }
 
-    @computed get value() {
-        const bestValue = this.props.resistance.mostPreciseValue;
-        // If bestValue is 1, return 1, else .xx (without leading 0); resistance is between 0 and 1)
-        const resistance = bestValue.value === 1 ? 1 : bestValue.value.toFixed(2).substr(1);
-        // Return susceptibility, not resistance
-        return Math.round((1 - resistance) * 100);
-    }
-
     render() {
 
         log('Resistance: Render');
@@ -169,7 +161,7 @@ export default class Resistance extends React.Component {
                         },
                     ]}
                 >
-                    {this.value}
+                    {this.props.resistance.displayValue}
                 </Animated.Text>
 
 
