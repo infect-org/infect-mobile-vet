@@ -809,6 +809,7 @@ export default class MatrixContent extends React.Component {
                         width={this.animatedVisibleAntibioticsWidth}
                         height={this.animatedVisibleBacteriaHeight}
                         resistanceTransformation={this.getResistanceTransformation()}
+                        navigation={this.props.navigation}
                     />
                 </Animated.View>
 

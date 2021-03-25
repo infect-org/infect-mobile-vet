@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableHighlight } from 'react-native';
 import { observer } from 'mobx-react';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
@@ -9,8 +9,28 @@ const radius = 32;
 @observer
 export default class ResistanceDetail extends React.Component {
 
+    constructor(...props) {
+        super(...props);
+        this._handlePress = this._handlePress.bind(this);
+    }
+
     convertToHumanReadableSusceptibility(resistanceNumber) {
         return Math.round((1 - resistanceNumber) * 100);
+    }
+
+    _handlePress() {
+        console.log('press');
+        this.props.navigation.navigate('Guideline', {
+            screen: 'ResistanceDetail',
+            // diagnosis: selectedDiagnosis,
+            // drawer: this.props.drawer,
+            params: {
+                // selectedGuidelineID: this.props.guidelines.selectedGuideline.id,
+                // selectedDiagnosisID: selectedDiagnosis.id,
+                // Needed to display name in header
+                // selectedDiagnosisName: selectedDiagnosis.name,
+            },
+        });
     }
 
     render() {
@@ -18,6 +38,7 @@ export default class ResistanceDetail extends React.Component {
         log('ResistanceDetail: Render');
 
         const resistance = this.props.matrix.activeResistance;
+        console.log('render');
 
         return (
             <View
@@ -40,15 +61,17 @@ export default class ResistanceDetail extends React.Component {
                     ]}
                 />
 
-                <Text
-                    style={[
-                        styles.text,
-                        styles.resistanceText,
-                    ]}
-                >
-                    {resistance.displayValue}
-                    {resistance.mostPreciseResistanceTypeIdentifier === 'qualitative' && '%'}
-                </Text>
+                <TouchableHighlight onPress={this._handlePress} style={{ borderColor: 'black', borderWidth: 1, borderStyle: 'solid' }}>
+                    <Text
+                        style={[
+                            styles.text,
+                            styles.resistanceText,
+                        ]}
+                    >
+                        {resistance.displayValue}
+                        {resistance.mostPreciseResistanceTypeIdentifier === 'qualitative' && '%'}
+                    </Text>
+                </TouchableHighlight>
                 <Text
                     style={[
                         styles.text,
@@ -66,6 +89,8 @@ export default class ResistanceDetail extends React.Component {
                         </React.Fragment>
                     }
                     {resistance.mostPreciseResistanceTypeIdentifier === 'mic' && 'MIC90'}
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'discDiffusion' &&
+                        'Disc Diff.'}
                 </Text>
                 <Text
                     style={[
@@ -113,6 +138,8 @@ const styles = StyleSheet.create({
         elevation: 4,
         fontSize: 18,
         marginBottom: 4,
+        textDecorationLine: 'underline',
+        textDecorationStyle: 'solid',
     },
     infoText: {
         // Line height of 1 is enough

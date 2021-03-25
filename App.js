@@ -16,6 +16,7 @@ import guidelineHeaderDefaultStyle from './src/components/guideline/header/guide
 import FilterOverlay from './src/components/filterOverlay/FilterOverlay.js';
 import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
 import FilterOverlayDetailView from './src/components/filterOverlay/FilterOverlayDetailView.js';
+import ResistanceDetailOverlay from './src/components/resistanceOverlay/ResistanceDetailOverlay.jsx'
 
 const RootStack = createStackNavigator();
 const GuidelineStack = createStackNavigator();
@@ -160,6 +161,11 @@ export default function App() {
                     name="MatrixFilters"
                     component={MatrixFilterStackScreen}
                 />
+                <RootStack.Screen
+                    name="ResistanceDetail"
+                    component={ResistanceDetailOverlay}
+                >
+                </RootStack.Screen>
 
             </RootStack.Navigator>
         </NavigationContainer>

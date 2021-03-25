@@ -45,6 +45,7 @@ export default class ActiveResistanceDetail extends React.Component {
                         ]}
                     >
                         <ResistanceDetail
+                            navigation={this.props.navigation}
                             matrix={this.props.matrix}
                         />
                     </Animated.View>
