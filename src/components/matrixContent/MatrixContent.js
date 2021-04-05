@@ -427,8 +427,13 @@ export default class MatrixContent extends React.Component {
             if (!closestResistance) return;
 
             if (closestResistance === this.props.matrix.activeResistance) {
-                // If user taps on already selected resistance, hide it
-                this.props.matrix.setActiveResistance();
+                // If user taps on already selected resistance: Show resistance details
+                this.props.navigation.navigate('Resistance', {
+                    screen: 'ResistanceDetail',
+                    params: {
+                        selectedResistance: closestResistance,
+                    },
+                });
             } else {
                 this.props.matrix.setActiveResistance(closestResistance);
             }
@@ -809,7 +814,6 @@ export default class MatrixContent extends React.Component {
                         width={this.animatedVisibleAntibioticsWidth}
                         height={this.animatedVisibleBacteriaHeight}
                         resistanceTransformation={this.getResistanceTransformation()}
-                        navigation={this.props.navigation}
                     />
                 </Animated.View>
 

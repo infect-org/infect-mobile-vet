@@ -12,6 +12,7 @@ import OverlayCloseButton from './src/components/overlay/OverlayCloseButton.js';
 import OverlayHeaderLeftBack from './src/components/overlay/OverlayHeaderLeftBack.js';
 import overlayDefaultStyle from './src/components/overlay/overlayDefaultStyle.js';
 import filterOverlayDefaultStyle from './src/components/filterOverlay/filterOverlayDefaultStyle.js';
+import resistanceOverlayDefaultStyle from './src/components/resistanceOverlay/resistanceOverlayDefaultStyles.js';
 import guidelineHeaderDefaultStyle from './src/components/guideline/header/guidelineHeaderDefaultStyle.js';
 import FilterOverlay from './src/components/filterOverlay/FilterOverlay.js';
 import ComponentStatesModel from './src/models/componentStatesModel/ComponentStatesModel.js';
@@ -21,6 +22,7 @@ import ResistanceDetailOverlay from './src/components/resistanceOverlay/Resistan
 const RootStack = createStackNavigator();
 const GuidelineStack = createStackNavigator();
 const MatrixFilterStack = createStackNavigator();
+const ResistanceStack = createStackNavigator();
 
 
 
@@ -138,6 +140,34 @@ function MatrixFilterStackScreen() {
 
 
 
+
+/**
+ * If we only use a screen on RootStack (without a sub stack), the header bar is not displayed.
+ */
+function ResistanceStackScreen() {
+    return (
+        <ResistanceStack.Navigator>
+            <ResistanceStack.Screen
+                name="ResistanceDetail"
+                options={({ navigation, route }) => ({
+                    ...overlayDefaultStyle,
+                    ...resistanceOverlayDefaultStyle,
+                    headerRight: () => <OverlayCloseButton navigation={navigation} />,
+                    headerTitle: 'Resistance',
+                    headerLeft: () => {},
+                })}
+            >
+                {props => <ResistanceDetailOverlay
+                    route={props.route}
+                />}
+            </ResistanceStack.Screen>
+        </ResistanceStack.Navigator>
+    );
+}
+
+
+
+
 export default function App() {
     return (
         <NavigationContainer>
@@ -162,8 +192,8 @@ export default function App() {
                     component={MatrixFilterStackScreen}
                 />
                 <RootStack.Screen
-                    name="ResistanceDetail"
-                    component={ResistanceDetailOverlay}
+                    name="Resistance"
+                    component={ResistanceStackScreen}
                 >
                 </RootStack.Screen>
 
