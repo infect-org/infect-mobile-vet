@@ -16,7 +16,7 @@ const padding = 20;
 export default class ResistanceDetailOverlay extends React.Component {
 
     render() {
-        const { resistance } = this.props.route.params.selectedResistance;
+        const { resistance } = this.props.selectedResistance;
         return (
             <View style={styles.container}>
                 <ScrollView
@@ -162,11 +162,16 @@ export default class ResistanceDetailOverlay extends React.Component {
                                         </View>
 
                                         <View style={styles.histogram}>
-                                            <Histogram
-                                                data={value.quantitativeData.slots.slots}
-                                                xAxisLabel="MIC (mg/l)"
-                                                mic90={value.quantitativeData.percentileValue}
-                                            />
+                                            {value.quantitativeData.percentileValue === undefined &&
+                                                <Text>⌛</Text>
+                                            }
+                                            {value.quantitativeData.percentileValue !== undefined &&
+                                                <Histogram
+                                                    data={value.quantitativeData.slots}
+                                                    xAxisLabel="MIC (mg/l)"
+                                                    mic90={value.quantitativeData.percentileValue}
+                                                />
+                                            }
                                         </View>
 
                                     </View>
@@ -207,11 +212,16 @@ export default class ResistanceDetailOverlay extends React.Component {
                                         </View>
 
                                         <View style={styles.histogram}>
-                                            <Histogram
-                                                data={value.quantitativeData.slots.slots}
-                                                xAxisLabel="DD (mm)"
-                                                scale="log"
-                                            />
+                                            {value.quantitativeData.percentileValue === undefined &&
+                                                <Text>⌛</Text>
+                                            }
+                                            {value.quantitativeData.percentileValue !== undefined &&
+                                                <Histogram
+                                                    data={value.quantitativeData.slots}
+                                                    xAxisLabel="DD (mm)"
+                                                    scale="log"
+                                                />
+                                            }
                                         </View>
 
                                     </View>

@@ -149,7 +149,7 @@ function ResistanceStackScreen() {
         <ResistanceStack.Navigator>
             <ResistanceStack.Screen
                 name="ResistanceDetail"
-                options={({ navigation, route }) => ({
+                options={({ navigation }) => ({
                     ...overlayDefaultStyle,
                     ...resistanceOverlayDefaultStyle,
                     headerRight: () => <OverlayCloseButton navigation={navigation} />,
@@ -157,8 +157,8 @@ function ResistanceStackScreen() {
                     headerLeft: () => {},
                 })}
             >
-                {props => <ResistanceDetailOverlay
-                    route={props.route}
+                {() => <ResistanceDetailOverlay
+                    selectedResistance={app.views.matrix.activeResistance}
                 />}
             </ResistanceStack.Screen>
         </ResistanceStack.Navigator>
