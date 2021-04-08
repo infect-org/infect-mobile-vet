@@ -25,11 +25,11 @@ export default class ResistanceDetailOverlay extends React.Component {
 
                     <View style={styles.header}>
                         <Text style={styles.title}>
-                            Susceptibility of {resistance.antibiotic.name} to  {resistance.bacterium.name}
+                            Susceptibility of {resistance.bacterium.name} to {resistance.antibiotic.name}
                         </Text>
-                        <Text style={styles.disclaimerText}>
+                        { /* <Text style={styles.disclaimerText}>
                             Erklärung, wieso welche Daten angezeigt werden (Text für alle Empfindlichkeiten gleich; Englisch).
-                        </Text>
+                        </Text> */ }
                     </View>
 
                     <View style={styles.content}>
