@@ -59,9 +59,15 @@ export default @observer class Histogram extends React.Component {
     getTicks(maxValue, logScale) {
         if (logScale) {
             const maxLogValue = Math.ceil(Math.log2(this.xAxisMax));
-            return Array.from({ length: 6 }).map((item, index, array) => (
-                2 ** (maxLogValue - array.length + index + 1)
-            ));
+            // Math.log2(0) will be Infinity; use 0.0001 instead.
+            const xAxisMin = this.xAxisMin === 0 ? 0.0001 : this.xAxisMin;
+            const minLogValue = Math.floor(Math.log2(xAxisMin));
+            const amount = maxLogValue - minLogValue;
+            return Array.from({ length: amount }).map((item, index) => {
+                const number = 2 ** (minLogValue + index);
+                // Dont let numbers be too precise (they'd take up too much space)
+                return parseFloat(number.toFixed(2));
+            });
         }
         // Division factor: By what do we have to divide value in order to get a one-digit number
         // (between 1 and 10)?
