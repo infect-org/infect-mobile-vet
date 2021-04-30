@@ -19,14 +19,13 @@ export default @observer class Histogram extends React.Component {
 
     // Sample sizes may be quite large
     yAxisLabelsWidth = 70;
-    xAxisLabelsHeight = 50;
+    xAxisLabelsHeight = 60;
     gapBetweenBars = 10;
 
     fontSize = 14;
     tickWidth = 6;
 
     @computed get yAxisMax() {
-        console.log('data', this.props.data);
         return this.props.data.reduce((prev, item) => (
             Math.max(prev, item.sampleCount)
         ), 0);
@@ -43,7 +42,9 @@ export default @observer class Histogram extends React.Component {
     }
 
     @computed get xAxisMin() {
-        return this.sortedSlots.slice().shift().fromValue;
+        // Using 0 will cause issues (log2(0) is -Infinity). Therefore use toValue which is not 0
+        // and divide it by 2
+        return this.sortedSlots.slice().shift().toValue / 2;
     }
 
     @computed get xAxisWidth() {
@@ -59,14 +60,16 @@ export default @observer class Histogram extends React.Component {
     getTicks(maxValue, logScale) {
         if (logScale) {
             const maxLogValue = Math.ceil(Math.log2(this.xAxisMax));
-            // Math.log2(0) will be Infinity; use 0.0001 instead.
-            const xAxisMin = this.xAxisMin === 0 ? 0.0001 : this.xAxisMin;
-            const minLogValue = Math.floor(Math.log2(xAxisMin));
-            const amount = maxLogValue - minLogValue;
-            return Array.from({ length: amount }).map((item, index) => {
+            // Math.log2(0) will be Infinity; use toValue so that we don't get 0 as minimum
+            // value
+            const minLogValue = Math.min(0, Math.floor(Math.log2(this.xAxisMin)));
+            // Use 10 ticks; less is not precise enough and there is not place for more
+            const ticks = maxLogValue - minLogValue + 1;
+            return Array.from({ length: ticks }).map((item, index) => {
                 const number = 2 ** (minLogValue + index);
                 // Dont let numbers be too precise (they'd take up too much space)
-                return parseFloat(number.toFixed(2));
+                const rounded = parseFloat(number.toFixed(3));
+                return rounded;
             });
         }
         // Division factor: By what do we have to divide value in order to get a one-digit number
@@ -90,15 +93,14 @@ export default @observer class Histogram extends React.Component {
 
     getXPosition(value) {
         if (this.props.scale === 'log') {
-            const min = 0.001;
             // 0 is not a good value, as log2(0) is Infinity; fake it.
-            if (value === 0) value = min;
+            if (value === 0) return this.yAxisLabelsWidth;
             // Make sure xAxisMax and xAxisMin are not 0; log2 of 0 is Infinity (therefore we use
             // || 1 and || -1)
-            const maxLogValue = Math.ceil(Math.log2(this.xAxisMax || min));
+            const maxLogValue = Math.ceil(Math.log2(this.xAxisMax));
             // If scale is log, values might be below 0 (Math.log2(0.5)) is e.g. -1
             // If xAxisMin > 1, use 0 to not start xAxis above 0
-            const minLogValue = Math.min(0, Math.floor(Math.log2(this.xAxisMin || min)));
+            const minLogValue = Math.min(0, Math.floor(Math.log2(this.xAxisMin)));
             // If minLogValue === maxLogValue, we'll divide by 0
             const xScale = this.xAxisWidth / (maxLogValue - minLogValue);
             const result = this.yAxisLabelsWidth + (Math.log2(value) * xScale) - (minLogValue * xScale);
@@ -170,14 +172,17 @@ export default @observer class Histogram extends React.Component {
                     />
                     {this.getXAxisLabels.map((label, index) => (
                         <G key={label}>
-                            <Text
-                                x={this.getXPosition(label)}
-                                y={this.height - this.xAxisLabelsHeight + this.fontSize + this.tickWidth}
-                                textAnchor="middle"
-                                fill={styleDefinitions.colors.black}
+                            <G
+                                transform={`translate(${this.getXPosition(label)}, ${this.height - this.xAxisLabelsHeight + this.fontSize + this.tickWidth})`}
                             >
-                                {label}
-                            </Text>
+                                <Text
+                                    textAnchor="end"
+                                    fill={styleDefinitions.colors.black}
+                                    transform="rotate(-45, 0, -10)"
+                                >
+                                    {label}
+                                </Text>
+                            </G>
                             <Line
                                 x1={this.getXPosition(label)}
                                 y1={this.height - this.xAxisLabelsHeight}
