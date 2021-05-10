@@ -67,7 +67,8 @@ export default class ResistanceDetailOverlay extends React.Component {
                                             <View style={styles.tableCellRight}>
                                                 <Text>
                                                     {Math.round((1 - value.confidenceInterval[1]) * 100)}–
-                                                    {Math.round((1 - value.confidenceInterval[0]) * 100)}%                                                </Text>
+                                                    {Math.round((1 - value.confidenceInterval[0]) * 100)}%
+                                                </Text>
                                             </View>
                                         </View>
 
@@ -170,6 +171,7 @@ export default class ResistanceDetailOverlay extends React.Component {
                                                     data={value.quantitativeData.slots}
                                                     xAxisLabel="MIC (mg/l)"
                                                     mic90={value.quantitativeData.percentileValue}
+                                                    scale="log"
                                                 />
                                             }
                                         </View>
@@ -219,7 +221,6 @@ export default class ResistanceDetailOverlay extends React.Component {
                                                 <Histogram
                                                     data={value.quantitativeData.slots}
                                                     xAxisLabel="DD (mm)"
-                                                    scale="log"
                                                 />
                                             }
                                         </View>
