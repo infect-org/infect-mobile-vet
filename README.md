@@ -61,3 +61,7 @@ We have 3 release channels:
 - `production` for the live environment (apps that can be downloaded from stores)
 - `staging` for TestFlight
 - `testing` for tests through Expo
+
+# Develop
+- Use [`wml`](https://www.npmjs.com/package/wml) to link `frontend-logic` if needed (`npm link`
+    will not work)
