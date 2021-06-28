@@ -15,7 +15,7 @@ export default @observer class BacteriumRowHighlightedBackground extends React.C
      * Get the yPosition of the current highlighted background
      */
     @computed get yPosition() {
-        const position = this.props.matrix.yPositions.get(this.props.bacterium);
+        const position = this.props.matrix.yPositions.get(this.props.bacterium) || { top: 0 };
         return sub(position.top, this.props.layoutElementPadding);
     }
 
@@ -33,7 +33,8 @@ export default @observer class BacteriumRowHighlightedBackground extends React.C
         return add(
             this.props.matrix.bacteriumLabelColumnWidth,
             this.props.matrix.spaceBetweenGroups,
-            this.props.matrix.visibleAntibioticsWidth);
+            this.props.matrix.visibleAntibioticsWidth,
+        );
     }
 
     /**
@@ -46,7 +47,7 @@ export default @observer class BacteriumRowHighlightedBackground extends React.C
         return isBacteriumInSelectedGuideline(
             this.props.bacterium.bacterium,
             this.props.guidelines.getSelectedDiagnosis(),
-        );
+        ) && this.props.bacterium.visible;
     }
 
     render() {

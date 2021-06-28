@@ -68,7 +68,7 @@ export default @observer class BacteriumLabelHighlightedBackground extends React
     }
 
     @computed get visible() {
-        return this.isInSelectedGuideline || this.isSelected;
+        return (this.isInSelectedGuideline && this.props.bacterium.visible) || this.isSelected;
     }
 
     /**
