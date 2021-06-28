@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { observer } from 'mobx-react';
 import styleDefinitions from '../../helpers/styleDefinitions';
 import log from '../../helpers/log';
@@ -29,7 +29,6 @@ export default class ResistanceDetail extends React.Component {
                     },
                 ]}
             >
-
                 { /* Circle */ }
                 <View
                     style={[
@@ -46,9 +45,8 @@ export default class ResistanceDetail extends React.Component {
                         styles.resistanceText,
                     ]}
                 >
-                    {
-                        this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue.value)
-                    }%
+                    {resistance.displayValue}
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'qualitative' && '%'}
                 </Text>
                 <Text
                     style={[
@@ -56,12 +54,19 @@ export default class ResistanceDetail extends React.Component {
                         styles.infoText,
                     ]}
                 >
-                    CI {this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue
-                        .confidenceInterval[0])}
-                    –
-                    {this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue
-                        .confidenceInterval[1])}
-                    %
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'qualitative' &&
+                        <React.Fragment>
+                            CI {this.convertToHumanReadableSusceptibility(resistance
+                                .mostPreciseValue.confidenceInterval[0])}
+                            –
+                            {this.convertToHumanReadableSusceptibility(resistance.mostPreciseValue
+                                .confidenceInterval[1])}
+                            %
+                        </React.Fragment>
+                    }
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'mic' && 'MIC90'}
+                    {resistance.mostPreciseResistanceTypeIdentifier === 'discDiffusion' &&
+                        'Disc Diff.'}
                 </Text>
                 <Text
                     style={[
@@ -109,6 +114,8 @@ const styles = StyleSheet.create({
         elevation: 4,
         fontSize: 18,
         marginBottom: 4,
+        textDecorationLine: 'underline',
+        textDecorationStyle: 'solid',
     },
     infoText: {
         // Line height of 1 is enough

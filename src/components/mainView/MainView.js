@@ -71,6 +71,7 @@ export default class MainView extends React.Component {
                     componentStates={this.props.componentStates}
                     windowSize={this.props.windowSize}
                     guidelines={this.props.guidelines}
+                    navigation={this.props.navigation}
                 />
 
                 { /* Filter overlay button; no feedback needed as it opens overlay and

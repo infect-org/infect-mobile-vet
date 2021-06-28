@@ -54,6 +54,11 @@ export default {
             backgroundMiddleBlue: '#BED7ED',
             infoTextGray: '#585858',
         },
+        resistances: {
+            brightBackground: '#FCFCF7',
+            darkBackground: '#959487',
+            mediumBackground: '#E1E0D5',
+        },
     },
     buttons: {
         primaryButton: {
