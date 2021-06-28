@@ -62,6 +62,10 @@ We have 3 release channels:
 - `staging` for TestFlight
 - `testing` for tests through Expo
 
-# Develop
-- Use [`wml`](https://www.npmjs.com/package/wml) to link `frontend-logic` if needed (`npm link`
-    will not work)
+# Development
+If you want to link [@infect/frontend-logic](https://www.npmjs.com/package/@infect/frontend-logic)
+locally, use 
+1. `npm i -g wml`
+1. `wml add ../frontend-logic ./node_modules/@infect/frontend-logic` (replace `../frontend-logic``
+with the path to the checked out `frontend-logic` repo)
+2. `wml start`

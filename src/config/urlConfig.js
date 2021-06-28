@@ -19,6 +19,7 @@ export default Object.freeze({
                 ageGroups: 'generics.ageGroup',
                 hospitalStatus: 'generics.hospitalStatus',
                 animals: 'generics.animal',
+                sampleSource: 'generics.sampleSource',
             },
         },
         rda: {
