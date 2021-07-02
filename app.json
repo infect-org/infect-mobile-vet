@@ -4,12 +4,12 @@
     "description": "INFECT VET by anresis for mobile phones",
     "slug": "infect-app-vet",
     "privacy": "public",
-    "sdkVersion": "33.0.0",
+    "sdkVersion": "39.0.0",
     "platforms": [
       "ios",
       "android"
     ],
-    "version": "2.3.2",
+    "version": "4.0.0",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "splash": {
@@ -23,7 +23,7 @@
     },
     "android": {
       "package": "info.infect.vet.app",
-      "versionCode": 1,
+      "versionCode": 7,
       "permissions": []
     },
     "githubUrl": "https://github.com/infect-org/infect-mobile-vet",
