@@ -14,10 +14,11 @@ export default class DetailViewFilters extends React.Component {
     render() {
         return (
             <View style={ styles.container }>
-
-                <FilterOverlayTitle
-                    title={this.props.title}
-                />
+                { this.props.title &&
+                    <FilterOverlayTitle
+                        title={this.props.title}
+                    />
+                }
 
                 <FilterList
                     property={this.props.property}

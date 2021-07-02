@@ -1,13 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { observer } from 'mobx-react';
-import { DangerZone } from 'expo';
+import { Value } from 'react-native-reanimated';
 import PanPinch from 'react-native-pan-pinch';
 import log from '../../helpers/log';
 import MatrixContent from '../matrixContent/MatrixContent';
-
-const { Animated } = DangerZone;
-const { Value } = Animated;
 
 
 /**
@@ -65,6 +62,7 @@ export default class Matrix extends React.Component {
                         handleContentLayout={this.handleContentLayout.bind(this)}
                         handleContainerLayout={this.handleContainerLayout.bind(this)}
                         guidelines={this.props.guidelines}
+                        navigation={this.props.navigation}
                         // Only needed when we remove PanPinch from DOM
                         // animatedLeft={new Animated.Value(0)}
                         // animatedTop={new Animated.Value(0)}
@@ -81,6 +79,7 @@ export default class Matrix extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        // backgroundColor: 'lightsalmon',
         // borderColor: 'yellow',
         // borderWidth: 10,
     },

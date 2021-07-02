@@ -1,10 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
-import { reaction } from 'mobx';
-import { NavigationEvents } from 'react-navigation';
 import Matrix from '../matrix/Matrix';
-import FilterOverlay from '../filterOverlay/FilterOverlay';
 import FilterButton from '../filterButton/FilterButton';
 import GuidelineButton from '../guideline/GuidelineButton.js';
 import log from '../../helpers/log';
@@ -54,40 +51,12 @@ export default class MainView extends React.Component {
 
     }
 
-    /**
-     * Add reaction for guidelines:
-     * If the guideline drawer model isOpen, show the diagnosislist
-     * else show the matrix/main screen
-     */
-    componentDidMount() {
-        reaction(
-            () => this.props.drawer.isOpen,
-            (isOpen) => {
-                if (isOpen === true) {
-                    this.props.navigation.navigate('Guideline', {
-                        drawer: this.props.drawer,
-                        guidelines: this.props.guidelines,
-                        notificationCenter: this.props.notificationCenter,
-                    });
-                } else {
-                    this.props.navigation.navigate('Main');
-                }
-            },
-        );
-    }
-
     render() {
 
         log('MainView: Render');
 
         return (
             <View style={styles.container}>
-
-                {/* If the user swipes (gesture) from Guideline Drawer,
-                    we have to close our Drawer model, otherwise we couldn't open it anymore */}
-                <NavigationEvents
-                    onDidFocus={() => this.props.drawer.close()}
-                />
 
                 {/* Track screen hits */}
                 <GoogleAnalytics
@@ -102,6 +71,7 @@ export default class MainView extends React.Component {
                     componentStates={this.props.componentStates}
                     windowSize={this.props.windowSize}
                     guidelines={this.props.guidelines}
+                    navigation={this.props.navigation}
                 />
 
                 { /* Filter overlay button; no feedback needed as it opens overlay and
@@ -109,7 +79,7 @@ export default class MainView extends React.Component {
                 <View style={styles.filterButtonContainer} >
                     <FilterButton
                         matrix={this.props.matrix}
-                        filterOverlayModel={this.props.filterOverlayModel}
+                        navigation={this.props.navigation}
                         selectedFilters={this.props.selectedFilters}
                     />
                 </View>
@@ -124,8 +94,6 @@ export default class MainView extends React.Component {
                             drawer={this.props.drawer}
                             guidelines={this.props.guidelines}
                             navigation={this.props.navigation}
-
-                            guidelineController={this.guidelineController}
                         />
                     </View>
                 }
@@ -169,24 +137,6 @@ export default class MainView extends React.Component {
                 </TouchableHighlight>
                 */ }
 
-
-
-
-                { /* Filter overlay */ }
-                { /* Only render when everything's ready to prevent multiple (expensive)
-                     re-renderings whenever a filter is added */ }
-                { (this.props.componentStates.highestComponentStates.get('resistances') >=
-                    componentStates.rendering) &&
-                    <FilterOverlay
-                        filterOverlayModel={this.props.filterOverlayModel}
-                        filterValues={this.props.filterValues}
-                        selectedFilters={this.props.selectedFilters}
-                        componentStates={this.props.componentStates}
-                        windowSize={this.props.windowSize}
-                        guidelines={this.props.guidelines}
-                        guidelineRelatedFilters={this.props.guidelineRelatedFilters}
-                    />
-                }
             </View>
         );
     }
@@ -211,7 +161,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 78,
         bottom: 18,
-
         zIndex: 1,
     },
     container: {

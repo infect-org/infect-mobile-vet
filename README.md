@@ -50,6 +50,7 @@ If you are on the «infect-mobile-app» repository: This repository is a **maste
 
 # Releases
 - Update version in `app.json`
+- Copy changes in `app.json` to `app.json.dist`
 - Update android version (Integer) in `app.json` **if** you plan a google play release
 - `git tag` & Co.
 - Publish to the **correct** channel: `expo p --release channel testing`
@@ -60,3 +61,11 @@ We have 3 release channels:
 - `production` for the live environment (apps that can be downloaded from stores)
 - `staging` for TestFlight
 - `testing` for tests through Expo
+
+# Development
+If you want to link [@infect/frontend-logic](https://www.npmjs.com/package/@infect/frontend-logic)
+locally, use 
+1. `npm i -g wml`
+1. `wml add ../frontend-logic ./node_modules/@infect/frontend-logic` (replace `../frontend-logic``
+with the path to the checked out `frontend-logic` repo)
+2. `wml start`

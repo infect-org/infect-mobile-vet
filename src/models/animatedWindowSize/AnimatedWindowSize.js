@@ -1,8 +1,7 @@
-import { DangerZone } from 'expo';
 import { observable, action } from 'mobx';
+import Animated from 'react-native-reanimated';
 import log from '../../helpers/log';
 
-const { Animated } = DangerZone;
 
 export default class AnimatedWindowSize {
 

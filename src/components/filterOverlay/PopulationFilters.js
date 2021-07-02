@@ -31,6 +31,10 @@ export default class PopulationFilters extends React.Component {
             .sort((a, b) => getFirstNumber(a.niceValue) - getFirstNumber(b.niceValue));
     }
 
+    @computed get sampleSourceFilters() {
+        return this.props.filterValues.getValuesForProperty(filterTypes.sampleSource, 'id')
+    }
+
     render() {
 
         log('PopulationFilters: Render');
@@ -79,6 +83,22 @@ export default class PopulationFilters extends React.Component {
                     selectedFilters={this.props.selectedFilters}
                 />
 
+                { /* Sample source */ }
+                {this.sampleSourceFilters.length > 1 &&
+                    <View>
+                        <FilterOverlayTitle
+                            title="Sample Source"
+                            level={2}
+                        />
+
+                        <FilterList
+                            property={filterTypes.sampleSource}
+                            name="id"
+                            filterValues={this.props.filterValues}
+                            selectedFilters={this.props.selectedFilters}
+                        />
+                    </View>
+                }
             </View>
         );
     }

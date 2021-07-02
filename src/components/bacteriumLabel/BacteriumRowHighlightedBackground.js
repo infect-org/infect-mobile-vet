@@ -1,26 +1,21 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { multiply, add, sub } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
-
 import isBacteriumInSelectedGuideline from '../guideline/helpers/isBacteriumInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
 
-const {
-    multiply,
-    sub,
-    add,
-} = Animated;
-
+/**
+ * Blue highlight for bacteria that may cause a certain diagnosis
+ */
 export default @observer class BacteriumRowHighlightedBackground extends React.Component {
 
     /**
      * Get the yPosition of the current highlighted background
      */
     @computed get yPosition() {
-        const position = this.props.matrix.yPositions.get(this.props.bacterium);
+        const position = this.props.matrix.yPositions.get(this.props.bacterium) || { top: 0 };
         return sub(position.top, this.props.layoutElementPadding);
     }
 
@@ -38,7 +33,8 @@ export default @observer class BacteriumRowHighlightedBackground extends React.C
         return add(
             this.props.matrix.bacteriumLabelColumnWidth,
             this.props.matrix.spaceBetweenGroups,
-            this.props.matrix.visibleAntibioticsWidth);
+            this.props.matrix.visibleAntibioticsWidth,
+        );
     }
 
     /**
@@ -51,7 +47,7 @@ export default @observer class BacteriumRowHighlightedBackground extends React.C
         return isBacteriumInSelectedGuideline(
             this.props.bacterium.bacterium,
             this.props.guidelines.getSelectedDiagnosis(),
-        );
+        ) && this.props.bacterium.visible;
     }
 
     render() {

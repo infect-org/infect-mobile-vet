@@ -2,11 +2,10 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 // import { computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated from 'react-native-reanimated';
 import ResistanceDetail from './ResistanceDetail';
 import log from '../../helpers/log';
 
-const { Animated } = DangerZone;
 
 /**
  * Container that holds ResistanceDetail. Spans over the whole matrix and displays ResistanceDetail
@@ -32,7 +31,6 @@ export default class ActiveResistanceDetail extends React.Component {
                 style={[
                     styles.container,
                 ]}
-                pointerEvents="none"
             >
                 { this.props.matrix.activeResistance &&
                     <Animated.View

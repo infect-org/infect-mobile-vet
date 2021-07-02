@@ -2,11 +2,10 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { observer } from 'mobx-react';
 import { computed, reaction } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
 import log from '../../helpers/log.js';
 
-const { Animated } = DangerZone;
 
 /**
  * Renders a resistance cirlce with text.
@@ -111,14 +110,6 @@ export default class Resistance extends React.Component {
 
     }
 
-    @computed get value() {
-        const bestValue = this.props.resistance.mostPreciseValue;
-        // If bestValue is 1, return 1, else .xx (without leading 0); resistance is between 0 and 1)
-        const resistance = bestValue.value === 1 ? 1 : bestValue.value.toFixed(2).substr(1);
-        // Return susceptibility, not resistance
-        return Math.round((1 - resistance) * 100);
-    }
-
     render() {
 
         log('Resistance: Render');
@@ -135,7 +126,6 @@ export default class Resistance extends React.Component {
                         width: this.circleMinWidth,
                         height: this.containerHeight,
                     },
-                    // { borderWidth: 2, borderColor: 'skyblue' },
                     { opacity: this.opacity },
                 ]}
             >
@@ -146,11 +136,10 @@ export default class Resistance extends React.Component {
 
                 { /* Circle with background */}
                 <Animated.View
-                    // { ...this.panResponder.panHandlers }
                     style={[
                         styles.resistanceCircle,
                         {
-                            backgroundColor: this.props.resistance.backgroundColor,
+                            backgroundColor: this.props.resistance.backgroundColor.toHexString(),
                             borderRadius: this.radius,
                             width: this.diameter,
                             height: this.diameter,
@@ -166,13 +155,13 @@ export default class Resistance extends React.Component {
                         styles.resistanceText,
                         /* Use this.circleMinWidth as width so that text doesn't break */
                         {
-                            color: this.props.resistance.fontColor,
+                            color: this.props.resistance.fontColor.toHexString(),
                             width: this.circleMinWidth,
                             top: this.radius,
                         },
                     ]}
                 >
-                    {this.value}
+                    {this.props.resistance.displayValue}
                 </Animated.Text>
 
 
@@ -187,6 +176,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     resistance: {
+        // borderWidth: 1,
+        // borderColor: 'skyblue',
         position: 'absolute',
         overflow: 'hidden', // Force same behavior on all platforms
     },

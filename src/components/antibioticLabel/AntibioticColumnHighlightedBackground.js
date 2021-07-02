@@ -1,18 +1,14 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 import { computed } from 'mobx';
-import { DangerZone } from 'expo';
+import Animated, { multiply, add } from 'react-native-reanimated';
 import styleDefinitions from '../../helpers/styleDefinitions.js';
-
 import isAntibioticInSelectedGuideline from '../guideline/helpers/isAntibioticInSelectedGuideline.js';
 
-const { Animated } = DangerZone;
 
-const {
-    multiply,
-    add,
-} = Animated;
-
+/**
+ * Blue highlight for antibiotics that may be used to treat a certain diagnosis.
+ */
 @observer
 export default class AntibioticColumnHighlightedBackground extends React.Component {
 
@@ -21,7 +17,7 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      */
     @computed get xPosition() {
         const position = this.props.matrix.xPositions.get(this.props.antibiotic);
-        return position.left;
+        return position && position.left || 0;
     }
 
     /**
@@ -60,10 +56,12 @@ export default class AntibioticColumnHighlightedBackground extends React.Compone
      * @return {Boolean}    Visiblity of the highlighted background
      */
     @computed get visible() {
+        // Highlight if antibiotic is part of the selected guideline *and* antiobitic is visible
+        // (matches selected filters)
         return isAntibioticInSelectedGuideline(
             this.props.antibiotic.antibiotic,
             this.props.guidelines.getSelectedDiagnosis(),
-        );
+        ) && this.props.antibiotic.visible;
     }
 
     /**
